@@ -1,6 +1,6 @@
 import { GlobalStyle } from "./GlobalStyle";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "../src/pages/Login";
+import Login from "./pages/Login";
 import Calculator from "./pages/Calculator";
 import Diary from "./pages/Diary";
 import Report from "./pages/Report";
@@ -13,10 +13,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/Calculator" element={<Calculator />} />
-          <Route path="/Diary" element={<Diary />} />
-          <Route path="/Report" element={<Report />} />
-          <Route path="/UserInfo" element={<UserInfo />} />
+          <Route path="/calculator" element={<Calculator />} />
+          <Route path="/diary" element={<Diary />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/userInfo" element={<UserInfo />} />
         </Routes>
       </Router>
     </>
