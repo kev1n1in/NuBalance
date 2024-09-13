@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { signOutUser } from "../firebase/firebaseAuth";
+import Cookies from "js-cookie";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const Sidebar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOutUser();
+      Cookies.remove("isLoggedIn");
+      Cookies.remove("username");
       navigate("/");
     } catch (error) {
       console.error("登出失敗", error);

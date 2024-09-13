@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { signOutUser } from "../firebase/firebaseAuth";
+import Cookies from "js-cookie";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOutUser();
+      Cookies.remove("isLoggedIn");
       navigate("/");
     } catch (error) {
       console.error("登出失敗", error);
@@ -22,7 +24,7 @@ const Header: React.FC = () => {
   return (
     <Wrapper>
       <NavBar>
-        <Logo />
+        <Logo onClick={() => handleNavigation("/landing")} />
         <Item onClick={() => handleNavigation("/calculator")}>Calculator</Item>
         <Item onClick={() => handleNavigation("/food")}>Food</Item>
         <Item onClick={() => handleNavigation("/diary")}>Diary</Item>
@@ -57,6 +59,7 @@ const Item = styled.div`
 `;
 
 const Logo = styled.div`
+  cursor: pointer;
   margin: 12px;
   height: 48px;
   width: 48px;

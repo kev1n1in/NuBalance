@@ -7,6 +7,7 @@ import Report from "./pages/Report";
 import UserInfo from "./pages/UserInfo";
 import PrivateRoute from "./components/PrivateRoute";
 import Food from "../src/pages/Food";
+import LandingPage from "./pages/LandingPage";
 
 //這邊阻擋有點重複
 
@@ -31,6 +32,10 @@ function App() {
             element={<PrivateRoute element={<UserInfo />} />}
           />
           <Route path="/food" element={<PrivateRoute element={<Food />} />} />
+          <Route
+            path="/landing"
+            element={<PrivateRoute element={<LandingPage />} />}
+          />
         </Routes>
       </Router>
     </>

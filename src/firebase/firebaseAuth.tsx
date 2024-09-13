@@ -18,7 +18,6 @@ export const signInWithGoogle = async (idToken: string) => {
 export const signOutUser = async () => {
   try {
     await signOut(auth);
-    Cookies.remove("isLoggedIn");
     console.log("成功登出");
   } catch (error) {
     console.error("登出失敗", error);
