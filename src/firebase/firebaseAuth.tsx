@@ -1,13 +1,7 @@
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithCredential,
-  signOut,
-} from "firebase/auth";
-import { app } from "./firebaseConfig";
-
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+import { signInWithCredential, signOut } from "firebase/auth";
+import { GoogleAuthProvider } from "firebase/auth";
+import { auth } from "./firebaseConfig";
+import Cookies from "js-cookie";
 
 export const signInWithGoogle = async (idToken: string) => {
   try {
@@ -24,6 +18,7 @@ export const signInWithGoogle = async (idToken: string) => {
 export const signOutUser = async () => {
   try {
     await signOut(auth);
+    Cookies.remove("isLoggedIn");
     console.log("成功登出");
   } catch (error) {
     console.error("登出失敗", error);
