@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
-import { fetchFoodData } from "../../firebase/firebaseServices"; // 從 firebaseServices 導入
+import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
 import Modal from "../../components/Modal";
-import CreateFoodModal from "../../components/CreateFoodModal"; // 確保正確導入 CreateFoodModal
+import CreateFoodModal from "../../components/CreateFoodModal";
 
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null); // 追蹤選中的項目
   const currentUser = auth.currentUser;
 
   const {
@@ -26,6 +27,10 @@ const Food: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleItemClick = (id: string) => {
+    setSelectedItem(id); // 點擊後設置選中的項目
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -52,7 +57,11 @@ const Food: React.FC = () => {
 
           {foods.length > 0 ? (
             foods.map((item) => (
-              <ResultItem key={item.id}>
+              <ResultItem
+                key={item.id}
+                onClick={() => handleItemClick(item.id)}
+                isSelected={selectedItem === item.id} // 根據選中狀態設置樣式
+              >
                 <FoodName>{item.food_name}</FoodName>
                 <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
               </ResultItem>
@@ -106,11 +115,18 @@ const DataContainer = styled.div`
   scrollbar-width: none;
 `;
 
-const ResultItem = styled.div`
+const ResultItem = styled.div<{ isSelected: boolean }>`
   margin-bottom: 10px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background-color: ${({ isSelected }) =>
+    isSelected ? "#f0f0f0" : "white"}; // 選中後背景變為淺灰色
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f9f9f9; // 懸停時背景變化
+  }
 `;
 
 const FoodName = styled.h3`
