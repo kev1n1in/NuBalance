@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import Button from "../components/Button";
 import styled from "styled-components";
 import { addFoodItem } from "../firebase/firebaseServices"; // 確保導入正確的函數
@@ -14,8 +14,12 @@ interface FormValues {
   protein: number;
   fat: number;
 }
+interface CreateFoodModalProps {
+  onClose: () => void;
+}
 
-const CreateFoodModal: React.FC = () => {
+const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -45,6 +49,8 @@ const CreateFoodModal: React.FC = () => {
       ), // 傳遞 auth 實例
     onSuccess: (id) => {
       alert(`食品資料新增成功，文件 ID: ${id}`);
+      queryClient.invalidateQueries("foods");
+      onClose();
     },
     onError: (error: Error) => {
       alert(`新增失敗: ${error.message}`);

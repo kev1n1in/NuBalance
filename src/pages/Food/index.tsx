@@ -1,52 +1,28 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useQuery } from "react-query";
-import {
-  db,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "../../firebase/firebaseConfig";
+import { auth } from "../../firebase/firebaseConfig";
+import { fetchFoodData } from "../../firebase/firebaseServices"; // 從 firebaseServices 導入
 import Sidebar from "../../components/Sidebar";
 import Modal from "../../components/Modal";
 import CreateFoodModal from "../../components/CreateFoodModal"; // 確保正確導入 CreateFoodModal
 
-interface FoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-}
-
-const fetchFoodData = async (searchTerm: string): Promise<FoodItem[]> => {
-  const foodsCol = collection(db, "foods");
-
-  const q = query(
-    foodsCol,
-    where("food_name", ">=", searchTerm.toLowerCase()),
-    where("food_name", "<=", searchTerm.toLowerCase() + "\uf8ff")
-  );
-
-  const foodSnapshot = await getDocs(q);
-  const foodList = foodSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Omit<FoodItem, "id">),
-  }));
-
-  return foodList;
-};
-
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const currentUser = auth.currentUser;
 
   const {
     data: foods = [],
     isLoading,
     error,
-  } = useQuery(["foods", searchTerm], () => fetchFoodData(searchTerm), {
-    enabled: searchTerm.length > 0,
-  });
+  } = useQuery(
+    ["foods", searchTerm],
+    () => fetchFoodData(searchTerm, currentUser?.uid || ""),
+    {
+      enabled: searchTerm.length > 0,
+    }
+  );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -90,7 +66,7 @@ const Food: React.FC = () => {
       </Container>
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <CreateFoodModal />
+          <CreateFoodModal onClose={closeModal} />
         </Modal>
       )}
     </Wrapper>

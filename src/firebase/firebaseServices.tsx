@@ -4,6 +4,7 @@ import {
   serverTimestamp,
   collection,
   addDoc,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
@@ -71,4 +72,39 @@ export const addFoodItem = async (
     console.error("新增食品資料失敗:", error);
     throw error;
   }
+};
+
+interface CreateFoodItem {
+  id: string;
+  food_name: string;
+  food_info: string[];
+  uid?: string;
+}
+
+// 查詢 foods 資料的函數
+export const fetchFoodData = async (
+  searchTerm: string,
+  currentUserUid: string
+): Promise<CreateFoodItem[]> => {
+  const foodsCol = collection(db, "foods");
+
+  const foodSnapshot = await getDocs(foodsCol);
+  const foodList = foodSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<CreateFoodItem, "id">),
+  }));
+
+  return foodList
+    .filter((food) =>
+      food.food_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (a.uid === currentUserUid && b.uid !== currentUserUid) {
+        return -1;
+      }
+      if (a.uid !== currentUserUid && b.uid === currentUserUid) {
+        return 1;
+      }
+      return 0;
+    });
 };
