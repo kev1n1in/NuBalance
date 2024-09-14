@@ -92,7 +92,7 @@ const Login = () => {
     }
   };
 
-  const handleLogout = async () => {
+  const removeUserCookie = async () => {
     try {
       await signOutUser();
       Cookies.remove("isLoggedIn");
@@ -111,14 +111,13 @@ const Login = () => {
       <GoogleOAuthProvider clientId={clientId}>
         <Wrapper>
           <Banner />
-
           <LoginContainer>
             <h1>Hello</h1>
             {isLoggedIn ? (
               <div>
                 <p>Welcome, {inputUsername}</p>
                 <ButtonContainer>
-                  <Button label="Log out" onClick={handleLogout} />
+                  <Button label="Log out" onClick={removeUserCookie} />
                 </ButtonContainer>
               </div>
             ) : (
@@ -159,7 +158,6 @@ const Login = () => {
   );
 };
 
-// 樣式定義
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
