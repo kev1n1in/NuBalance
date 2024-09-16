@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion"; // 引入 framer-motion
+import { motion } from "framer-motion";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 import Sidebar from "../../components/Sidebar";
 import Button from "../../components/Button";
 import breakImg from "./mealsImg/breakfats.png";
@@ -14,6 +16,9 @@ import suspiciousImg from "./moodsImg/Suspicious.png";
 import girlImg from "./girl.png";
 import Modal from "../../components/Modal";
 import QueryFoodModal from "../../components/QueryFoodModal";
+import { useMutation } from "react-query";
+import { auth } from "../../firebase/firebaseConfig";
+import { addDiaryEntry } from "../../firebase/firebaseServices";
 
 type FoodItem = {
   id: string;
@@ -51,6 +56,9 @@ const Diary = () => {
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodItem | null>(null);
+  const [selectedTime, setSelectedTime] = useState<Date>(new Date());
+  const noteRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -70,6 +78,49 @@ const Diary = () => {
   const handleAddFood = (food: FoodItem) => {
     setSelectedFood(food);
     setIsModalOpen(false);
+  };
+
+  const mutation = useMutation(
+    async (newDiaryEntry: any) => {
+      if (!auth.currentUser) {
+        throw new Error("請先登入");
+      }
+      return await addDiaryEntry(auth.currentUser, newDiaryEntry);
+    },
+    {
+      onSuccess: (data) => {
+        console.log("日記條目已成功保存，ID:", data);
+        setSelectedMeal(null);
+        setSelectedFood(null);
+        setSelectedMood(null);
+        setSelectedTime(new Date());
+        if (noteRef.current) noteRef.current.value = "";
+        if (imageRef.current) imageRef.current.value = "";
+      },
+      onError: (error) => {
+        console.error("日記條目保存失敗:", error);
+      },
+    }
+  );
+
+  const handleSubmit = () => {
+    if (!selectedMeal || !selectedFood || !selectedTime) {
+      alert("請填寫所有必填欄位");
+      return;
+    }
+
+    const newDiaryEntry = {
+      meal: selectedMeal.name,
+      food: selectedFood.food_name,
+      mood: selectedMood ? selectedMood.name : null,
+      time: selectedTime,
+      note: noteRef.current?.value || "",
+      imageUrl: imageRef.current?.files?.length
+        ? imageRef.current.files[0].name
+        : null, // 圖片邏輯可自行擴展
+    };
+
+    mutation.mutate(newDiaryEntry);
   };
 
   return (
@@ -100,9 +151,14 @@ const Diary = () => {
             </Nutrition>
           </FoodSelectorContainer>
         </FoodSelectorWrapper>
-        <TimePicker>
+        <TimePickerContainer>
           <TimePickerTitle>時間</TimePickerTitle>
-        </TimePicker>
+          <StyledFlatpickr
+            value={selectedTime}
+            onChange={(date: Date[]) => setSelectedTime(date[0])}
+            options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
+          />
+        </TimePickerContainer>
         <MoodSelectorWrapper>
           <MoodSelectorTitle>心情如何？</MoodSelectorTitle>
           <MoodSelectorContainer>
@@ -119,15 +175,15 @@ const Diary = () => {
         </MoodSelectorWrapper>
         <ImageUploadContainer>
           <ImageUploadTitle>圖片</ImageUploadTitle>
-          <ImageUploadInput type="file" accept="image/*"></ImageUploadInput>
+          <ImageUploadInput ref={imageRef} type="file" accept="image/*" />
         </ImageUploadContainer>
         <NoteContainer>
           <NoteTitle>備註</NoteTitle>
           <NoteImg src={girlImg}></NoteImg>
-          <NoteInput></NoteInput>
+          <NoteInput ref={noteRef} />
         </NoteContainer>
         <ButtonContainer>
-          <Button label="保存"></Button>
+          <Button label="保存" onClick={handleSubmit} />
         </ButtonContainer>
         {isModalOpen && (
           <Modal onClose={closeModal}>
@@ -138,6 +194,7 @@ const Diary = () => {
     </Wrapper>
   );
 };
+
 export default Diary;
 
 const Wrapper = styled.div`
@@ -194,6 +251,7 @@ const MoodSelectorContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
+
 const MoodSelectorTitle = styled.h2``;
 
 const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
@@ -213,12 +271,6 @@ const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
 const Mood = styled.img`
   width: 50px;
   height: auto;
-`;
-
-const MoodName = styled.span`
-  margin-top: 8px;
-  font-size: 14px;
-  text-align: center;
 `;
 
 const FoodSelectorWrapper = styled.div`
@@ -251,9 +303,16 @@ const Nutrition = styled.div`
   width: 200px;
 `;
 
-const TimePicker = styled.div``;
+const TimePickerContainer = styled.div`
+  display: grid;
+`;
 
 const TimePickerTitle = styled.h2``;
+
+const StyledFlatpickr = styled(Flatpickr)`
+  margin: 12px auto;
+  justify-self: center;
+`;
 
 const ImageUploadContainer = styled.div``;
 

@@ -114,3 +114,25 @@ export const fetchFoodData = async (
     return 0;
   });
 };
+
+interface DiaryEntry {
+  meal: string;
+  food: string;
+  time: Date;
+  mood?: string | null;
+  note?: string;
+  imageUrl?: string;
+}
+
+export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+  const userDiaryRef = collection(doc(db, "users", user.uid), "diarys");
+  const docRef = await addDoc(userDiaryRef, {
+    ...entry,
+    createdAt: serverTimestamp(),
+  });
+  console.log("已新增,Id:", docRef.id);
+  return docRef.id;
+};
