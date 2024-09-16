@@ -5,11 +5,20 @@ import { useState } from "react";
 import { fetchFoodData } from "../firebase/firebaseServices";
 import { auth } from "../firebase/firebaseConfig";
 
-const QueryFoodModal = () => {
+type FoodItem = {
+  id: string;
+  food_name: string;
+  food_info: string[];
+};
+type QueryFoodModalProps = {
+  onAddFood: (food: FoodItem) => void;
+};
+
+const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const currentUser = auth.currentUser;
   const {
     data: foods = [],
@@ -29,8 +38,13 @@ const QueryFoodModal = () => {
       setTriggerSearch(true);
     }
   };
-  const handleItemClick = (id: string) => {
-    setSelectedItem(id);
+  const handleItemClick = (item: FoodItem) => {
+    setSelectedItem(item);
+  };
+  const handleAddClick = () => {
+    if (selectedItem) {
+      onAddFood(selectedItem);
+    }
   };
   const openModal = () => setIsModalOpen(true);
 
@@ -55,8 +69,8 @@ const QueryFoodModal = () => {
           foods.map((item) => (
             <ResultItem
               key={item.id}
-              onClick={() => handleItemClick(item.id)}
-              isSelected={selectedItem === item.id} // 根據選中狀態設置樣式
+              onClick={() => handleItemClick(item)}
+              isSelected={selectedItem?.id === item.id} // 根據選中狀態設置樣式
             >
               <FoodName>{item.food_name}</FoodName>
               <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
@@ -68,9 +82,18 @@ const QueryFoodModal = () => {
           </NoItemsMessage>
         )}
       </FoodDataContainer>
-      <SelectedFoodContainer></SelectedFoodContainer>
+      <SelectedFoodContainer>
+        {selectedItem ? (
+          <SelectResult>
+            <FoodName>{selectedItem.food_name}</FoodName>
+            <FoodInfo>{selectedItem.food_info.join("｜")}</FoodInfo>
+          </SelectResult>
+        ) : (
+          <SelectResult>尚未選擇任何食物</SelectResult>
+        )}
+      </SelectedFoodContainer>
       <ButtonContainer>
-        <Button label="加入"></Button>
+        <Button label="加入" onClick={handleAddClick}></Button>
       </ButtonContainer>
     </Wrapper>
   );
@@ -135,6 +158,9 @@ const FoodInfo = styled.p`
   color: #555;
 `;
 
+const SelectResult = styled.div`
+  height: 100px;
+`;
 const NoItemsMessage = styled.p``;
 const CreateLink = styled.span`
   color: #007bff;
