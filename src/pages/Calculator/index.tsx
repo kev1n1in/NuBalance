@@ -3,6 +3,9 @@ import Sidebar from "../../components/Sidebar";
 import { useEffect, useState } from "react";
 import calculateTDEE from "../../services/TdeeCalculator";
 import useStore from "../../useStore";
+import Button from "../../components/Button";
+import { updateTDEEHistory } from "../../firebase/firebaseServices";
+import { auth } from "../../firebase/firebaseConfig";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -23,6 +26,30 @@ const Calculator = () => {
   useEffect(() => {
     setTdee(totalCalories), [totalCalories, setTdee];
   });
+
+  const handleSave = async () => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.log("請先登入");
+      return;
+    }
+    try {
+      await updateTDEEHistory(
+        user,
+        totalCalories,
+        age,
+        weight,
+        height,
+        gender,
+        activityLevel,
+        bodyFat
+      );
+      console.log("TDEE 計算已保存到 Firebase");
+    } catch (error) {
+      console.error("保存 TDEE 計算失敗:", error);
+    }
+  };
 
   return (
     <Wrapper>
@@ -132,6 +159,9 @@ const Calculator = () => {
             <TotalCalories>{totalCalories}</TotalCalories>
             <CaloriesText>calories / day</CaloriesText>
           </CaloriesContainer>
+          <ButtonContainer>
+            <Button label="保存" onClick={handleSave}></Button>
+          </ButtonContainer>
         </TdeeContainer>
       </Container>
     </Wrapper>
@@ -218,4 +248,5 @@ const CaloriesText = styled.div`
   font-size: 16px;
 `;
 
+const ButtonContainer = styled.div``;
 export default Calculator;

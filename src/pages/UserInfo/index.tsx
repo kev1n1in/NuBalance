@@ -2,13 +2,46 @@ import Sidebar from "../../components/Sidebar";
 import styled from "styled-components";
 import Button from "../../components/Button";
 import { Line } from "rc-progress";
-import useStore from "../../useStore";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getLatestTDEE } from "../../firebase/firebaseServices";
+import { auth } from "../../firebase/firebaseConfig";
 
 const UserInfo = () => {
-  const tdee = useStore((state) => state.tdee) || 1700;
+  const [latestTDEE, setLatestTDEE] = useState<number | null>(null);
   const remainingCalories = 1500;
-  const progress = tdee - remainingCalories;
-  const percentage = ((tdee - remainingCalories) / tdee) * 100;
+
+  const progress = latestTDEE
+    ? latestTDEE - remainingCalories
+    : 1800 - remainingCalories;
+  const percentage = latestTDEE
+    ? ((latestTDEE - remainingCalories) / latestTDEE) * 100
+    : 100;
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTDEE = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          console.error("用戶未登入");
+          return;
+        }
+
+        const tdee = await getLatestTDEE(currentUser);
+        setLatestTDEE(tdee);
+      } catch (error) {
+        console.error("獲取 TDEE 失敗:", error);
+      }
+    };
+
+    fetchTDEE();
+  }, []);
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <Wrapper>
@@ -28,7 +61,10 @@ const UserInfo = () => {
                 {remainingCalories} 大卡
               </TotalTarget>
               <ButtonContainer>
-                <Button label="更改熱量估計"></Button>
+                <Button
+                  label="更改熱量估計"
+                  onClick={() => handleNavigation("../calculator")}
+                ></Button>
                 <Button label="新增飲食"></Button>
               </ButtonContainer>
             </TodayTargetContainer>
@@ -48,7 +84,7 @@ const UserInfo = () => {
                 </IndicatorWrapper>
                 <ProgressNumbers>
                   <span>0</span>
-                  <span>{tdee}</span>
+                  <span>{latestTDEE || 1800}</span>
                 </ProgressNumbers>
               </TargetProgressContainer>
             </TodayTargetContainer>
@@ -90,7 +126,11 @@ const UserImage = styled.div`
 
 const WeightTarget = styled.div``;
 
-const TodayTargetWrapper = styled.div``;
+const TodayTargetWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
 
 const TodayTargetContainer = styled.div`
   display: flex;
@@ -101,6 +141,9 @@ const TodayTargetContainer = styled.div`
 const TotalTarget = styled.div`
   width: 150px;
   font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 `;
 
 const ButtonContainer = styled.div`

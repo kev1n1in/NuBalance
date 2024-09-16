@@ -117,7 +117,7 @@ const Diary = () => {
       note: noteRef.current?.value || "",
       imageUrl: imageRef.current?.files?.length
         ? imageRef.current.files[0].name
-        : null, // 圖片邏輯可自行擴展
+        : null,
     };
 
     mutation.mutate(newDiaryEntry);

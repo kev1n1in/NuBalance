@@ -5,8 +5,11 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
   query,
   where,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
@@ -83,14 +86,12 @@ interface CreateFoodItem {
   uid?: string;
 }
 
-// 查詢 foods 資料的函數，使用 Firestore 伺服器端過濾
 export const fetchFoodData = async (
   searchTerm: string,
   currentUserUid: string
 ): Promise<CreateFoodItem[]> => {
   const foodsCol = collection(db, "foods");
 
-  // 在伺服器端進行過濾
   const q = query(
     foodsCol,
     where("food_name", ">=", searchTerm),
@@ -103,7 +104,6 @@ export const fetchFoodData = async (
     ...(doc.data() as Omit<CreateFoodItem, "id">),
   }));
 
-  // 確保當前用戶的資料排在最前面
   return foodList.sort((a, b) => {
     if (a.uid === currentUserUid && b.uid !== currentUserUid) {
       return -1;
@@ -135,4 +135,58 @@ export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
   });
   console.log("已新增,Id:", docRef.id);
   return docRef.id;
+};
+
+export const updateTDEEHistory = async (
+  user: User,
+  tdee: number,
+  age: number,
+  weight: number,
+  height: number,
+  gender: string,
+  activityLevel: string,
+  bodyFat?: number
+) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+  const userRef = doc(db, "users", user.uid);
+
+  await updateDoc(userRef, {
+    history: arrayUnion({
+      tdee,
+      age,
+      weight,
+      height,
+      gender,
+      activityLevel,
+      bodyFat,
+      clientUpdateTime: new Date(),
+    }),
+  });
+  console.log("TDEE已更新");
+
+  await updateDoc(userRef, {
+    lastUpdated: serverTimestamp(),
+  });
+};
+
+export const getLatestTDEE = async (user: User) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+  const userRef = doc(db, "users", user.uid);
+  const userSnapshot = await getDoc(userRef);
+  if (!userSnapshot.exists()) {
+    throw new Error("用戶不存在");
+  }
+  const userData = userSnapshot.data();
+  if (!userData || !userData.history || userData.history.length === 0) {
+    throw new Error("沒有歷史紀錄");
+  }
+  const sortedHistory = userData.history.sort(
+    (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
+  );
+  const latestTDEE = sortedHistory[0];
+  return latestTDEE.tdee;
 };
