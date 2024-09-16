@@ -5,6 +5,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
@@ -81,30 +83,34 @@ interface CreateFoodItem {
   uid?: string;
 }
 
-// 查詢 foods 資料的函數
+// 查詢 foods 資料的函數，使用 Firestore 伺服器端過濾
 export const fetchFoodData = async (
   searchTerm: string,
   currentUserUid: string
 ): Promise<CreateFoodItem[]> => {
   const foodsCol = collection(db, "foods");
 
-  const foodSnapshot = await getDocs(foodsCol);
+  // 在伺服器端進行過濾
+  const q = query(
+    foodsCol,
+    where("food_name", ">=", searchTerm),
+    where("food_name", "<=", searchTerm + "\uf8ff")
+  );
+
+  const foodSnapshot = await getDocs(q);
   const foodList = foodSnapshot.docs.map((doc) => ({
     id: doc.id,
     ...(doc.data() as Omit<CreateFoodItem, "id">),
   }));
 
-  return foodList
-    .filter((food) =>
-      food.food_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (a.uid === currentUserUid && b.uid !== currentUserUid) {
-        return -1;
-      }
-      if (a.uid !== currentUserUid && b.uid === currentUserUid) {
-        return 1;
-      }
-      return 0;
-    });
+  // 確保當前用戶的資料排在最前面
+  return foodList.sort((a, b) => {
+    if (a.uid === currentUserUid && b.uid !== currentUserUid) {
+      return -1;
+    }
+    if (a.uid !== currentUserUid && b.uid === currentUserUid) {
+      return 1;
+    }
+    return 0;
+  });
 };

@@ -10,7 +10,7 @@ import CreateFoodModal from "../../components/CreateFoodModal";
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null); // 追蹤選中的項目
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const currentUser = auth.currentUser;
 
   const {
@@ -30,7 +30,7 @@ const Food: React.FC = () => {
   };
 
   const handleItemClick = (id: string) => {
-    setSelectedItem(id); // 點擊後設置選中的項目
+    setSelectedItem(id);
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -120,12 +120,11 @@ const ResultItem = styled.div<{ isSelected: boolean }>`
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: ${({ isSelected }) =>
-    isSelected ? "#f0f0f0" : "white"}; // 選中後背景變為淺灰色
+  background-color: ${({ isSelected }) => (isSelected ? "#f0f0f0" : "white")};
   cursor: pointer;
 
   &:hover {
-    background-color: #f9f9f9; // 懸停時背景變化
+    background-color: #f9f9f9;
   }
 `;
 
