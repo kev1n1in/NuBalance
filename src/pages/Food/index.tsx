@@ -51,9 +51,7 @@ const Food: React.FC = () => {
           {isLoading && <p>加載中...</p>}
           {error && error instanceof Error ? (
             <p>發生錯誤: {error.message}</p>
-          ) : (
-            <p>發生未知錯誤</p>
-          )}
+          ) : null}
 
           {foods.length > 0 ? (
             foods.map((item) => (

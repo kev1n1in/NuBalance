@@ -10,7 +10,15 @@ import eatingHappyImg from "./moodsImg/Eating_Happy.png";
 import rageImg from "./moodsImg/Rage.png";
 import suspiciousImg from "./moodsImg/Suspicious.png";
 import girlImg from "./girl.png";
+import { useState } from "react";
+import Modal from "../../components/Modal";
+import QueryFoodModal from "../../components/QueryFoodModal";
 const Diary = () => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <Wrapper>
       <Sidebar />
@@ -25,7 +33,7 @@ const Diary = () => {
         <FoodSelectorWrapper>
           <FoodSelectorTitle>吃了啥？</FoodSelectorTitle>
           <FoodSelectorContainer>
-            <FoodSelector></FoodSelector>
+            <FoodSelector onClick={openModal}></FoodSelector>
             <Nutrition></Nutrition>
           </FoodSelectorContainer>
         </FoodSelectorWrapper>
@@ -53,6 +61,11 @@ const Diary = () => {
         <ButtonContainer>
           <Button label="保存"></Button>
         </ButtonContainer>
+        {isModalOpen && (
+          <Modal onClose={closeModal}>
+            <QueryFoodModal></QueryFoodModal>
+          </Modal>
+        )}
       </Container>
     </Wrapper>
   );
