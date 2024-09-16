@@ -25,6 +25,7 @@ const Header: React.FC = () => {
     <Wrapper>
       <NavBar>
         <Logo onClick={() => handleNavigation("/landing")} />
+        <Item onClick={() => handleNavigation("/userInfo")}>Home</Item>
         <Item onClick={() => handleNavigation("/calculator")}>Calculator</Item>
         <Item onClick={() => handleNavigation("/food")}>Food</Item>
         <Item onClick={() => handleNavigation("/diary")}>Diary</Item>

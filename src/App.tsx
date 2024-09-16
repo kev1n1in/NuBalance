@@ -10,7 +10,6 @@ import PrivateRoute from "./components/PrivateRoute";
 import Food from "../src/pages/Food";
 import LandingPage from "./pages/LandingPage";
 
-// 創建 QueryClient 實例
 const queryClient = new QueryClient();
 
 function App() {
