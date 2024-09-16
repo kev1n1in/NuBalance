@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import Sidebar from "../../components/Sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import calculateTDEE from "../../services/TdeeCalculator";
+import useStore from "../../useStore";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -18,6 +19,10 @@ const Calculator = () => {
     gender,
     activityLevel
   );
+  const setTdee = useStore((state) => state.setTdee);
+  useEffect(() => {
+    setTdee(totalCalories), [totalCalories, setTdee];
+  });
 
   return (
     <Wrapper>

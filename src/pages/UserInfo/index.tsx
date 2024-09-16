@@ -2,12 +2,13 @@ import Sidebar from "../../components/Sidebar";
 import styled from "styled-components";
 import Button from "../../components/Button";
 import { Line } from "rc-progress";
+import useStore from "../../useStore";
 
 const UserInfo = () => {
-  const maxCalories = 1770;
+  const tdee = useStore((state) => state.tdee) || 1700;
   const remainingCalories = 1500;
-  const progress = maxCalories - remainingCalories;
-  const percentage = ((maxCalories - remainingCalories) / maxCalories) * 100; // 計算進度條的百分比
+  const progress = tdee - remainingCalories;
+  const percentage = ((tdee - remainingCalories) / tdee) * 100;
 
   return (
     <Wrapper>
@@ -47,7 +48,7 @@ const UserInfo = () => {
                 </IndicatorWrapper>
                 <ProgressNumbers>
                   <span>0</span>
-                  <span>{maxCalories}</span>
+                  <span>{tdee}</span>
                 </ProgressNumbers>
               </TargetProgressContainer>
             </TodayTargetContainer>
