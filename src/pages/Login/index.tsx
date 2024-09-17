@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { updateUserProfile } from "../../firebase/firebaseServices";
 import Cookies from "js-cookie";
 import { auth } from "../../firebase/firebaseConfig";
-import Header from "../../components/Header";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 import styled from "styled-components";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
@@ -107,7 +106,6 @@ const Login = () => {
 
   return (
     <>
-      <Header />
       <GoogleOAuthProvider clientId={clientId}>
         <Wrapper>
           <Banner />
