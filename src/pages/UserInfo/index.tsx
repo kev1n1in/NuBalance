@@ -123,10 +123,12 @@ const UserInfo = () => {
                 <Button
                   label="更改熱量估計"
                   onClick={() => handleNavigation("../calculator")}
+                  margin="12px 0"
                 ></Button>
                 <Button
                   label="新增飲食"
                   onClick={() => handleNavigation("../diary")}
+                  margin="12px 0"
                 ></Button>
               </ButtonContainer>
             </TodayTargetContainer>
@@ -285,7 +287,7 @@ const DiaryItem = styled.div`
   margin: 12px 0;
   padding: 4px;
   border: 1px solid gray;
-  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
 `;
 const FoodName = styled.span``;
 

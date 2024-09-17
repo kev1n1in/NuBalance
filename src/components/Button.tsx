@@ -4,13 +4,24 @@ import styled from "styled-components";
 interface ButtonProps {
   label: string;
   onClick?: () => void;
+  margin?: string;
+  disabled?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ label, onClick }) => {
-  return <StyledButton onClick={onClick}>{label}</StyledButton>;
+const Button: React.FC<ButtonProps> = ({
+  label,
+  onClick,
+  disabled,
+  margin,
+}) => {
+  return (
+    <StyledButton disabled={disabled} onClick={onClick} margin={margin}>
+      {label}
+    </StyledButton>
+  );
 };
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<{ margin?: string }>`
   width: 200px;
   height: 50px;
   font-size: 16px;
@@ -20,6 +31,7 @@ const StyledButton = styled.button`
   color: #000;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin: ${(props) => props.margin || "0"};
 
   &:hover {
     background-color: #f0f0f0;

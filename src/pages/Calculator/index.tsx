@@ -6,6 +6,7 @@ import useStore from "../../useStore";
 import Button from "../../components/Button";
 import { updateTDEEHistory } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
+import manImg from "./man.png";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -62,6 +63,7 @@ const Calculator = () => {
         <Info />
         <TdeeContainer>
           <Form>
+            <ManImg src={manImg}></ManImg>
             <FormItem>
               <Title>Age</Title>
               <DisplayValue>{age}</DisplayValue>
@@ -192,13 +194,18 @@ const Info = styled.div`
 
 const TdeeContainer = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 80%;
   height: 500px;
   margin: 0 auto;
   align-items: flex-end;
 `;
-
+const ManImg = styled.img`
+  position: absolute;
+  left: -48px;
+  top: 96px;
+`;
 const Form = styled.div`
   width: 70%;
 `;

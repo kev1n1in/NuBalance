@@ -270,7 +270,7 @@ const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 10px;
+  margin: 24px 10px 0 10px;
   cursor: pointer;
 `;
 
@@ -289,6 +289,7 @@ const FoodSelectorWrapper = styled.div`
 const FoodSelectorContainer = styled.div`
   display: flex;
   height: 100px;
+  margin-top: 24px;
 `;
 
 const FoodSelectorTitle = styled.h2`
@@ -306,7 +307,8 @@ const FoodSelector = styled.div`
 `;
 
 const Nutrition = styled.div`
-  width: 200px;
+  margin-left: 48px;
+  width: 300px;
 `;
 
 const TimePickerContainer = styled.div`
@@ -316,17 +318,23 @@ const TimePickerContainer = styled.div`
 const TimePickerTitle = styled.h2``;
 
 const StyledFlatpickr = styled(Flatpickr)`
-  margin: 12px auto;
+  margin: 24px auto;
   justify-self: center;
 `;
 
-const ImageUploadContainer = styled.div``;
+const ImageUploadContainer = styled.div`
+  margin: 24px 0;
+`;
 
 const ImageUploadTitle = styled.h2``;
 
-const ImageUploadInput = styled.input``;
+const ImageUploadInput = styled.input`
+  margin: 24px 0;
+`;
 
-const NoteContainer = styled.div``;
+const NoteContainer = styled.div`
+  margin: 24px 0;
+`;
 
 const NoteTitle = styled.h2``;
 

@@ -43,6 +43,7 @@ interface FoodItem {
   carbohydrates: number;
   protein: number;
   fat: number;
+  imageUrl: string;
 }
 
 export const addFoodItem = async (
@@ -199,7 +200,7 @@ export const getLatestTDEE = async (user: User) => {
   return latestTDEE.tdee;
 };
 
-export const getDiaryEntry = async (user: User, entry: DiaryEntry) => {
+export const getDiaryEntry = async (user: User) => {
   if (!user) {
     throw new Error("請先登入");
   }

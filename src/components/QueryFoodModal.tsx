@@ -24,6 +24,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
     data: foods = [],
     isLoading,
     error,
+    refetch,
   } = useQuery(
     ["foods", triggerSearch],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
@@ -36,6 +37,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       setTriggerSearch(true);
+      refetch();
     }
   };
   const handleItemClick = (item: FoodItem) => {

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import styled from "styled-components";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import Button from "../components/Button";
-import styled from "styled-components";
-import { addFoodItem } from "../firebase/firebaseServices"; // 確保導入正確的函數
-import { auth } from "../firebase/firebaseConfig"; // 導入 auth 實例
+import { addFoodItem } from "../firebase/firebaseServices";
+import { auth, storage } from "../firebase/firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 interface FormValues {
   foodInfo: string[];
@@ -13,15 +14,24 @@ interface FormValues {
   carbohydrates: number;
   protein: number;
   fat: number;
+  image: FileList;
 }
+
 interface CreateFoodModalProps {
   onClose: () => void;
 }
 
 const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
   const queryClient = useQueryClient();
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [imageUrl, setImageUrl] = useState<string | null>(null); // 圖片 URL
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null); // 圖片預覽
+  const [recognizedText, setRecognizedText] = useState<string>("");
+
   const {
     register,
+    setValue, // 用來手動設置 Input 的值
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
@@ -34,9 +44,99 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
     },
   });
 
+  const handleImageUpload = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const storageRef = ref(storage, `foodImages/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setIsUploading(true);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("圖片上傳失敗:", error);
+          setIsUploading(false);
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref)
+            .then((downloadURL) => {
+              console.log("圖片上傳成功，圖片URL: ", downloadURL);
+              setImageUrl(downloadURL);
+              setPreviewImage(URL.createObjectURL(file)); // 設置圖片預覽
+              setIsUploading(false);
+              resolve(downloadURL);
+            })
+            .catch((error) => {
+              reject(error);
+            });
+        }
+      );
+    });
+  };
+
+  const processImageForText = async (imageUrl: string) => {
+    console.log("發送的圖片URL: ", imageUrl);
+    try {
+      const response = await fetch(
+        "https://detecttext-da3ae4esza-uc.a.run.app",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ imageUrl }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("文字辨識失敗" as string);
+      }
+
+      const data = await response.json();
+      console.log("文字辨識結果：", data.text);
+      setRecognizedText(data.text);
+
+      // 自動填充提取的數據到對應的 Input 欄位
+      const caloriesMatch = data.text.match(/熱量\s*(\d+(\.\d+)?)\s*大卡/);
+      const proteinMatch = data.text.match(/蛋白質\s*(\d+(\.\d+)?)\s*公克/);
+      const fatMatch = data.text.match(/脂肪\s*(\d+(\.\d+)?)\s*公克/);
+      const carbohydratesMatch = data.text.match(
+        /碳水化合物\s*(\d+(\.\d+)?)\s*公克/
+      );
+
+      if (caloriesMatch) setValue("calories", parseFloat(caloriesMatch[1]));
+      if (proteinMatch) setValue("protein", parseFloat(proteinMatch[1]));
+      if (fatMatch) setValue("fat", parseFloat(fatMatch[1]));
+      if (carbohydratesMatch)
+        setValue("carbohydrates", parseFloat(carbohydratesMatch[1]));
+
+      return data.text;
+    } catch (error) {
+      console.error("Cloud Function 呼叫失敗:", error);
+    }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file)); // 圖片預覽
+      const downloadUrl = await handleImageUpload(file); // 上傳圖片
+      await processImageForText(downloadUrl); // 調用辨識
+    }
+  };
+
   const mutation = useMutation({
-    mutationFn: (data: FormValues) =>
-      addFoodItem(
+    mutationFn: async (data: FormValues) => {
+      if (!imageUrl) {
+        throw new Error("圖片上傳尚未完成");
+      }
+      return await addFoodItem(
         {
           food_name: data.foodName,
           food_info: data.foodInfo,
@@ -44,9 +144,11 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
           carbohydrates: data.carbohydrates,
           protein: data.protein,
           fat: data.fat,
+          imageUrl,
         },
         auth
-      ), // 傳遞 auth 實例
+      );
+    },
     onSuccess: (id) => {
       alert(`食品資料新增成功，文件 ID: ${id}`);
       queryClient.invalidateQueries("foods");
@@ -57,8 +159,13 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    mutation.mutate(data);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    try {
+      mutation.mutate(data);
+    } catch (error) {
+      console.error("數據提交失敗:", error);
+      alert("數據提交失敗，請稍後重試");
+    }
   };
 
   return (
@@ -67,57 +174,72 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>食品名稱</InputTitle>
         <Input {...register("foodName", { required: "食品名稱是必填的" })} />
-        {errors.foodName && <Error>{errors.foodName.message}</Error>}
+        {errors.foodName && (
+          <ErrorMessage>{errors.foodName.message}</ErrorMessage>
+        )}
 
         <InputTitle>熱量</InputTitle>
         <Input
           type="number"
+          step="any"
           {...register("calories", {
             required: "熱量是必填的",
             valueAsNumber: true,
           })}
         />
-        {errors.calories && <Error>{errors.calories.message}</Error>}
+        {errors.calories && (
+          <ErrorMessage>{errors.calories.message}</ErrorMessage>
+        )}
 
-        <InputTitle>碳水</InputTitle>
+        <InputTitle>碳水化合物</InputTitle>
         <Input
           type="number"
+          step="any"
           {...register("carbohydrates", {
             required: "碳水是必填的",
             valueAsNumber: true,
           })}
         />
-        {errors.carbohydrates && <Error>{errors.carbohydrates.message}</Error>}
+        {errors.carbohydrates && (
+          <ErrorMessage>{errors.carbohydrates.message}</ErrorMessage>
+        )}
 
         <InputTitle>蛋白質</InputTitle>
         <Input
           type="number"
+          step="any"
           {...register("protein", {
             required: "蛋白質是必填的",
             valueAsNumber: true,
           })}
         />
-        {errors.protein && <Error>{errors.protein.message}</Error>}
+        {errors.protein && (
+          <ErrorMessage>{errors.protein.message}</ErrorMessage>
+        )}
 
         <InputTitle>脂肪</InputTitle>
         <Input
           type="number"
+          step="any"
           {...register("fat", {
             required: "脂肪是必填的",
             valueAsNumber: true,
           })}
         />
-        {errors.fat && <Error>{errors.fat.message}</Error>}
+        {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
 
-        <Button label="新增" />
+        <InputTitle>上傳圖片</InputTitle>
+        <Input type="file" onChange={handleImageChange} />
+        {uploadProgress > 0 && <p>上傳進度: {uploadProgress.toFixed(0)}%</p>}
+
+        {previewImage && <img src={previewImage} alt="圖片預覽" width="200" />}
+
+        <Button label="提交" disabled={isUploading || !imageUrl} />
       </Form>
     </ModalWrapper>
   );
 };
-
-const ModalWrapper = styled.div`
-  // 你的 Modal 樣式
-`;
+const ModalWrapper = styled.div``;
 
 const Title = styled.h1`
   margin-top: 0;
@@ -134,7 +256,7 @@ const InputTitle = styled.div``;
 
 const Input = styled.input``;
 
-const Error = styled.p`
+const ErrorMessage = styled.p`
   color: red;
   font-size: 12px;
 `;

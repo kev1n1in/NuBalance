@@ -11,6 +11,7 @@ const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [triggerSearch, setTriggerSearch] = useState<boolean>(false); // 觸發查詢的狀態
   const currentUser = auth.currentUser;
 
   const {
@@ -18,15 +19,21 @@ const Food: React.FC = () => {
     isLoading,
     error,
   } = useQuery(
-    ["foods", searchTerm],
+    ["foods", triggerSearch],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
     {
-      enabled: searchTerm.length > 0,
+      enabled: triggerSearch,
     }
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchTerm.trim() !== "") {
+      setTriggerSearch(true);
+    }
   };
 
   const handleItemClick = (id: string) => {
@@ -46,6 +53,7 @@ const Food: React.FC = () => {
           placeholder="搜尋食品..."
           value={searchTerm}
           onChange={handleSearch}
+          onKeyDown={handleKeyDown}
         />
         <DataContainer>
           {isLoading && <p>加載中...</p>}
