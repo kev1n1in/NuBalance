@@ -118,6 +118,12 @@ const Diary = () => {
       imageUrl: imageRef.current?.files?.length
         ? imageRef.current.files[0].name
         : null,
+      nutrition: {
+        calories: selectedFood.food_info[0],
+        carbohydrates: selectedFood.food_info[1],
+        protein: selectedFood.food_info[2],
+        fat: selectedFood.food_info[3],
+      },
     };
 
     mutation.mutate(newDiaryEntry);

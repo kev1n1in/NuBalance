@@ -2,7 +2,7 @@ import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
 *{
-    outline:1px solid black
+    /* outline:1px solid black */
 }
 
   body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {

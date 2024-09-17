@@ -3,41 +3,100 @@ import styled from "styled-components";
 import Button from "../../components/Button";
 import { Line } from "rc-progress";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { getLatestTDEE } from "../../firebase/firebaseServices";
+import { useQuery } from "react-query";
+import { getLatestTDEE, getDiaryEntry } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
+import userImg from "./userImg.png";
+
+interface DiaryEntry {
+  id: string;
+  food?: string;
+  nutrition?: {
+    calories?: string;
+    carbohydrates?: string;
+    protein?: string;
+    fat?: string;
+  };
+}
 
 const UserInfo = () => {
-  const [latestTDEE, setLatestTDEE] = useState<number | null>(null);
-  const remainingCalories = 1500;
-
-  const progress = latestTDEE
-    ? latestTDEE - remainingCalories
-    : 1800 - remainingCalories;
-  const percentage = latestTDEE
-    ? ((latestTDEE - remainingCalories) / latestTDEE) * 100
-    : 100;
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchTDEE = async () => {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-          console.error("用戶未登入");
-          return;
-        }
-
-        const tdee = await getLatestTDEE(currentUser);
-        setLatestTDEE(tdee);
-      } catch (error) {
-        console.error("獲取 TDEE 失敗:", error);
+  const {
+    data: latestTDEE,
+    isLoading: isLoadingTDEE,
+    error: errorTDEE,
+  } = useQuery(
+    "latestTDEE",
+    async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("用戶未登入");
       }
-    };
+      return await getLatestTDEE(currentUser);
+    },
+    {
+      onSuccess: (data) => {
+        console.log("獲取的 TDEE:", data);
+      },
+      onError: (error) => {
+        console.error("獲取 TDEE 失敗:", error);
+      },
+    }
+  );
 
-    fetchTDEE();
-  }, []);
+  const {
+    data: diaryEntries = [],
+    isLoading: isLoadingDiary,
+    error: errorDiary,
+  } = useQuery<DiaryEntry[]>(
+    "diaryEntries",
+    async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("用戶未登入");
+      }
+      return await getDiaryEntry(currentUser);
+    },
+    {
+      onSuccess: (data) => {
+        console.log("獲取的日記條目:", data);
+      },
+      onError: (error) => {
+        console.error("獲取日記條目失敗:", error);
+      },
+    }
+  );
+  const extractNumberFromString = (str: string): number => {
+    const match = str.match(/(\d+(\.\d+)?)/);
+    return match ? parseFloat(match[0]) : 0;
+  };
+
+  const todayNutrition = diaryEntries
+    ? diaryEntries.reduce((total, entry) => {
+        const caloriesStr = entry.nutrition
+          ? entry.nutrition.calories || "0"
+          : "0";
+        const calories = extractNumberFromString(caloriesStr);
+        console.log(`Entry: ${entry.food}, Calories extracted: ${calories}`);
+        return total + calories;
+      }, 0)
+    : 0;
+
+  console.log(`Total calories consumed today: ${todayNutrition}`);
+
+  const tdee = latestTDEE || 1800;
+  const remainingCalories = tdee - todayNutrition;
+  const percentage = (todayNutrition / tdee) * 100;
+
+  if (isLoadingTDEE || isLoadingDiary) return <div>Loading...</div>;
+
+  if (errorTDEE || errorDiary) {
+    const errorMessageTDEE = (errorTDEE as Error)?.message || "未知的錯誤";
+    const errorMessageDiary = (errorDiary as Error)?.message || "未知的錯誤";
+
+    return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
+  }
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -50,50 +109,77 @@ const UserInfo = () => {
         <Title>您的每日摘要</Title>
         <InfoWrapper>
           <UserInfoCotainer>
-            <UserImage />
-            <WeightTarget>3kg</WeightTarget>
+            <UserImage src={userImg} />
+            {/* <WeightTarget>3kg</WeightTarget> */}
           </UserInfoCotainer>
           <TodayTargetWrapper>
             <TodayTargetContainer>
               <TotalTarget>
                 剩餘熱量
                 <br />
-                {remainingCalories} 大卡
+                {remainingCalories.toFixed(0)} 大卡
               </TotalTarget>
               <ButtonContainer>
                 <Button
                   label="更改熱量估計"
                   onClick={() => handleNavigation("../calculator")}
                 ></Button>
-                <Button label="新增飲食"></Button>
+                <Button
+                  label="新增飲食"
+                  onClick={() => handleNavigation("../diary")}
+                ></Button>
               </ButtonContainer>
             </TodayTargetContainer>
             <TodayTargetContainer>
               <TargetProgressContainer>
                 <Line
-                  percent={percentage}
+                  percent={Math.max(0, Math.min(percentage, 100))}
                   strokeWidth={4}
                   strokeColor="green"
                   trailWidth={10}
                   trailColor="#d3d3d3"
                   strokeLinecap="butt"
                 />
-                <IndicatorWrapper style={{ left: `${percentage}%` }}>
+                <IndicatorWrapper
+                  style={{ left: `${Math.max(0, Math.min(percentage, 100))}%` }}
+                >
                   <TriangleIndicator />
-                  <Progress>{progress}</Progress>
+                  <Progress>{todayNutrition.toFixed(0)} 大卡</Progress>
                 </IndicatorWrapper>
                 <ProgressNumbers>
                   <span>0</span>
-                  <span>{latestTDEE || 1800}</span>
+                  <span>{tdee}</span>
                 </ProgressNumbers>
               </TargetProgressContainer>
             </TodayTargetContainer>
           </TodayTargetWrapper>
         </InfoWrapper>
+        <DiaryList>
+          <DiaryTitle>今天吃ㄌ</DiaryTitle>
+          {diaryEntries.map((entry) => {
+            return (
+              <DiaryItem key={entry.id}>
+                <FoodName>{entry.food}</FoodName>
+                <FoodNutrition>
+                  <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
+                  <FoodCarbo>
+                    {entry.nutrition?.carbohydrates || "未知"} |{" "}
+                  </FoodCarbo>
+                  <FoodProtein>
+                    {entry.nutrition?.protein || "未知"} |{" "}
+                  </FoodProtein>
+                  <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
+                </FoodNutrition>
+              </DiaryItem>
+            );
+          })}
+        </DiaryList>
       </Container>
     </Wrapper>
   );
 };
+
+export default UserInfo;
 
 const Wrapper = styled.div`
   margin: 50px 0 0 150px;
@@ -118,10 +204,8 @@ const UserInfoCotainer = styled.div`
   margin: auto 24px auto 0;
 `;
 
-const UserImage = styled.div`
+const UserImage = styled.img`
   width: 120px;
-  height: 120px;
-  background-color: gray;
 `;
 
 const WeightTarget = styled.div``;
@@ -190,4 +274,23 @@ const ProgressNumbers = styled.div`
   }
 `;
 
-export default UserInfo;
+const DiaryList = styled.div`
+  margin: 24px 0;
+`;
+
+const DiaryTitle = styled.h2``;
+const DiaryItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0;
+  padding: 4px;
+  border: 1px solid gray;
+  border-radius: 10px;
+`;
+const FoodName = styled.span``;
+
+const FoodNutrition = styled.div``;
+const FoodCal = styled.span``;
+const FoodCarbo = styled.span``;
+const FoodProtein = styled.span``;
+const FoodFat = styled.span``;

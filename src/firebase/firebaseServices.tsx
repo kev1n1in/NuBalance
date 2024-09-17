@@ -122,6 +122,7 @@ interface DiaryEntry {
   mood?: string | null;
   note?: string;
   imageUrl?: string;
+  nutrition: string[];
 }
 
 export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
@@ -132,6 +133,7 @@ export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
   const docRef = await addDoc(userDiaryRef, {
     ...entry,
     createdAt: serverTimestamp(),
+    nutrition: entry.nutrition,
   });
   console.log("已新增,Id:", docRef.id);
   return docRef.id;
@@ -195,4 +197,22 @@ export const getLatestTDEE = async (user: User) => {
 
   const latestTDEE = sortedHistory[0];
   return latestTDEE.tdee;
+};
+
+export const getDiaryEntry = async (user: User, entry: DiaryEntry) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+  const diaryRef = collection(db, "users", user.uid, "diarys");
+
+  const diarySnapshot = await getDocs(diaryRef);
+
+  if (diarySnapshot.empty) {
+    throw new Error("日記記錄不存在");
+  }
+  const diaryEntries = diarySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  return diaryEntries;
 };
