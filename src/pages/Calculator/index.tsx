@@ -45,9 +45,13 @@ const Calculator = () => {
         activityLevel,
         bodyFat
       );
-      console.log("TDEE 計算已保存到 Firebase");
-    } catch (error) {
-      console.error("保存 TDEE 計算失敗:", error);
+      alert("TDEE 計算已保存到 Firebase");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`保存 TDEE 計算失敗: ${error.message}`);
+      } else {
+        alert("保存 TDEE 計算失敗: 未知錯誤");
+      }
     }
   };
 

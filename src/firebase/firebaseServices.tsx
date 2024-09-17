@@ -175,18 +175,24 @@ export const getLatestTDEE = async (user: User) => {
   if (!user) {
     throw new Error("請先登入");
   }
+
   const userRef = doc(db, "users", user.uid);
   const userSnapshot = await getDoc(userRef);
+
   if (!userSnapshot.exists()) {
     throw new Error("用戶不存在");
   }
+
   const userData = userSnapshot.data();
+
   if (!userData || !userData.history || userData.history.length === 0) {
     throw new Error("沒有歷史紀錄");
   }
+
   const sortedHistory = userData.history.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
+
   const latestTDEE = sortedHistory[0];
   return latestTDEE.tdee;
 };

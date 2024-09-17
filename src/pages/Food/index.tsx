@@ -58,7 +58,7 @@ const Food: React.FC = () => {
               <ResultItem
                 key={item.id}
                 onClick={() => handleItemClick(item.id)}
-                isSelected={selectedItem === item.id} // 根據選中狀態設置樣式
+                isSelected={selectedItem === item.id}
               >
                 <FoodName>{item.food_name}</FoodName>
                 <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
