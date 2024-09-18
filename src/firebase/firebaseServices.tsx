@@ -204,16 +204,38 @@ export const getDiaryEntry = async (user: User) => {
   if (!user) {
     throw new Error("請先登入");
   }
-  const diaryRef = collection(db, "users", user.uid, "diarys");
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
 
+  const todayDate = getTodayDate();
+
+  const diaryRef = collection(db, "users", user.uid, "diarys");
   const diarySnapshot = await getDocs(diaryRef);
 
   if (diarySnapshot.empty) {
-    throw new Error("日記記錄不存在");
+    return [];
   }
-  const diaryEntries = diarySnapshot.docs.map((doc) => ({
+
+  const todayEntries = diarySnapshot.docs.filter((doc) => {
+    const data = doc.data();
+
+    if (!data.time || !(data.time instanceof Date || data.time.toDate)) {
+      return false;
+    }
+
+    const entryDate = data.time.toDate ? data.time.toDate() : data.time;
+
+    const entryDateFormatted = entryDate.toISOString().split("T")[0];
+
+    return entryDateFormatted === todayDate;
+  });
+
+  const diaryEntries = todayEntries.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
+
   return diaryEntries;
 };
