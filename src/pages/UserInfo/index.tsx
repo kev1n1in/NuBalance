@@ -145,8 +145,8 @@ const UserInfo = () => {
                 <IndicatorWrapper
                   style={{ left: `${Math.max(0, Math.min(percentage, 100))}%` }}
                 >
-                  <TriangleIndicator />
                   <Progress>{todayNutrition.toFixed(0)} 大卡</Progress>
+                  <TriangleIndicator />
                 </IndicatorWrapper>
                 <ProgressNumbers>
                   <span>0</span>
@@ -242,12 +242,12 @@ const ButtonContainer = styled.div`
 const TargetProgressContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 60px;
 `;
 
 const IndicatorWrapper = styled.div`
   position: absolute;
-  bottom: -5px;
+  top: -38px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -259,7 +259,7 @@ const TriangleIndicator = styled.div`
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-bottom: 15px solid green;
+  border-top: 15px solid green;
 `;
 
 const Progress = styled.span`
