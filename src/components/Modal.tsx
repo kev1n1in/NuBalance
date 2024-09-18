@@ -22,6 +22,7 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
 
 const Wrapper = styled.div`
   position: fixed;
+
   top: 0;
   left: 0;
   right: 0;
@@ -38,6 +39,8 @@ const Content = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 8px;
+  height: 90vh;
+  overflow-y: auto;
   width: 400px;
   max-width: 100%;
 `;
