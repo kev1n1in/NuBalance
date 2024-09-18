@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
@@ -9,9 +9,11 @@ import CreateFoodModal from "../../components/CreateFoodModal";
 
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
+  const [isComposing, setIsComposing] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const [triggerSearch, setTriggerSearch] = useState<boolean>(false); // 觸發查詢的狀態
+  const queryClient = useQueryClient();
   const currentUser = auth.currentUser;
 
   const {
@@ -19,10 +21,11 @@ const Food: React.FC = () => {
     isLoading,
     error,
   } = useQuery(
-    ["foods", triggerSearch],
+    ["foods", searchTerm],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
     {
       enabled: triggerSearch,
+      onSuccess: () => setTriggerSearch(false),
     }
   );
 
@@ -30,8 +33,17 @@ const Food: React.FC = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handleComposition = (e: React.CompositionEvent<HTMLInputElement>) => {
+    if (e.type === "compositionstart") {
+      setIsComposing(true);
+    } else if (e.type === "compositionend") {
+      setIsComposing(false);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchTerm.trim() !== "") {
+    if (e.key === "Enter" && !isComposing && searchTerm.trim() !== "") {
+      queryClient.invalidateQueries(["foods"]);
       setTriggerSearch(true);
     }
   };
@@ -46,14 +58,16 @@ const Food: React.FC = () => {
   return (
     <Wrapper>
       <Sidebar />
-      <h1>我是食品資料庫啦</h1>
       <Container>
+        <Title>食品資料庫</Title>
         <Input
           type="text"
           placeholder="搜尋食品..."
           value={searchTerm}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
+          onCompositionStart={handleComposition}
+          onCompositionEnd={handleComposition}
         />
         <DataContainer>
           {isLoading && <p>加載中...</p>}
@@ -87,10 +101,12 @@ const Food: React.FC = () => {
     </Wrapper>
   );
 };
-
 const Wrapper = styled.div`
   display: flex;
   margin-left: 150px;
+`;
+const Title = styled.h1`
+  margin: 12px 0;
 `;
 
 const Input = styled.input`
