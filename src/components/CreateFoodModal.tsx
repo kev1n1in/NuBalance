@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import { addFoodItem } from "../firebase/firebaseServices";
 import { auth, storage } from "../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { PacmanLoader } from "react-spinners";
 
 interface FormValues {
   foodInfo: string[];
@@ -24,9 +25,9 @@ interface CreateFoodModalProps {
 const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
   const queryClient = useQueryClient();
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [imageUrl, setImageUrl] = useState<string | null>(null); // 圖片 URL
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null); // 圖片預覽
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [recognizedText, setRecognizedText] = useState<string>("");
 
   const {
@@ -83,6 +84,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
   const processImageForText = async (imageUrl: string) => {
     console.log("發送的圖片URL: ", imageUrl);
     try {
+      setIsUploading(true);
       const response = await fetch(
         "https://detecttext-da3ae4esza-uc.a.run.app",
         {
@@ -115,6 +117,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
       if (fatMatch) setValue("fat", parseFloat(fatMatch[1]));
       if (carbohydratesMatch)
         setValue("carbohydrates", parseFloat(carbohydratesMatch[1]));
+      setIsUploading(false);
 
       return data.text;
     } catch (error) {
@@ -170,10 +173,19 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
 
   return (
     <ModalWrapper>
+      {isUploading && (
+        <LoaderOverlay>
+          <PacmanLoader color="gray" />
+          <LoadingMessage>掃描中</LoadingMessage>
+        </LoaderOverlay>
+      )}
       <Title>新增食品</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>食品名稱</InputTitle>
-        <Input {...register("foodName", { required: "食品名稱是必填的" })} />
+        <Input
+          placeholder="請輸入食品名稱"
+          {...register("foodName", { required: "食品名稱是必填的" })}
+        />
         {errors.foodName && (
           <ErrorMessage>{errors.foodName.message}</ErrorMessage>
         )}
@@ -230,17 +242,31 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
 
         <InputTitle>上傳圖片</InputTitle>
         <Input type="file" onChange={handleImageChange} />
-        {uploadProgress > 0 && <p>上傳進度: {uploadProgress.toFixed(0)}%</p>}
 
         {previewImage && <img src={previewImage} alt="圖片預覽" width="200" />}
-
-        <Button label="提交" disabled={isUploading || !imageUrl} />
+        <ButtonContainer>
+          <Button label="加入我的菜單" disabled={isUploading || !imageUrl} />
+        </ButtonContainer>
       </Form>
     </ModalWrapper>
   );
 };
 const ModalWrapper = styled.div``;
+const LoaderOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
+const LoadingMessage = styled.span``;
 const Title = styled.h1`
   margin-top: 0;
   margin-bottom: 20px;
@@ -259,6 +285,10 @@ const Input = styled.input``;
 const ErrorMessage = styled.p`
   color: red;
   font-size: 12px;
+`;
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: end;
 `;
 
 export default CreateFoodModal;
