@@ -199,7 +199,7 @@ export const getLatestTDEE = async (user: User) => {
   );
 
   const latestTDEE = sortedHistory[0];
-  return latestTDEE.tdee;
+  return latestTDEE;
 };
 
 export const getDiaryEntry = async (user: User, date: string) => {

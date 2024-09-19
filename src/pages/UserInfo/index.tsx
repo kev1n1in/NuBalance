@@ -96,7 +96,7 @@ const UserInfo = () => {
 
   console.log(`Total calories consumed today: ${todayNutrition}`);
 
-  const tdee = latestTDEE || 1800;
+  const tdee = latestTDEE.tdee || 1800;
   const remainingCalories = tdee - todayNutrition;
   const percentage = (todayNutrition / tdee) * 100;
 
