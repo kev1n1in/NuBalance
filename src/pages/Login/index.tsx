@@ -20,7 +20,7 @@ const Login = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const Username = "admin";
-  const Email = "admin@1.com";
+  const Email = "admin@2.com";
   const Password = "123456";
 
   useEffect(() => {

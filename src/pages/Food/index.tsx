@@ -5,7 +5,7 @@ import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
 import Modal from "../../components/Modal";
-import CreateFoodModal from "../../components/CreateFoodModal";
+import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
 
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");

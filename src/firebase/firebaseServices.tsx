@@ -63,6 +63,7 @@ export const addFoodItem = async (
     const docRef = await addDoc(foodsCol, {
       food_name: food.food_name,
       food_info: [
+        `熱量 ${food.calories} 大卡`,
         `碳水化合物 ${food.carbohydrates} 公克`,
         `蛋白質 ${food.protein} 公克`,
         `脂肪 ${food.fat} 公克`,

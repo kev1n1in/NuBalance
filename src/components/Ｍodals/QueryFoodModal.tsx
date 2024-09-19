@@ -1,9 +1,11 @@
 import styled from "styled-components";
-import Button from "./Button";
+import Button from "../Button";
 import { useQuery } from "react-query";
 import { useState } from "react";
-import { fetchFoodData } from "../firebase/firebaseServices";
-import { auth } from "../firebase/firebaseConfig";
+import { fetchFoodData } from "../../firebase/firebaseServices";
+import { auth } from "../../firebase/firebaseConfig";
+import CreateFoodModal from "./CreateFoodModal";
+import Modal from "../Modal";
 
 type FoodItem = {
   id: string;
@@ -49,6 +51,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
     }
   };
   const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <Wrapper>
@@ -72,17 +75,19 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             <ResultItem
               key={item.id}
               onClick={() => handleItemClick(item)}
-              isSelected={selectedItem?.id === item.id} // 根據選中狀態設置樣式
+              isSelected={selectedItem?.id === item.id}
             >
               <FoodName>{item.food_name}</FoodName>
               <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
             </ResultItem>
           ))
         ) : (
-          <NoItemsMessage>
-            找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
-          </NoItemsMessage>
+          <p>目前沒有相關結果</p>
         )}
+
+        <NoItemsMessage>
+          找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
+        </NoItemsMessage>
       </FoodDataContainer>
       <SelectedFoodContainer>
         {selectedItem ? (
@@ -97,9 +102,15 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
       <ButtonContainer>
         <Button label="加入" onClick={handleAddClick}></Button>
       </ButtonContainer>
+      {isModalOpen && (
+        <Modal onClose={closeModal}>
+          <CreateFoodModal onClose={closeModal} />
+        </Modal>
+      )}
     </Wrapper>
   );
 };
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -119,9 +130,10 @@ const Input = styled.input``;
 const SearchImg = styled.img``;
 
 const FoodDataContainer = styled.div`
-  margin: 48px 0;
+  margin: 24px 0;
   height: 40vh;
   overflow: auto;
+  border: 1px solid black;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -162,8 +174,13 @@ const FoodInfo = styled.p`
 
 const SelectResult = styled.div`
   height: 100px;
+  margin: 20px 0;
+  padding: 8px;
+  border: 1px solid black;
 `;
-const NoItemsMessage = styled.p``;
+const NoItemsMessage = styled.p`
+  padding: 8px;
+`;
 const CreateLink = styled.span`
   color: #007bff;
   cursor: pointer;

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import Button from "../components/Button";
-import { addFoodItem } from "../firebase/firebaseServices";
-import { auth, storage } from "../firebase/firebaseConfig";
+import Button from "../Button";
+import { addFoodItem } from "../../firebase/firebaseServices";
+import { auth, storage } from "../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { PacmanLoader } from "react-spinners";
 

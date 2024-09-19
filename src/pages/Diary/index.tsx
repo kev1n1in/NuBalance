@@ -15,7 +15,7 @@ import rageImg from "./moodsImg/Rage.png";
 import suspiciousImg from "./moodsImg/Suspicious.png";
 import girlImg from "./girl.png";
 import Modal from "../../components/Modal";
-import QueryFoodModal from "../../components/QueryFoodModal";
+import QueryFoodModal from "../../components/Ｍodals/QueryFoodModal";
 import { useMutation } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { addDiaryEntry } from "../../firebase/firebaseServices";
