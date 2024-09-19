@@ -176,7 +176,10 @@ export const updateTDEEHistory = async (
   });
 };
 
-export const getLatestTDEE = async (user: User) => {
+export const getUserHistory = async (
+  user: User,
+  returnLatest: boolean = false
+) => {
   if (!user) {
     throw new Error("請先登入");
   }
@@ -198,8 +201,7 @@ export const getLatestTDEE = async (user: User) => {
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
 
-  const latestTDEE = sortedHistory[0];
-  return latestTDEE;
+  return returnLatest ? sortedHistory[0] : sortedHistory;
 };
 
 export const getDiaryEntry = async (user: User, date: string) => {

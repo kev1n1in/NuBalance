@@ -5,7 +5,7 @@ import { Line } from "rc-progress";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
-import { getLatestTDEE, getDiaryEntry } from "../../firebase/firebaseServices";
+import { getUserHistory, getDiaryEntry } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import userImg from "./userImg.png";
 import Flatpickr from "react-flatpickr";
@@ -41,7 +41,9 @@ const UserInfo = () => {
       if (!currentUser) {
         throw new Error("用戶未登入");
       }
-      return await getLatestTDEE(currentUser);
+      const latestHistory = await getUserHistory(currentUser, true);
+      console.log("最新的歷史紀錄:", latestHistory);
+      return latestHistory;
     },
     {
       onSuccess: (data) => {
