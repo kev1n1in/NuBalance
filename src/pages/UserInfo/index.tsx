@@ -2,15 +2,21 @@ import Sidebar from "../../components/Sidebar";
 import styled from "styled-components";
 import Button from "../../components/Button";
 import { Line } from "rc-progress";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { getLatestTDEE, getDiaryEntry } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import userImg from "./userImg.png";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import { deleteDiaryEntry } from "../../firebase/firebaseServices";
+import trashImg from "./trash.png";
 
 interface DiaryEntry {
   id: string;
   food?: string;
+  meal?: string;
   nutrition?: {
     calories?: string;
     carbohydrates?: string;
@@ -20,7 +26,9 @@ interface DiaryEntry {
 }
 
 const UserInfo = () => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     data: latestTDEE,
@@ -50,16 +58,19 @@ const UserInfo = () => {
     isLoading: isLoadingDiary,
     error: errorDiary,
   } = useQuery<DiaryEntry[]>(
-    "diaryEntries",
+    ["diaryEntries", selectedDate],
     async () => {
       const currentUser = auth.currentUser;
       if (!currentUser) {
         throw new Error("用戶未登入");
       }
-      return await getDiaryEntry(currentUser);
+      const formattedDate = selectedDate.toLocaleDateString("sv-SE");
+      return await getDiaryEntry(currentUser, formattedDate);
     },
     {
       onSuccess: (data) => {
+        const formattedDate = selectedDate.toLocaleDateString("sv-SE");
+        console.log("日期:", formattedDate);
         console.log("獲取的日記條目:", data);
       },
       onError: (error) => {
@@ -101,7 +112,59 @@ const UserInfo = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
   };
+  const handleDelete = async (id: string) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("用戶未登入");
+      }
 
+      await deleteDiaryEntry(currentUser, id);
+      console.log(`日记 ${id} 已删除`);
+      queryClient.invalidateQueries(["diaryEntries", selectedDate]);
+    } catch (error) {
+      console.error("刪除日記失敗:", error);
+    }
+  };
+
+  const MealSection = ({
+    title,
+    entries,
+  }: {
+    title: string;
+    entries: DiaryEntry[];
+  }) => (
+    <MealSectionContainer>
+      <DiaryTitle>{title}</DiaryTitle>
+      {entries.length > 0 ? (
+        entries.map((entry) => (
+          <DiaryItem key={entry.id}>
+            <FoodName>{entry.food}</FoodName>
+            <FoodNutrition>
+              <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
+              <FoodCarbo>
+                {entry.nutrition?.carbohydrates || "未知"} |{" "}
+              </FoodCarbo>
+              <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
+              <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
+            </FoodNutrition>
+            <DeleteButton
+              src={trashImg}
+              onClick={() => handleDelete(entry.id)}
+            />
+          </DiaryItem>
+        ))
+      ) : (
+        <EmptyList>尚未新增</EmptyList>
+      )}
+    </MealSectionContainer>
+  );
+  const meals = {
+    breakfast: diaryEntries.filter((entry) => entry.meal === "早餐"),
+    lunch: diaryEntries.filter((entry) => entry.meal === "午餐"),
+    dinner: diaryEntries.filter((entry) => entry.meal === "晚餐"),
+    snack: diaryEntries.filter((entry) => entry.meal === "點心"),
+  };
   return (
     <Wrapper>
       <Sidebar />
@@ -157,24 +220,20 @@ const UserInfo = () => {
           </TodayTargetWrapper>
         </InfoWrapper>
         <DiaryList>
+          <DatePickerContainer>
+            <Flatpickr
+              value={selectedDate}
+              onChange={(date: Date[]) => setSelectedDate(date[0])}
+              options={{
+                dateFormat: "Y-m-d",
+              }}
+            />
+          </DatePickerContainer>
           <DiaryTitle>今天吃ㄌ</DiaryTitle>
-          {diaryEntries.map((entry) => {
-            return (
-              <DiaryItem key={entry.id}>
-                <FoodName>{entry.food}</FoodName>
-                <FoodNutrition>
-                  <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
-                  <FoodCarbo>
-                    {entry.nutrition?.carbohydrates || "未知"} |{" "}
-                  </FoodCarbo>
-                  <FoodProtein>
-                    {entry.nutrition?.protein || "未知"} |{" "}
-                  </FoodProtein>
-                  <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
-                </FoodNutrition>
-              </DiaryItem>
-            );
-          })}
+          <MealSection title="早餐" entries={meals.breakfast} />
+          <MealSection title="午餐" entries={meals.lunch} />
+          <MealSection title="晚餐" entries={meals.dinner} />
+          <MealSection title="點心" entries={meals.snack} />
         </DiaryList>
       </Container>
     </Wrapper>
@@ -186,7 +245,13 @@ export default UserInfo;
 const Wrapper = styled.div`
   margin: 50px 0 0 150px;
 `;
+const MealSectionContainer = styled.div`
+  margin: 12px 0;
+`;
 
+const EmptyList = styled.div`
+  color: gray;
+`;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -238,6 +303,14 @@ const ButtonContainer = styled.div`
   justify-content: space-between;
   margin-left: 20px;
 `;
+const DeleteButton = styled.img`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+`;
 
 const TargetProgressContainer = styled.div`
   position: relative;
@@ -275,7 +348,7 @@ const ProgressNumbers = styled.div`
     color: gray;
   }
 `;
-
+const DatePickerContainer = styled.div``;
 const DiaryList = styled.div`
   margin: 24px 0;
 `;
@@ -283,6 +356,7 @@ const DiaryList = styled.div`
 const DiaryTitle = styled.h2``;
 const DiaryItem = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
   margin: 12px 0;
   padding: 4px;

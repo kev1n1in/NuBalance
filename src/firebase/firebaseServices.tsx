@@ -6,6 +6,7 @@ import {
   addDoc,
   getDocs,
   getDoc,
+  deleteDoc,
   query,
   where,
   updateDoc,
@@ -201,42 +202,48 @@ export const getLatestTDEE = async (user: User) => {
   return latestTDEE.tdee;
 };
 
-export const getDiaryEntry = async (user: User) => {
+export const getDiaryEntry = async (user: User, date: string) => {
   if (!user) {
     throw new Error("請先登入");
   }
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
-
-  const todayDate = getTodayDate();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error("日期格式不正確");
+  }
 
   const diaryRef = collection(db, "users", user.uid, "diarys");
-  const diarySnapshot = await getDocs(diaryRef);
+  const startOfDay = new Date(date);
+  const endOfDay = new Date(date);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const q = query(
+    diaryRef,
+    where("time", ">=", startOfDay),
+    where("time", "<", endOfDay)
+  );
+
+  const diarySnapshot = await getDocs(q);
 
   if (diarySnapshot.empty) {
     return [];
   }
 
-  const todayEntries = diarySnapshot.docs.filter((doc) => {
-    const data = doc.data();
-
-    if (!data.time || !(data.time instanceof Date || data.time.toDate)) {
-      return false;
-    }
-
-    const entryDate = data.time.toDate ? data.time.toDate() : data.time;
-
-    const entryDateFormatted = entryDate.toISOString().split("T")[0];
-
-    return entryDateFormatted === todayDate;
-  });
-
-  const diaryEntries = todayEntries.map((doc) => ({
+  const diaryEntries = diarySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 
   return diaryEntries;
+};
+export const deleteDiaryEntry = async (user: User, diaryId: string) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+  try {
+    const diaryRef = doc(db, "users", user.uid, "diarys", diaryId);
+    await deleteDoc(diaryRef);
+    console.log(`日記 ${diaryId}已成功刪除`);
+  } catch (error) {
+    console.error(`刪除日記條目失敗: ${error}`);
+    throw error;
+  }
 };
