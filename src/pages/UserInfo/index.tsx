@@ -5,13 +5,18 @@ import { Line } from "rc-progress";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
-import { getUserHistory, getDiaryEntry } from "../../firebase/firebaseServices";
+import {
+  getUserHistory,
+  getDiaryEntry,
+  deleteDiaryEntry,
+} from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import userImg from "./userImg.png";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import { deleteDiaryEntry } from "../../firebase/firebaseServices";
 import trashImg from "./trash.png";
+import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
+import Modal from "../../components/Modal";
 
 interface DiaryEntry {
   id: string;
@@ -27,78 +32,49 @@ interface DiaryEntry {
 
 const UserInfo = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  console.log("selectedEntryId:", selectedEntryId);
 
   const {
-    data: latestTDEE,
+    data: latestTDEE = { tdee: 1800 },
     isLoading: isLoadingTDEE,
     error: errorTDEE,
-  } = useQuery(
-    "latestTDEE",
-    async () => {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error("用戶未登入");
-      }
-      const latestHistory = await getUserHistory(currentUser, true);
-      console.log("最新的歷史紀錄:", latestHistory);
-      return latestHistory;
-    },
-    {
-      onSuccess: (data) => {
-        console.log("獲取的 TDEE:", data);
-      },
-      onError: (error) => {
-        console.error("獲取 TDEE 失敗:", error);
-      },
+  } = useQuery("latestTDEE", async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("用戶未登入");
     }
-  );
+    const latestHistory = await getUserHistory(currentUser, true);
+    return latestHistory;
+  });
 
   const {
     data: diaryEntries = [],
     isLoading: isLoadingDiary,
     error: errorDiary,
-  } = useQuery<DiaryEntry[]>(
-    ["diaryEntries", selectedDate],
-    async () => {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error("用戶未登入");
-      }
-      const formattedDate = selectedDate.toLocaleDateString("sv-SE");
-      return await getDiaryEntry(currentUser, formattedDate);
-    },
-    {
-      onSuccess: (data) => {
-        const formattedDate = selectedDate.toLocaleDateString("sv-SE");
-        console.log("日期:", formattedDate);
-        console.log("獲取的日記條目:", data);
-      },
-      onError: (error) => {
-        console.error("獲取日記條目失敗:", error);
-      },
+  } = useQuery<DiaryEntry[]>(["diaryEntries", selectedDate], async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("用戶未登入");
     }
-  );
+    const formattedDate = selectedDate.toLocaleDateString("sv-SE");
+    return await getDiaryEntry(currentUser, formattedDate);
+  });
+
   const extractNumberFromString = (str: string): number => {
     const match = str.match(/(\d+(\.\d+)?)/);
     return match ? parseFloat(match[0]) : 0;
   };
 
-  const todayNutrition = diaryEntries
-    ? diaryEntries.reduce((total, entry) => {
-        const caloriesStr = entry.nutrition
-          ? entry.nutrition.calories || "0"
-          : "0";
-        const calories = extractNumberFromString(caloriesStr);
-        console.log(`Entry: ${entry.food}, Calories extracted: ${calories}`);
-        return total + calories;
-      }, 0)
-    : 0;
+  const todayNutrition = diaryEntries.reduce((total, entry) => {
+    const caloriesStr = entry.nutrition?.calories || "0";
+    return total + extractNumberFromString(caloriesStr);
+  }, 0);
 
-  console.log(`Total calories consumed today: ${todayNutrition}`);
-
-  const tdee = latestTDEE.tdee || 1800;
+  const tdee = latestTDEE.tdee;
   const remainingCalories = tdee - todayNutrition;
   const percentage = (todayNutrition / tdee) * 100;
 
@@ -114,6 +90,7 @@ const UserInfo = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
   };
+
   const handleDelete = async (id: string) => {
     try {
       const currentUser = auth.currentUser;
@@ -122,13 +99,17 @@ const UserInfo = () => {
       }
 
       await deleteDiaryEntry(currentUser, id);
-      console.log(`日记 ${id} 已删除`);
       queryClient.invalidateQueries(["diaryEntries", selectedDate]);
     } catch (error) {
       console.error("刪除日記失敗:", error);
     }
   };
-
+  const meals = {
+    breakfast: diaryEntries.filter((entry) => entry.meal === "早餐"),
+    lunch: diaryEntries.filter((entry) => entry.meal === "午餐"),
+    dinner: diaryEntries.filter((entry) => entry.meal === "晚餐"),
+    snack: diaryEntries.filter((entry) => entry.meal === "點心"),
+  };
   const MealSection = ({
     title,
     entries,
@@ -140,7 +121,7 @@ const UserInfo = () => {
       <DiaryTitle>{title}</DiaryTitle>
       {entries.length > 0 ? (
         entries.map((entry) => (
-          <DiaryItem key={entry.id}>
+          <DiaryItem key={entry.id} onClick={() => handleEdit(entry.id)}>
             <FoodName>{entry.food}</FoodName>
             <FoodNutrition>
               <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
@@ -161,12 +142,16 @@ const UserInfo = () => {
       )}
     </MealSectionContainer>
   );
-  const meals = {
-    breakfast: diaryEntries.filter((entry) => entry.meal === "早餐"),
-    lunch: diaryEntries.filter((entry) => entry.meal === "午餐"),
-    dinner: diaryEntries.filter((entry) => entry.meal === "晚餐"),
-    snack: diaryEntries.filter((entry) => entry.meal === "點心"),
+  const handleEdit = (entryId: string) => {
+    console.log("点击的 entryId:", entryId); // 这里打印 entryId 来确认
+    setSelectedEntryId(entryId);
+    setIsModalOpen(true);
   };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEntryId(null);
+  };
+
   return (
     <Wrapper>
       <Sidebar />
@@ -175,7 +160,6 @@ const UserInfo = () => {
         <InfoWrapper>
           <UserInfoCotainer>
             <UserImage src={userImg} />
-            {/* <WeightTarget>3kg</WeightTarget> */}
           </UserInfoCotainer>
           <TodayTargetWrapper>
             <TodayTargetContainer>
@@ -189,12 +173,12 @@ const UserInfo = () => {
                   label="更改熱量估計"
                   onClick={() => handleNavigation("../calculator")}
                   margin="12px 0"
-                ></Button>
+                />
                 <Button
                   label="新增飲食"
                   onClick={() => handleNavigation("../diary")}
                   margin="12px 0"
-                ></Button>
+                />
               </ButtonContainer>
             </TodayTargetContainer>
             <TodayTargetContainer>
@@ -231,17 +215,21 @@ const UserInfo = () => {
               }}
             />
           </DatePickerContainer>
-          <DiaryTitle>今天吃ㄌ</DiaryTitle>
+          <DiaryTitle>今天吃了</DiaryTitle>
           <MealSection title="早餐" entries={meals.breakfast} />
           <MealSection title="午餐" entries={meals.lunch} />
           <MealSection title="晚餐" entries={meals.dinner} />
           <MealSection title="點心" entries={meals.snack} />
         </DiaryList>
+        {isModalOpen && selectedEntryId && (
+          <Modal onClose={closeModal}>
+            <DiaryFoodModal onClose={closeModal} entryId={selectedEntryId} />
+          </Modal>
+        )}
       </Container>
     </Wrapper>
   );
 };
-
 export default UserInfo;
 
 const Wrapper = styled.div`
@@ -364,6 +352,7 @@ const DiaryItem = styled.div`
   padding: 4px;
   border: 1px solid gray;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 `;
 const FoodName = styled.span``;
 

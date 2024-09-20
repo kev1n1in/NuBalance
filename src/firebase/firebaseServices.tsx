@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const updateUserProfile = async (user: User) => {
   try {
@@ -125,7 +126,12 @@ interface DiaryEntry {
   mood?: string | null;
   note?: string;
   imageUrl?: string;
-  nutrition: string[];
+  nutrition: {
+    calories?: string;
+    carbohydrates?: string;
+    protein?: string;
+    fat?: string;
+  };
 }
 
 export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
@@ -142,6 +148,22 @@ export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
   return docRef.id;
 };
 
+export const uploadImageToStorage = async (file: File): Promise<string> => {
+  try {
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${file.name}`);
+
+    const snapshot = await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("圖片已上傳，下載 URL:", downloadURL);
+
+    return downloadURL;
+  } catch (error) {
+    console.error("圖片上傳失敗:", error);
+    throw new Error("圖片上傳失敗");
+  }
+};
 export const updateTDEEHistory = async (
   user: User,
   tdee: number,
@@ -248,4 +270,42 @@ export const deleteDiaryEntry = async (user: User, diaryId: string) => {
     console.error(`刪除日記條目失敗: ${error}`);
     throw error;
   }
+};
+
+export const fetchDiaryEntryById = async (user: User, diaryId: string) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+
+  const diaryRef = doc(db, "users", user.uid, "diarys", diaryId);
+  const diarySnapshot = await getDoc(diaryRef);
+
+  if (!diarySnapshot.exists()) {
+    throw new Error(`日記條目 ${diaryId} 不存在`);
+  }
+
+  const diaryData = diarySnapshot.data();
+  return {
+    id: diarySnapshot.id,
+    ...diaryData,
+  };
+};
+
+export const updateDiaryEntry = async (
+  user: User,
+  diaryId: string,
+  updatedData: Partial<DiaryEntry>
+) => {
+  if (!user) {
+    throw new Error("請先登入");
+  }
+
+  const diaryRef = doc(db, "users", user.uid, "diarys", diaryId);
+
+  await updateDoc(diaryRef, {
+    ...updatedData,
+    lastUpdated: serverTimestamp(),
+  });
+
+  console.log(`日記條目 ${diaryId} 已成功更新`);
 };

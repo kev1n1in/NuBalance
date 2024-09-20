@@ -13,6 +13,8 @@ const Food: React.FC = () => {
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const queryClient = useQueryClient();
   const currentUser = auth.currentUser;
 
@@ -24,12 +26,13 @@ const Food: React.FC = () => {
     ["foods", searchTerm],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
     {
-      enabled: triggerSearch,
-      onSuccess: () => setTriggerSearch(false),
+      enabled: triggerSearch, // 只有在觸發搜尋時才會執行查詢
+      onSuccess: () => setTriggerSearch(false), // 查詢成功後，重置 triggerSearch
     }
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrorMessage("");
     setSearchTerm(e.target.value);
   };
 
@@ -42,9 +45,14 @@ const Food: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !isComposing && searchTerm.trim() !== "") {
-      queryClient.invalidateQueries(["foods"]);
-      setTriggerSearch(true);
+    if (e.key === "Enter" && !isComposing) {
+      if (searchTerm.trim() === "") {
+        setErrorMessage("請輸入有效的關鍵字");
+      } else {
+        setErrorMessage("");
+        queryClient.invalidateQueries(["foods"]);
+        setTriggerSearch(true);
+      }
     }
   };
 
@@ -69,30 +77,43 @@ const Food: React.FC = () => {
           onCompositionStart={handleComposition}
           onCompositionEnd={handleComposition}
         />
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+
         <DataContainer>
           {isLoading && <p>加載中...</p>}
           {error && error instanceof Error ? (
             <p>發生錯誤: {error.message}</p>
           ) : null}
 
-          {foods.length > 0 ? (
-            foods.map((item) => (
-              <ResultItem
-                key={item.id}
-                onClick={() => handleItemClick(item.id)}
-                isSelected={selectedItem === item.id}
-              >
-                <FoodName>{item.food_name}</FoodName>
-                <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
-              </ResultItem>
-            ))
-          ) : (
-            <NoItemsMessage>
-              找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
-            </NoItemsMessage>
-          )}
+          {/* 顯示查詢結果 */}
+          {foods.length > 0
+            ? foods.map((item) => (
+                <ResultItem
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  isSelected={selectedItem === item.id}
+                >
+                  <FoodName>{item.food_name}</FoodName>
+                  <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
+                </ResultItem>
+              ))
+            : triggerSearch && <NoItemsMessage>查無結果</NoItemsMessage>}
+
+          <CreateLinkContainer>
+            找不到嗎？試試
+            <CreateLink onClick={openModal}>新增</CreateLink>
+          </CreateLinkContainer>
         </DataContainer>
+
+        {!triggerSearch && !searchTerm.trim() && (
+          <NoDataMessageContainer>
+            <NoDataMessage>
+              目前沒有食品資料，請輸入關鍵字進行查詢
+            </NoDataMessage>
+          </NoDataMessageContainer>
+        )}
       </Container>
+
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <CreateFoodModal onClose={closeModal} />
@@ -101,10 +122,12 @@ const Food: React.FC = () => {
     </Wrapper>
   );
 };
+
 const Wrapper = styled.div`
   display: flex;
   margin-left: 150px;
 `;
+
 const Title = styled.h1`
   margin: 12px 0;
 `;
@@ -115,6 +138,12 @@ const Input = styled.input`
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  margin-top: -10px;
+  margin-bottom: 10px;
 `;
 
 const Container = styled.div`
@@ -160,7 +189,24 @@ const FoodInfo = styled.p`
   color: #555;
 `;
 
-const NoItemsMessage = styled.p``;
+const NoItemsMessage = styled.p`
+  margin-top: 20px;
+  font-size: 14px;
+`;
+
+const NoDataMessageContainer = styled.div`
+  text-align: center;
+`;
+
+const NoDataMessage = styled.span`
+  font-size: 16px;
+  color: #555;
+`;
+
+const CreateLinkContainer = styled.h3`
+  margin-top: 20px;
+`;
+
 const CreateLink = styled.span`
   color: #007bff;
   cursor: pointer;

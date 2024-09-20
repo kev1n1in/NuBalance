@@ -1,7 +1,7 @@
+import { useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import { useQuery } from "react-query";
-import { useState } from "react";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import CreateFoodModal from "./CreateFoodModal";
@@ -12,6 +12,7 @@ type FoodItem = {
   food_name: string;
   food_info: string[];
 };
+
 type QueryFoodModalProps = {
   onAddFood: (food: FoodItem) => void;
 };
@@ -21,7 +22,10 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const currentUser = auth.currentUser;
+
   const {
     data: foods = [],
     isLoading,
@@ -30,26 +34,36 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   } = useQuery(
     ["foods", triggerSearch],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
-    { enabled: searchTerm.length > 0 }
+    { enabled: searchTerm.trim().length > 0 }
   );
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setErrorMessage(""); // 清空錯誤訊息
     setSearchTerm(event.target.value);
   };
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      setTriggerSearch(true);
-      refetch();
+      if (searchTerm.trim() === "") {
+        setErrorMessage("請輸入關鍵字");
+      } else {
+        setErrorMessage("");
+        setTriggerSearch(true);
+        refetch();
+      }
     }
   };
+
   const handleItemClick = (item: FoodItem) => {
     setSelectedItem(item);
   };
+
   const handleAddClick = () => {
     if (selectedItem) {
       onAddFood(selectedItem);
     }
   };
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -59,11 +73,15 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
       <InputContainer>
         <Input
           type="text"
+          value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-        ></Input>
+          placeholder="請輸入食物關鍵字"
+        />
         <SearchImg />
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </InputContainer>
+
       <FoodDataContainer>
         {isLoading && <p>加載中...</p>}
         {error && error instanceof Error ? (
@@ -89,6 +107,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
           找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
         </NoItemsMessage>
       </FoodDataContainer>
+
       <SelectedFoodContainer>
         {selectedItem ? (
           <SelectResult>
@@ -99,9 +118,11 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
           <SelectResult>尚未選擇任何食物</SelectResult>
         )}
       </SelectedFoodContainer>
+
       <ButtonContainer>
         <Button label="加入" onClick={handleAddClick}></Button>
       </ButtonContainer>
+
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <CreateFoodModal onClose={closeModal} />
@@ -117,15 +138,25 @@ const Wrapper = styled.div`
   width: 100%;
   height: 80vh;
 `;
+
 const Title = styled.h1`
   text-align: center;
 `;
+
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
-const Input = styled.input``;
+const Input = styled.input`
+  padding: 8px;
+  font-size: 16px;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 14px;
+`;
 
 const SearchImg = styled.img``;
 
@@ -137,7 +168,6 @@ const FoodDataContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
-
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
@@ -156,7 +186,6 @@ const ResultItem = styled.div<{ isSelected: boolean }>`
   border-radius: 4px;
   background-color: ${({ isSelected }) => (isSelected ? "#f0f0f0" : "white")};
   cursor: pointer;
-
   &:hover {
     background-color: #f9f9f9;
   }
@@ -178,11 +207,14 @@ const SelectResult = styled.div`
   padding: 8px;
   border: 1px solid black;
 `;
+
 const NoItemsMessage = styled.p`
   padding: 8px;
 `;
+
 const CreateLink = styled.span`
   color: #007bff;
   cursor: pointer;
 `;
+
 export default QueryFoodModal;

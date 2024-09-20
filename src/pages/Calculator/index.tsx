@@ -2,7 +2,6 @@ import styled from "styled-components";
 import Sidebar from "../../components/Sidebar";
 import { useEffect, useState } from "react";
 import calculateTDEE from "../../services/TdeeCalculator";
-import useStore from "../../useStore";
 import Button from "../../components/Button";
 import { updateTDEEHistory } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
@@ -23,10 +22,6 @@ const Calculator = () => {
     gender,
     activityLevel
   );
-  const setTdee = useStore((state) => state.setTdee);
-  useEffect(() => {
-    setTdee(totalCalories), [totalCalories, setTdee];
-  });
 
   const handleSave = async () => {
     const user = auth.currentUser;

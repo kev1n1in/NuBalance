@@ -19,6 +19,7 @@ import QueryFoodModal from "../../components/Ｍodals/QueryFoodModal";
 import { useMutation } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { addDiaryEntry } from "../../firebase/firebaseServices";
+import { uploadImageToStorage } from "../../firebase/firebaseServices";
 
 type FoodItem = {
   id: string;
@@ -103,10 +104,22 @@ const Diary = () => {
     }
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedMeal || !selectedFood || !selectedTime) {
       alert("請填寫所有必填欄位");
       return;
+    }
+
+    let imageUrl = null;
+    if (imageRef.current && imageRef.current.files?.length) {
+      const file = imageRef.current.files[0];
+
+      try {
+        imageUrl = await uploadImageToStorage(file);
+      } catch (error) {
+        console.error("圖片上傳過程中出錯:", error);
+        return;
+      }
     }
 
     const newDiaryEntry = {
@@ -115,9 +128,7 @@ const Diary = () => {
       mood: selectedMood ? selectedMood.name : null,
       time: selectedTime,
       note: noteRef.current?.value || "",
-      imageUrl: imageRef.current?.files?.length
-        ? imageRef.current.files[0].name
-        : null,
+      imageUrl: imageUrl || null,
       nutrition: {
         calories: selectedFood.food_info[0],
         carbohydrates: selectedFood.food_info[1],
