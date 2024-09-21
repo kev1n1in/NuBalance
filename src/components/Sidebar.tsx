@@ -1,14 +1,31 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { signOutUser } from "../firebase/firebaseAuth";
 import Cookies from "js-cookie";
+import { annotate } from "rough-notation";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleNavigation = (path: string, state: any = {}) => {
     navigate(path, { state });
+  };
+
+  const handleItemClick = (path: string, index: number) => {
+    handleNavigation(path);
+    const item = itemRefs.current[index];
+    if (item) {
+      const annotation = annotate(item, {
+        type: "underline",
+        color: "blue",
+        padding: 5,
+        animationDuration: 200,
+      });
+      annotation.show();
+    }
   };
 
   const handleLogout = async () => {
@@ -22,20 +39,55 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const index = [
+      "/userInfo",
+      "/calculator",
+      "/food",
+      "/diary",
+      "/report",
+    ].indexOf(currentPath);
+    if (index !== -1) {
+      const item = itemRefs.current[index];
+      if (item) {
+        const annotation = annotate(item, {
+          type: "underline",
+          color: "white",
+          padding: 5,
+          animationDuration: 200,
+        });
+        annotation.show();
+      }
+    }
+  }, [location]);
+
   return (
     <Wrapper>
       <NavBar>
         <Logo onClick={() => handleNavigation("/landing")} />
-        <Item onClick={() => handleNavigation("/userInfo")}>Home</Item>
-        <Item
-          onClick={() => handleNavigation("/calculator", { fromSidebar: true })}
-        >
-          Calculator
+        {["/userInfo", "/calculator", "/food", "/diary", "/report"].map(
+          (path, index) => (
+            <Item
+              key={index}
+              ref={(el) => (itemRefs.current[index] = el)}
+              onClick={() => handleItemClick(path, index)}
+            >
+              {index === 0
+                ? "用戶資訊"
+                : index === 1
+                ? "TDEE計算器"
+                : index === 2
+                ? "食物資料庫"
+                : index === 3
+                ? "日記"
+                : "數據報告"}
+            </Item>
+          )
+        )}
+        <Item onClick={handleLogout} ref={(el) => (itemRefs.current[5] = el)}>
+          Logout
         </Item>
-        <Item onClick={() => handleNavigation("/food")}>Food</Item>
-        <Item onClick={() => handleNavigation("/diary")}>Diary</Item>
-        <Item onClick={() => handleNavigation("/report")}>Report</Item>
-        <Item onClick={handleLogout}>Logout</Item>
       </NavBar>
     </Wrapper>
   );
