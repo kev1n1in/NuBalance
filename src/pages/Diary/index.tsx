@@ -20,6 +20,7 @@ import { useMutation } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { addDiaryEntry } from "../../firebase/firebaseServices";
 import { uploadImageToStorage } from "../../firebase/firebaseServices";
+import { useFoodStore } from "../../stores/foodStore";
 
 type FoodItem = {
   id: string;
@@ -54,7 +55,7 @@ const moods: MoodItem[] = [
 
 const Diary = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
+  const { selectedFood, setSelectedFood } = useFoodStore();
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodItem | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());

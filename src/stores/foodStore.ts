@@ -8,7 +8,7 @@ type FoodItem = {
 
 interface FoodStore {
   selectedFood: FoodItem | null;
-  setSelectedFood: (food: FoodItem) => void;
+  setSelectedFood: (food: FoodItem | null) => void;
   clearSelectedFood: () => void;
 }
 

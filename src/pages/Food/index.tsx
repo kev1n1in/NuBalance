@@ -6,17 +6,28 @@ import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
 import Modal from "../../components/Modal";
 import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
+import { useFoodStore } from "../../stores/foodStore";
+import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
+
+interface FoodItem {
+  id: string;
+  food_name: string;
+  food_info: string[];
+}
 
 const Food: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const queryClient = useQueryClient();
   const currentUser = auth.currentUser;
+  const navigate = useNavigate();
+  const { setSelectedFood } = useFoodStore();
 
   const {
     data: foods = [],
@@ -63,8 +74,9 @@ const Food: React.FC = () => {
     }
   };
 
-  const handleItemClick = (id: string) => {
-    setSelectedItem(id);
+  const handleAddFood = (item: FoodItem) => {
+    setSelectedFood(item);
+    navigate("../diary");
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -92,17 +104,20 @@ const Food: React.FC = () => {
             <p>發生錯誤: {error.message}</p>
           ) : null}
 
-          {/* 顯示查詢結果 */}
           {foods.length > 0
             ? foods.map((item) => (
-                <ResultItem
-                  key={item.id}
-                  onClick={() => handleItemClick(item.id)}
-                  isSelected={selectedItem === item.id}
-                >
-                  <FoodName>{item.food_name}</FoodName>
-                  <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
-                </ResultItem>
+                <ResultItemContainer key={item.id}>
+                  <ResultItem>
+                    <FoodName>{item.food_name}</FoodName>
+                    <FoodInfo>{item.food_info.join("｜")}</FoodInfo>
+                  </ResultItem>
+                  <ButtonWrapper>
+                    <Button
+                      label="加入菜單"
+                      onClick={() => handleAddFood(item)}
+                    />
+                  </ButtonWrapper>
+                </ResultItemContainer>
               ))
             : triggerSearch && <NoItemsMessage>查無結果</NoItemsMessage>}
 
@@ -176,17 +191,23 @@ const DataContainer = styled.div`
   scrollbar-width: none;
 `;
 
-const ResultItem = styled.div<{ isSelected: boolean }>`
-  margin-bottom: 10px;
-  padding: 10px;
+const ResultItemContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: ${({ isSelected }) => (isSelected ? "#f0f0f0" : "white")};
-  cursor: pointer;
-
   &:hover {
     background-color: #f9f9f9;
   }
+`;
+const ResultItem = styled.div`
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+
+  border-radius: 4px;
+  background-color: "f0f0f0";
+  cursor: pointer;
 `;
 
 const FoodName = styled.h3`
@@ -220,6 +241,9 @@ const CreateLinkContainer = styled.h3`
 const CreateLink = styled.span`
   color: #007bff;
   cursor: pointer;
+`;
+const ButtonWrapper = styled.div`
+  margin-right: 12px;
 `;
 
 export default Food;
