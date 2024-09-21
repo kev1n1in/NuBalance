@@ -21,6 +21,7 @@ import { auth } from "../../firebase/firebaseConfig";
 import { addDiaryEntry } from "../../firebase/firebaseServices";
 import { uploadImageToStorage } from "../../firebase/firebaseServices";
 import { useFoodStore } from "../../stores/foodStore";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type FoodItem = {
   id: string;
@@ -61,6 +62,8 @@ const Diary = () => {
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
   const noteRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -98,6 +101,9 @@ const Diary = () => {
         setSelectedTime(new Date());
         if (noteRef.current) noteRef.current.value = "";
         if (imageRef.current) imageRef.current.value = "";
+        if (state?.fromUserInfo) {
+          navigate("../userInfo");
+        }
       },
       onError: (error) => {
         console.error("日記條目保存失敗:", error);

@@ -176,9 +176,15 @@ const UserInfo = () => {
                   }
                 />
                 <Button
-                  label="新增飲食"
-                  onClick={() => handleNavigation("../diary")}
+                  label="查詢食品"
+                  onClick={() => navigate("../food")}
                   margin="12px 0"
+                />
+                <Button
+                  label="新增飲食"
+                  onClick={() =>
+                    navigate("../diary", { state: { fromUserInfo: true } })
+                  }
                 />
               </ButtonContainer>
             </TodayTargetContainer>
