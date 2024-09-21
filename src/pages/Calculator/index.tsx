@@ -6,6 +6,7 @@ import Button from "../../components/Button";
 import { updateTDEEHistory } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import manImg from "./man.png";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -22,6 +23,8 @@ const Calculator = () => {
     gender,
     activityLevel
   );
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSave = async () => {
     const user = auth.currentUser;
@@ -42,6 +45,11 @@ const Calculator = () => {
         bodyFat
       );
       alert("TDEE 計算已保存到 Firebase");
+      if (location.state?.fromSidebar) {
+        window.location.reload();
+      } else {
+        navigate("/userinfo");
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`保存 TDEE 計算失敗: ${error.message}`);

@@ -171,8 +171,9 @@ const UserInfo = () => {
               <ButtonContainer>
                 <Button
                   label="更改熱量估計"
-                  onClick={() => handleNavigation("../calculator")}
-                  margin="12px 0"
+                  onClick={() =>
+                    navigate("../calculator", { state: { fromUserInfo: true } })
+                  }
                 />
                 <Button
                   label="新增飲食"

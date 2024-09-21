@@ -7,8 +7,8 @@ import Cookies from "js-cookie";
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
+  const handleNavigation = (path: string, state: any = {}) => {
+    navigate(path, { state });
   };
 
   const handleLogout = async () => {
@@ -27,7 +27,11 @@ const Sidebar: React.FC = () => {
       <NavBar>
         <Logo onClick={() => handleNavigation("/landing")} />
         <Item onClick={() => handleNavigation("/userInfo")}>Home</Item>
-        <Item onClick={() => handleNavigation("/calculator")}>Calculator</Item>
+        <Item
+          onClick={() => handleNavigation("/calculator", { fromSidebar: true })}
+        >
+          Calculator
+        </Item>
         <Item onClick={() => handleNavigation("/food")}>Food</Item>
         <Item onClick={() => handleNavigation("/diary")}>Diary</Item>
         <Item onClick={() => handleNavigation("/report")}>Report</Item>
