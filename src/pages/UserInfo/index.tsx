@@ -143,7 +143,7 @@ const UserInfo = () => {
     </MealSectionContainer>
   );
   const handleEdit = (entryId: string) => {
-    console.log("点击的 entryId:", entryId); // 这里打印 entryId 来确认
+    console.log("点击的 entryId:", entryId);
     setSelectedEntryId(entryId);
     setIsModalOpen(true);
   };

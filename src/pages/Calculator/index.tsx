@@ -3,10 +3,15 @@ import Sidebar from "../../components/Sidebar";
 import { useEffect, useState } from "react";
 import calculateTDEE from "../../services/TdeeCalculator";
 import Button from "../../components/Button";
-import { updateTDEEHistory } from "../../firebase/firebaseServices";
+import {
+  updateTDEEHistory,
+  getUserHistory,
+} from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import manImg from "./man.png";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "react-query";
+import Loader from "../../components/Loader";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -15,27 +20,40 @@ const Calculator = () => {
   const [height, setHeight] = useState(175);
   const [activityLevel, setActivityLevel] = useState("Moderate");
   const [bodyFat, setBodyFat] = useState(17);
-
-  const totalCalories = calculateTDEE(
-    weight,
-    height,
-    age,
-    gender,
-    activityLevel
-  );
+  const [totalCalories, setTotalCalories] = useState(0);
+  const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const navigate = useNavigate();
   const location = useLocation();
+  const [reloadFlag, setReloadFlag] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const updateCalculation = () => {
+    const newTDEE = calculateTDEE(weight, height, age, gender, activityLevel);
+    setTotalCalories(newTDEE);
+  };
+
+  useEffect(() => {
+    updateCalculation();
+  }, [age, gender, weight, height, activityLevel, bodyFat]);
 
   const handleSave = async () => {
-    const user = auth.currentUser;
-
-    if (!user) {
-      console.log("請先登入");
+    if (!currentUser) {
+      alert("請先登入");
       return;
     }
     try {
       await updateTDEEHistory(
-        user,
+        currentUser,
         totalCalories,
         age,
         weight,
@@ -45,8 +63,12 @@ const Calculator = () => {
         bodyFat
       );
       alert("TDEE 計算已保存到 Firebase");
+
       if (location.state?.fromSidebar) {
-        window.location.reload();
+        setReloadFlag(true);
+        setTimeout(() => {
+          setReloadFlag(false);
+        }, 500);
       } else {
         navigate("/userinfo");
       }
@@ -58,6 +80,36 @@ const Calculator = () => {
       }
     }
   };
+
+  const {
+    data: latestTDEE,
+    isLoading,
+    error,
+  } = useQuery(
+    "latestTDEE",
+    async () => {
+      if (!currentUser) {
+        throw new Error("用戶未登入");
+      }
+      const latestHistory = await getUserHistory(currentUser, true);
+      return latestHistory;
+    },
+    {
+      enabled: !!currentUser,
+    }
+  );
+
+  useEffect(() => {
+    if (latestTDEE && !isLoading) {
+      setAge(latestTDEE.age);
+      setGender(latestTDEE.gender);
+      setWeight(latestTDEE.weight);
+      setHeight(latestTDEE.height);
+      setActivityLevel(latestTDEE.activityLevel);
+      setBodyFat(latestTDEE.bodyFat);
+      setTotalCalories(latestTDEE.tdee);
+    }
+  }, [latestTDEE, isLoading]);
 
   return (
     <Wrapper>
@@ -173,6 +225,7 @@ const Calculator = () => {
           </ButtonContainer>
         </TdeeContainer>
       </Container>
+      <Loader isLoading={isLoading} />
     </Wrapper>
   );
 };
@@ -204,11 +257,13 @@ const TdeeContainer = styled.div`
   margin: 0 auto;
   align-items: flex-end;
 `;
+
 const ManImg = styled.img`
   position: absolute;
   left: -48px;
   top: 96px;
 `;
+
 const Form = styled.div`
   width: 70%;
 `;
@@ -263,4 +318,5 @@ const CaloriesText = styled.div`
 `;
 
 const ButtonContainer = styled.div``;
+
 export default Calculator;

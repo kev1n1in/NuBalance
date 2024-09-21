@@ -6,7 +6,7 @@ import Button from "../Button";
 import { addFoodItem } from "../../firebase/firebaseServices";
 import { auth, storage } from "../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { PacmanLoader } from "react-spinners";
+import Loader from "../Loader"; // 引入 Loader 組件
 
 interface FormValues {
   foodInfo: string[];
@@ -173,12 +173,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
 
   return (
     <ModalWrapper>
-      {isUploading && (
-        <LoaderOverlay>
-          <PacmanLoader color="gray" />
-          <LoadingMessage>掃描中</LoadingMessage>
-        </LoaderOverlay>
-      )}
+      <Loader isLoading={isUploading} /> {/* 使用自定義的 Loader 組件 */}
       <Title>新增食品</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>食品名稱</InputTitle>
@@ -251,22 +246,9 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
     </ModalWrapper>
   );
 };
-const ModalWrapper = styled.div``;
-const LoaderOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
 
-const LoadingMessage = styled.span``;
+const ModalWrapper = styled.div``;
+
 const Title = styled.h1`
   margin-top: 0;
   margin-bottom: 20px;
@@ -286,6 +268,7 @@ const ErrorMessage = styled.p`
   color: red;
   font-size: 12px;
 `;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: end;
