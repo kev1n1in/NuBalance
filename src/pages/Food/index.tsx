@@ -22,15 +22,22 @@ const Food: React.FC = () => {
     data: foods = [],
     isLoading,
     error,
+    refetch,
   } = useQuery(
     ["foods", searchTerm],
     () => fetchFoodData(searchTerm, currentUser?.uid || ""),
     {
-      enabled: triggerSearch, // 只有在觸發搜尋時才會執行查詢
-      onSuccess: () => setTriggerSearch(false), // 查詢成功後，重置 triggerSearch
+      enabled: triggerSearch,
+      onSuccess: () => setTriggerSearch(false),
     }
   );
 
+  const handleFoodCreated = (foodName: string) => {
+    setSearchTerm(foodName);
+    setIsModalOpen(false);
+    setTriggerSearch(true);
+    refetch();
+  };
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage("");
     setSearchTerm(e.target.value);
@@ -116,7 +123,10 @@ const Food: React.FC = () => {
 
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <CreateFoodModal onClose={closeModal} />
+          <CreateFoodModal
+            onClose={closeModal}
+            onFoodCreated={handleFoodCreated}
+          />
         </Modal>
       )}
     </Wrapper>
