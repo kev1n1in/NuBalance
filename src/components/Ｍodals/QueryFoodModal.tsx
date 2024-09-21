@@ -25,6 +25,12 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const currentUser = auth.currentUser;
+  const handleFoodCreated = (foodName: string) => {
+    setSearchTerm(foodName);
+    setIsModalOpen(false);
+    setTriggerSearch(true);
+    refetch();
+  };
 
   const {
     data: foods = [],
@@ -125,7 +131,10 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
 
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <CreateFoodModal onClose={closeModal} />
+          <CreateFoodModal
+            onClose={closeModal}
+            onFoodCreated={handleFoodCreated}
+          />
         </Modal>
       )}
     </Wrapper>

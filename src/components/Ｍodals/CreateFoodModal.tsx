@@ -6,7 +6,7 @@ import Button from "../Button";
 import { addFoodItem } from "../../firebase/firebaseServices";
 import { auth, storage } from "../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import Loader from "../Loader"; // 引入 Loader 組件
+import Loader from "../Loader";
 
 interface FormValues {
   foodInfo: string[];
@@ -20,9 +20,13 @@ interface FormValues {
 
 interface CreateFoodModalProps {
   onClose: () => void;
+  onFoodCreated: (foodName: string) => void;
 }
 
-const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
+const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
+  onClose,
+  onFoodCreated,
+}) => {
   const queryClient = useQueryClient();
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -32,7 +36,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
 
   const {
     register,
-    setValue, // 用來手動設置 Input 的值
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
@@ -128,9 +132,9 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPreviewImage(URL.createObjectURL(file)); // 圖片預覽
-      const downloadUrl = await handleImageUpload(file); // 上傳圖片
-      await processImageForText(downloadUrl); // 調用辨識
+      setPreviewImage(URL.createObjectURL(file));
+      const downloadUrl = await handleImageUpload(file);
+      await processImageForText(downloadUrl);
     }
   };
 
@@ -152,8 +156,9 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
         auth
       );
     },
-    onSuccess: (id) => {
+    onSuccess: (id, data) => {
       alert(`食品資料新增成功，文件 ID: ${id}`);
+      onFoodCreated(data.foodName);
       queryClient.invalidateQueries("foods");
       onClose();
     },
@@ -173,7 +178,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({ onClose }) => {
 
   return (
     <ModalWrapper>
-      <Loader isLoading={isUploading} /> {/* 使用自定義的 Loader 組件 */}
+      <Loader isLoading={isUploading} />
       <Title>新增食品</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>食品名稱</InputTitle>
