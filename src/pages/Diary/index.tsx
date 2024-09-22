@@ -93,8 +93,8 @@ const Diary = () => {
       return await addDiaryEntry(auth.currentUser, newDiaryEntry);
     },
     {
-      onSuccess: (data) => {
-        console.log("日記條目已成功保存，ID:", data);
+      onSuccess: () => {
+        alert("成功新增！");
         setSelectedMeal(null);
         setSelectedFood(null);
         setSelectedMood(null);
