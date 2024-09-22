@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Sidebar from "../../components/Sidebar";
 import { useEffect, useState } from "react";
-import calculateTDEE from "../../services/TdeeCalculator";
+import TDEECalculator from "../../services/TDEECalculator";
 import Button from "../../components/Button";
 import {
   updateTDEEHistory,
@@ -10,7 +10,7 @@ import {
 import { auth } from "../../firebase/firebaseConfig";
 import manImg from "./man.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import Loader from "../../components/Loader";
 import Slider from "../../components/Slider";
 
@@ -39,7 +39,13 @@ const Calculator = () => {
   }, []);
 
   const updateCalculation = () => {
-    const newTDEE = calculateTDEE(weight, height, age, gender, activityLevel);
+    const newTDEE = TDEECalculator.calculateTDEE(
+      weight,
+      height,
+      age,
+      gender,
+      activityLevel
+    );
     setTotalCalories(newTDEE);
   };
 
@@ -47,12 +53,13 @@ const Calculator = () => {
     updateCalculation();
   }, [age, gender, weight, height, activityLevel, bodyFat]);
 
-  const handleSave = async () => {
-    if (!currentUser) {
-      alert("請先登入");
-      return;
-    }
-    try {
+  const mutation = useMutation(
+    async () => {
+      if (!currentUser) {
+        throw new Error("請先登入");
+      }
+      const bmi = TDEECalculator.calculateBMI(weight, height);
+
       await updateTDEEHistory(
         currentUser,
         totalCalories,
@@ -61,25 +68,35 @@ const Calculator = () => {
         height,
         gender,
         activityLevel,
-        bodyFat
+        bodyFat,
+        bmi
       );
-      alert("TDEE 計算已保存到 Firebase");
+    },
+    {
+      onSuccess: () => {
+        alert("TDEE 和 BMI 計算已保存到 Firebase");
 
-      if (location.state?.fromSidebar) {
-        setReloadFlag(true);
-        setTimeout(() => {
-          setReloadFlag(false);
-        }, 500);
-      } else {
-        navigate("/userinfo");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(`保存 TDEE 計算失敗: ${error.message}`);
-      } else {
-        alert("保存 TDEE 計算失敗: 未知錯誤");
-      }
+        if (location.state?.fromSidebar) {
+          setReloadFlag(true);
+          setTimeout(() => {
+            setReloadFlag(false);
+          }, 500);
+        } else {
+          navigate("/userinfo");
+        }
+      },
+      onError: (error: unknown) => {
+        if (error instanceof Error) {
+          alert(`保存 TDEE 計算失敗: ${error.message}`);
+        } else {
+          alert("保存 TDEE 計算失敗: 未知錯誤");
+        }
+      },
     }
+  );
+
+  const handleSave = () => {
+    mutation.mutate();
   };
 
   const { data: latestTDEE, isLoading } = useQuery(
@@ -139,8 +156,6 @@ const Calculator = () => {
                 }}
               />
             </FormItem>
-
-            {/* Weight with Slider and Input */}
             <FormItem>
               <Title>Weight</Title>
               <SliderWrapper>
@@ -163,8 +178,6 @@ const Calculator = () => {
                 }}
               />
             </FormItem>
-
-            {/* Height with Slider and Input */}
             <FormItem>
               <Title>Height</Title>
               <SliderWrapper>
@@ -187,8 +200,6 @@ const Calculator = () => {
                 }}
               />
             </FormItem>
-
-            {/* Body Fat with Slider and Input */}
             <FormItem>
               <Title>Body Fat</Title>
               <SliderWrapper>
@@ -226,7 +237,6 @@ const Calculator = () => {
   );
 };
 
-// 樣式
 const Wrapper = styled.div`
   margin-left: 150px;
 `;

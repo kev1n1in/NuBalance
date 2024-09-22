@@ -2,6 +2,7 @@ import {
   doc,
   setDoc,
   serverTimestamp,
+  Timestamp,
   collection,
   addDoc,
   getDocs,
@@ -11,12 +12,13 @@ import {
   where,
   updateDoc,
   arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-export const updateUserProfile = async (user: User) => {
+export const updateUserProfile = async (user: User, userName?: string) => {
   try {
     const userRef = doc(db, "users", user.uid);
     await setDoc(
@@ -24,7 +26,7 @@ export const updateUserProfile = async (user: User) => {
       {
         uid: user.uid,
         email: user.email,
-        username: user.displayName || "Unknown",
+        username: userName || user.displayName || "Unknown",
         createdAt: user.metadata.creationTime,
         lastLoged: serverTimestamp(),
       },
@@ -164,6 +166,21 @@ export const uploadImageToStorage = async (file: File): Promise<string> => {
     throw new Error("圖片上傳失敗");
   }
 };
+interface HistoryItem {
+  tdee: number;
+  age: number;
+  weight: number;
+  height: number;
+  gender: string;
+  activityLevel: string;
+  bodyFat?: number;
+  bmi?: number;
+  clientUpdateTime: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
+
 export const updateTDEEHistory = async (
   user: User,
   tdee: number,
@@ -172,26 +189,65 @@ export const updateTDEEHistory = async (
   height: number,
   gender: string,
   activityLevel: string,
-  bodyFat?: number
+  bodyFat?: number,
+  bmi?: number
 ) => {
   if (!user) {
     throw new Error("請先登入");
   }
-  const userRef = doc(db, "users", user.uid);
 
-  await updateDoc(userRef, {
-    history: arrayUnion({
-      tdee,
-      age,
-      weight,
-      height,
-      gender,
-      activityLevel,
-      bodyFat,
-      clientUpdateTime: new Date(),
-    }),
+  const userRef = doc(db, "users", user.uid);
+  const userDoc = await getDoc(userRef);
+  const userData = userDoc.data();
+  const today = new Date();
+  const todayDateString = today.toISOString().split("T")[0];
+
+  let history: HistoryItem[] = userData?.history || [];
+
+  const existingRecordIndex = history.findIndex((item: HistoryItem) => {
+    const itemDate = new Date(item.clientUpdateTime.seconds * 1000)
+      .toISOString()
+      .split("T")[0];
+    return itemDate === todayDateString;
   });
-  console.log("TDEE已更新");
+
+  if (existingRecordIndex !== -1) {
+    const updatedHistory = history[existingRecordIndex];
+    updatedHistory.tdee = tdee;
+    updatedHistory.age = age;
+    updatedHistory.weight = weight;
+    updatedHistory.height = height;
+    updatedHistory.gender = gender;
+    updatedHistory.activityLevel = activityLevel;
+    updatedHistory.bodyFat = bodyFat;
+    updatedHistory.bmi = bmi;
+    updatedHistory.clientUpdateTime = Timestamp.fromDate(new Date());
+
+    await updateDoc(userRef, {
+      history: arrayRemove(history[existingRecordIndex]),
+    });
+
+    await updateDoc(userRef, {
+      history: arrayUnion(updatedHistory),
+    });
+
+    console.log("當天的 TDEE 記錄已更新");
+  } else {
+    await updateDoc(userRef, {
+      history: arrayUnion({
+        tdee,
+        age,
+        weight,
+        height,
+        gender,
+        activityLevel,
+        bodyFat,
+        clientUpdateTime: Timestamp.fromDate(new Date()),
+      }),
+    });
+
+    console.log("TDEE 記錄已新增");
+  }
 
   await updateDoc(userRef, {
     lastUpdated: serverTimestamp(),
