@@ -86,7 +86,7 @@ const Sidebar: React.FC = () => {
           )
         )}
         <Item onClick={handleLogout} ref={(el) => (itemRefs.current[5] = el)}>
-          Logout
+          登出
         </Item>
       </NavBar>
     </Wrapper>

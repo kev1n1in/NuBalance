@@ -87,10 +87,6 @@ const UserInfo = () => {
     return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
   }
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
   const handleDelete = async (id: string) => {
     try {
       const currentUser = auth.currentUser;
@@ -131,10 +127,15 @@ const UserInfo = () => {
               <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
               <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
             </FoodNutrition>
-            <DeleteButton
-              src={trashImg}
-              onClick={() => handleDelete(entry.id)}
-            />
+            <DeleteButtonContainer>
+              <DeleteButton
+                src={trashImg}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(entry.id);
+                }}
+              />
+            </DeleteButtonContainer>
           </DiaryItem>
         ))
       ) : (
@@ -175,15 +176,17 @@ const UserInfo = () => {
                     navigate("../calculator", { state: { fromUserInfo: true } })
                   }
                 />
-                <Button
-                  label="查詢食品"
-                  onClick={() => navigate("../food")}
-                  margin="12px 0"
-                />
+                <Button label="查詢食品" onClick={() => navigate("../food")} />
                 <Button
                   label="新增飲食"
                   onClick={() =>
                     navigate("../diary", { state: { fromUserInfo: true } })
+                  }
+                />
+                <Button
+                  label="查看分析"
+                  onClick={() =>
+                    navigate("../report", { state: { fromUserInfo: true } })
                   }
                 />
               </ButtonContainer>
@@ -272,8 +275,6 @@ const UserImage = styled.img`
   width: 120px;
 `;
 
-const WeightTarget = styled.div``;
-
 const TodayTargetWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -287,7 +288,7 @@ const TodayTargetContainer = styled.div`
 `;
 
 const TotalTarget = styled.div`
-  width: 150px;
+  width: 100px;
   font-size: 18px;
   display: flex;
   flex-direction: column;
@@ -295,17 +296,21 @@ const TotalTarget = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-left: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 `;
-const DeleteButton = styled.img`
+const DeleteButtonContainer = styled.div`
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
+  z-index: 10;
+`;
+const DeleteButton = styled.img`
+  width: 30px;
+  height: 30px;
   cursor: pointer;
 `;
 
@@ -356,7 +361,7 @@ const DiaryItem = styled.div`
   position: relative;
   flex-direction: column;
   margin: 12px 0;
-  padding: 4px;
+  padding: 4px 40px 4px 4px;
   border: 1px solid gray;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;

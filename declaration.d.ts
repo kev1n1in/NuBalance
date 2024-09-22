@@ -22,3 +22,8 @@ declare module "roughjs/bin/rough" {
   const rough: any;
   export default rough;
 }
+
+declare module "react-range-slider-input" {
+  const RangeSlider: any;
+  export default RangeSlider;
+}
