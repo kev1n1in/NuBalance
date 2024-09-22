@@ -12,6 +12,7 @@ import manImg from "./man.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "react-query";
 import Loader from "../../components/Loader";
+import Slider from "../../components/Slider";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -81,11 +82,7 @@ const Calculator = () => {
     }
   };
 
-  const {
-    data: latestTDEE,
-    isLoading,
-    error,
-  } = useQuery(
+  const { data: latestTDEE, isLoading } = useQuery(
     "latestTDEE",
     async () => {
       if (!currentUser) {
@@ -119,9 +116,17 @@ const Calculator = () => {
         <TdeeContainer>
           <Form>
             <ManImg src={manImg}></ManImg>
+
             <FormItem>
               <Title>Age</Title>
-              <DisplayValue>{age}</DisplayValue>
+              <SliderWrapper>
+                <Slider
+                  value={age}
+                  min={0}
+                  max={100}
+                  onChange={(e) => setAge(Number(e.target.value))}
+                />
+              </SliderWrapper>
               <Input
                 type="text"
                 value={age}
@@ -135,27 +140,17 @@ const Calculator = () => {
               />
             </FormItem>
 
-            <FormItem>
-              <Title>Gender</Title>
-              <DisplayValue>
-                <GenderOption
-                  isSelected={gender === "male"}
-                  onClick={() => setGender("male")}
-                >
-                  Male
-                </GenderOption>
-                <GenderOption
-                  isSelected={gender === "female"}
-                  onClick={() => setGender("female")}
-                >
-                  Female
-                </GenderOption>
-              </DisplayValue>
-            </FormItem>
-
+            {/* Weight with Slider and Input */}
             <FormItem>
               <Title>Weight</Title>
-              <DisplayValue>{weight}</DisplayValue>
+              <SliderWrapper>
+                <Slider
+                  value={weight}
+                  min={0}
+                  max={200}
+                  onChange={(e) => setWeight(Number(e.target.value))}
+                />
+              </SliderWrapper>
               <Input
                 type="text"
                 value={weight}
@@ -169,9 +164,17 @@ const Calculator = () => {
               />
             </FormItem>
 
+            {/* Height with Slider and Input */}
             <FormItem>
               <Title>Height</Title>
-              <DisplayValue>{height}</DisplayValue>
+              <SliderWrapper>
+                <Slider
+                  value={height}
+                  min={100}
+                  max={250}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                />
+              </SliderWrapper>
               <Input
                 type="text"
                 value={height}
@@ -185,24 +188,17 @@ const Calculator = () => {
               />
             </FormItem>
 
-            <FormItem>
-              <Title>Activity</Title>
-              <DisplayValue>{activityLevel}</DisplayValue>
-              <select
-                value={activityLevel}
-                onChange={(e) => setActivityLevel(e.target.value)}
-              >
-                <option value="Sedentary">Sedentary</option>
-                <option value="Light">Light</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Active">Active</option>
-                <option value="VeryActive">Very Active</option>
-              </select>
-            </FormItem>
-
+            {/* Body Fat with Slider and Input */}
             <FormItem>
               <Title>Body Fat</Title>
-              <DisplayValue>{bodyFat}%</DisplayValue>
+              <SliderWrapper>
+                <Slider
+                  value={bodyFat}
+                  min={0}
+                  max={50}
+                  onChange={(e) => setBodyFat(Number(e.target.value))}
+                />
+              </SliderWrapper>
               <Input
                 type="text"
                 value={bodyFat}
@@ -230,6 +226,7 @@ const Calculator = () => {
   );
 };
 
+// 樣式
 const Wrapper = styled.div`
   margin-left: 150px;
 `;
@@ -261,11 +258,11 @@ const TdeeContainer = styled.div`
 const ManImg = styled.img`
   position: absolute;
   left: -48px;
-  top: 96px;
+  top: 120px;
 `;
 
 const Form = styled.div`
-  width: 70%;
+  width: 100%;
 `;
 
 const FormItem = styled.div`
@@ -273,17 +270,15 @@ const FormItem = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  gap: 24px;
+`;
+
+const SliderWrapper = styled.div`
+  flex-grow: 1;
 `;
 
 const Title = styled.span`
   font-size: 20px;
-`;
-
-const DisplayValue = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 `;
 
 const Input = styled.input`
@@ -293,13 +288,6 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 4px;
   text-align: center;
-`;
-
-const GenderOption = styled.span<{ isSelected: boolean }>`
-  font-size: 20px;
-  font-weight: ${(props) => (props.isSelected ? "bold" : "normal")};
-  color: ${(props) => (props.isSelected ? "black" : "#999")};
-  cursor: pointer;
 `;
 
 const CaloriesContainer = styled.div`
