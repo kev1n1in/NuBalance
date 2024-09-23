@@ -3,14 +3,30 @@ import Sidebar from "../../components/Sidebar";
 import { useQuery } from "react-query";
 import { getUserHistory, getDiaryEntry } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsivePie } from "@nivo/pie";
 import { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  AreaChart,
+  Area,
+} from "recharts";
+import { RoughNotation } from "react-rough-notation";
 
 interface HistoryItem {
   clientUpdateTime: { seconds: number };
   height: number;
   weight: number;
+  bmi: number;
+  bodyFat: number;
 }
 
 interface NutritionData {
@@ -38,19 +54,21 @@ const getCurrentFormattedDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+const COLORS = ["#FFA07A", "#20B2AA", "#FFD700"];
+
 const Report = () => {
   const currentDate = getCurrentFormattedDate();
-  const [heightChartData, setHeightChartData] = useState<
-    { id: string; data: { x: string; y: number }[] }[]
-  >([]);
   const [weightChartData, setWeightChartData] = useState<
-    { id: string; data: { x: string; y: number }[] }[]
+    { date: string; weight: number }[]
+  >([]);
+  const [bodyFatChartData, setBodyFatChartData] = useState<
+    { date: string; bodyFat: number }[]
   >([]);
   const [nutritionData, setNutritionData] = useState<FormattedNutritionData[]>(
     []
   );
+  const [latestBMI, setLatestBMI] = useState<number | null>(0);
 
-  // 查詢使用者歷史數據
   const {
     data: allHistory = [],
     isLoading: isLoadingTDEE,
@@ -63,44 +81,19 @@ const Report = () => {
         throw new Error("用戶未登入");
       }
       const allHistory = await getUserHistory(currentUser);
-
+      console.log("歷史數據:", allHistory);
       return allHistory.map((item: HistoryItem) => ({
-        date: new Date(item.clientUpdateTime.seconds * 1000),
-        height: item.height,
+        date: new Date(item.clientUpdateTime.seconds * 1000)
+          .toISOString()
+          .split("T")[0],
         weight: item.weight,
+        bmi: item.bmi,
+        bodyFat: item.bodyFat,
       }));
     },
     { refetchOnWindowFocus: false }
   );
 
-  useEffect(() => {
-    if (allHistory.length > 0) {
-      const nivoHeightData = [
-        {
-          id: "Height",
-          data: allHistory.map((item: { date: Date; height: number }) => ({
-            x: item.date.toISOString().split("T")[0],
-            y: item.height,
-          })),
-        },
-      ];
-
-      const nivoWeightData = [
-        {
-          id: "Weight",
-          data: allHistory.map((item: { date: Date; weight: number }) => ({
-            x: item.date.toISOString().split("T")[0],
-            y: item.weight,
-          })),
-        },
-      ];
-
-      setHeightChartData(nivoHeightData);
-      setWeightChartData(nivoWeightData);
-    }
-  }, [allHistory]);
-
-  // 查詢營養數據
   const fetchNutritionData = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -111,9 +104,7 @@ const Report = () => {
     );
     if (diaryEntries.length > 0) {
       const nutrition = diaryEntries[0].nutrition;
-
       if (nutrition) {
-        // 確保解析數值是合法的數字，並且給定預設值
         const protein = parseFloat(
           nutrition.protein.match(/[\d.]+/)?.[0] || "0"
         );
@@ -121,17 +112,44 @@ const Report = () => {
           nutrition.carbohydrates.match(/[\d.]+/)?.[0] || "0"
         );
         const fat = parseFloat(nutrition.fat.match(/[\d.]+/)?.[0] || "0");
-
+        const total = protein + carbs + fat;
         const formattedData: FormattedNutritionData[] = [
-          { id: "蛋白質", label: "蛋白質", value: protein },
-          { id: "碳水化合物", label: "碳水化合物", value: carbs },
-          { id: "脂肪", label: "脂肪", value: fat },
+          { id: "蛋白質", label: "蛋白質", value: (protein / total) * 100 },
+          {
+            id: "碳水化合物",
+            label: "碳水化合物",
+            value: (carbs / total) * 100,
+          },
+          { id: "脂肪", label: "脂肪", value: (fat / total) * 100 },
         ];
-
         setNutritionData(formattedData);
       }
     }
   };
+
+  useEffect(() => {
+    if (allHistory.length > 0) {
+      const sortedHistory = [...allHistory].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      const weightData = sortedHistory.map((item) => ({
+        date: item.date.slice(5),
+        weight: item.weight,
+      }));
+      setWeightChartData(weightData);
+
+      const bodyFatData = sortedHistory
+        .filter((item, index) => index % 3 === 0)
+        .map((item) => ({
+          date: item.date.slice(5),
+          bodyFat: item.bodyFat,
+        }));
+
+      setBodyFatChartData(bodyFatData);
+      setLatestBMI(Number(sortedHistory[sortedHistory.length - 1].bmi ?? 0));
+    }
+  }, [allHistory]);
 
   useEffect(() => {
     fetchNutritionData();
@@ -146,121 +164,123 @@ const Report = () => {
     return <div>Error: {errorMessageTDEE}</div>;
   }
 
+  const BMICategory = ({ currentBMI }: { currentBMI: number }) => {
+    const getCategory = (bmi: number) => {
+      if (bmi < 18.5) return "過輕";
+      if (bmi >= 18.5 && bmi < 24.0) return "正常";
+      if (bmi >= 24.0 && bmi < 27.0) return "過重";
+      return "肥胖";
+    };
+
+    const category = getCategory(currentBMI);
+
+    return (
+      <RoughNotation
+        type="underline"
+        show={true}
+        color="red"
+        animationDelay={500}
+      >
+        <span style={{ fontFamily: "Caveat", fontSize: "36px", width: "auto" }}>
+          BMI: {currentBMI.toFixed(1)}
+        </span>
+      </RoughNotation>
+    );
+  };
+
   return (
     <Wrapper>
       <Sidebar />
       <h1>我是分析報告</h1>
 
-      <Title>身高</Title>
-      <div style={{ height: "400px" }}>
-        {heightChartData.length > 0 ? (
-          <ResponsiveLine
-            data={heightChartData}
-            margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-            xScale={{ type: "point" }}
-            yScale={{
-              type: "linear",
-              min: "auto",
-              max: "auto",
-              stacked: true,
-              reverse: false,
-            }}
-            axisTop={null}
-            axisRight={null}
-            axisBottom={{
-              tickValues: "every 1 day",
-              legend: "日期",
-              legendOffset: 36,
-              legendPosition: "middle",
-            }}
-            axisLeft={{
-              tickValues: 5,
-              legend: "高度 (cm)",
-              legendOffset: -40,
-              legendPosition: "middle",
-            }}
-            colors={{ scheme: "category10" }}
-            pointSize={10}
-            pointColor={{ theme: "background" }}
-            pointBorderWidth={2}
-            pointBorderColor={{ from: "serieColor" }}
-            pointLabelYOffset={-12}
-            useMesh={true}
-          />
-        ) : (
-          <p>沒有可用的身高歷史記錄。</p>
-        )}
-      </div>
+      {latestBMI !== null ? (
+        <BMICategory currentBMI={latestBMI} />
+      ) : (
+        <p>無法取得 BMI 數據</p>
+      )}
 
-      <Title>體重</Title>
-      <div style={{ height: "400px", marginTop: "50px" }}>
+      <Title>體重變化</Title>
+      <div style={{ height: "400px", width: "700px", marginTop: "50px" }}>
         {weightChartData.length > 0 ? (
-          <ResponsiveLine
-            data={weightChartData}
-            margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-            xScale={{ type: "point" }}
-            yScale={{
-              type: "linear",
-              min: "auto",
-              max: "auto",
-              stacked: true,
-              reverse: false,
-            }}
-            axisTop={null}
-            axisRight={null}
-            axisBottom={{
-              tickValues: "every 1 day",
-              legend: "日期",
-              legendOffset: 36,
-              legendPosition: "middle",
-            }}
-            axisLeft={{
-              tickValues: 10,
-              legend: "体重 (kg)",
-              legendOffset: -40,
-              legendPosition: "middle",
-            }}
-            colors={["#FFA500"]}
-            pointSize={10}
-            pointColor={{ theme: "background" }}
-            pointBorderWidth={2}
-            pointBorderColor={{ from: "serieColor" }}
-            pointLabelYOffset={-12}
-            useMesh={true}
-          />
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={weightChartData}
+              barSize={40}
+              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+              barGap={4}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Bar
+                dataKey="weight"
+                fill="#82ca9d"
+                stroke="#000"
+                strokeWidth={2}
+              />
+            </BarChart>
+          </ResponsiveContainer>
         ) : (
           <p>沒有可用的歷史紀錄</p>
         )}
       </div>
 
-      <Title>今日營養素</Title>
-      <div style={{ height: "400px", marginTop: "50px" }}>
+      <Title>今日營養素比例</Title>
+      <div style={{ height: "400px", width: "550px", marginLeft: "50px" }}>
         {nutritionData.length > 0 ? (
-          <ResponsivePie
-            data={nutritionData}
-            margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-            innerRadius={0.5}
-            padAngle={0.7}
-            cornerRadius={3}
-            colors={{ scheme: "nivo" }}
-            borderWidth={1}
-            borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
-            enableArcLinkLabels={true}
-            arcLinkLabelsSkipAngle={10}
-            arcLinkLabelsTextColor="#333333"
-            arcLinkLabelsThickness={2}
-            arcLinkLabelsColor={{ from: "color" }}
-            arcLabelsSkipAngle={10}
-            arcLabelsTextColor="#333333"
-            arcLabel={(d) =>
-              `${d.value} (${(
-                (d.value / nutritionData.reduce((a, b) => a + b.value, 0)) *
-                100
-              ).toFixed(2)}%)`
-            }
-          />
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Pie
+                data={nutritionData}
+                dataKey="value"
+                nameKey="label"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={({ name, percent }) =>
+                  `${name}: ${(percent * 100).toFixed(1)}%`
+                }
+                stroke="#000"
+                strokeWidth={2}
+              >
+                {nutritionData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         ) : (
           <p>沒有可用的營養素記錄。</p>
+        )}
+      </div>
+      <Title>體脂率變化</Title>
+      <div style={{ height: "400px", width: "700px", marginTop: "50px" }}>
+        {bodyFatChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={400}>
+            <AreaChart
+              data={bodyFatChartData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="bodyFat"
+                stroke="#8884d8"
+                fill="#8884d8"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <p>沒有可用的歷史體脂率紀錄</p>
         )}
       </div>
     </Wrapper>
