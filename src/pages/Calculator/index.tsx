@@ -117,12 +117,12 @@ const Calculator = () => {
 
   useEffect(() => {
     if (latestTDEE && !isLoading) {
-      setAge(latestTDEE.age);
-      setGender(latestTDEE.gender);
-      setWeight(latestTDEE.weight);
-      setHeight(latestTDEE.height);
-      setActivityLevel(latestTDEE.activityLevel);
-      setBodyFat(latestTDEE.bodyFat);
+      setAge(latestTDEE.age || "25");
+      setGender(latestTDEE.gender || "male");
+      setWeight(latestTDEE.weight || "60");
+      setHeight(latestTDEE.height || "170");
+      setActivityLevel(latestTDEE.activityLevel || "Moderate");
+      setBodyFat(latestTDEE.bodyFat || "15%");
       setTotalCalories(latestTDEE.tdee);
     }
   }, [latestTDEE, isLoading]);
