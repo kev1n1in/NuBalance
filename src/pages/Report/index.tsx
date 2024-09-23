@@ -191,106 +191,132 @@ const Report = () => {
   return (
     <Wrapper>
       <Sidebar />
-      <h1>我是分析報告</h1>
+      <Container>
+        <Title>分析報告</Title>
 
-      {latestBMI !== null ? (
-        <BMICategory currentBMI={latestBMI} />
-      ) : (
-        <p>無法取得 BMI 數據</p>
-      )}
-
-      <Title>體重變化</Title>
-      <div style={{ height: "400px", width: "700px", marginTop: "50px" }}>
-        {weightChartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={weightChartData}
-              barSize={40}
-              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
-              barGap={4}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Bar
-                dataKey="weight"
-                fill="#82ca9d"
-                stroke="#000"
-                strokeWidth={2}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+        {latestBMI !== null ? (
+          <BMICategory currentBMI={latestBMI} />
         ) : (
-          <p>沒有可用的歷史紀錄</p>
+          <p>無法取得 BMI 數據</p>
         )}
-      </div>
-
-      <Title>今日營養素比例</Title>
-      <div style={{ height: "400px", width: "550px", marginLeft: "50px" }}>
-        {nutritionData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={nutritionData}
-                dataKey="value"
-                nameKey="label"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(1)}%`
-                }
-                stroke="#000"
-                strokeWidth={2}
-              >
-                {nutritionData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+        <ChartContainer>
+          <ChartTitle>體重變化</ChartTitle>
+          <div style={{ height: "400px", width: "auto", marginTop: "50px" }}>
+            {weightChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={weightChartData}
+                  barSize={40}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+                  barGap={4}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar
+                    dataKey="weight"
+                    fill="#82ca9d"
+                    stroke="#000"
+                    strokeWidth={2}
                   />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <p>沒有可用的營養素記錄。</p>
-        )}
-      </div>
-      <Title>體脂率變化</Title>
-      <div style={{ height: "400px", width: "700px", marginTop: "50px" }}>
-        {bodyFatChartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart
-              data={bodyFatChartData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="bodyFat"
-                stroke="#8884d8"
-                fill="#8884d8"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        ) : (
-          <p>沒有可用的歷史體脂率紀錄</p>
-        )}
-      </div>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>沒有可用的歷史紀錄</p>
+            )}
+          </div>
+        </ChartContainer>
+        <ChartContainer>
+          <ChartTitle>今日營養素比例</ChartTitle>
+          <div style={{ height: "400px", width: "auto", marginLeft: "50px" }}>
+            {nutritionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <PieChart>
+                  <Pie
+                    data={nutritionData}
+                    dataKey="value"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(1)}%`
+                    }
+                    stroke="#000"
+                    strokeWidth={2}
+                  >
+                    {nutritionData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => `${value.toFixed(1)}%`}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>沒有可用的營養素記錄。</p>
+            )}
+          </div>
+        </ChartContainer>
+        <ChartContainer>
+          <ChartTitle>體脂率變化</ChartTitle>
+          <div style={{ height: "400px", width: "auto", marginTop: "50px" }}>
+            {bodyFatChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <AreaChart
+                  data={bodyFatChartData}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="bodyFat"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>沒有可用的歷史體脂率紀錄</p>
+            )}
+          </div>
+        </ChartContainer>
+      </Container>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
-  margin-left: 150px;
+  display: flex;
+  background-image: url("src/asset/draft.png");
+  margin: 0 0 0 150px;
+  z-index: 0;
 `;
-
-const Title = styled.h2``;
+const Title = styled.h1`
+  text-align: center;
+  font-size: 30px;
+`;
+const Container = styled.div`
+  width: 80%;
+  margin: 0 auto;
+`;
+const ChartContainer = styled.div`
+  margin: 24px 0;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+`;
+const ChartTitle = styled.h2``;
 
 export default Report;

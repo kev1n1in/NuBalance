@@ -127,6 +127,11 @@ const Diary = () => {
         console.error("圖片上傳過程中出錯:", error);
         return;
       }
+      if (state?.fromUserInfo) {
+        navigate("/userInfo");
+      } else {
+        alert("保存成功！");
+      }
     }
 
     const newDiaryEntry = {
@@ -222,23 +227,34 @@ const Diary = () => {
 export default Diary;
 
 const Wrapper = styled.div`
-  margin-left: 150px;
+  display: flex;
+  background-image: url("src/asset/draft.png");
+  margin: 0 0 0 150px;
+  z-index: 0;
 `;
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 80%;
-  margin: 0 auto;
+  margin: 50px auto 72px auto;
+  padding: 24px 24px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 `;
 
 const Title = styled.h1`
   text-align: center;
+  font-size: 48px;
 `;
 
 const MealSelectorContainer = styled.div`
   display: flex;
   justify-content: center;
-  height: 200px; /* 固定高度 */
-  align-items: center; /* 垂直居中 */
+  height: 200px;
+  align-items: center;
 `;
 
 const MealContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
@@ -365,7 +381,7 @@ const NoteImg = styled.img`
 const NoteInput = styled.input`
   height: 50px;
   width: 100%;
-  background-color: gray;
+  background-color: #b4b4b4;
 `;
 
 const ButtonContainer = styled.div`

@@ -180,13 +180,27 @@ const UserInfo = () => {
               <ButtonContainer>
                 <Button
                   label="更改熱量估計"
-                  onClick={() => navigate("../calculator")}
+                  onClick={() =>
+                    navigate("../calculator", { state: { fromUserInfo: true } })
+                  }
                 />
-                <Button label="查詢食品" onClick={() => navigate("../food")} />
-                <Button label="新增飲食" onClick={() => navigate("../diary")} />
+                <Button
+                  label="查詢食品"
+                  onClick={() =>
+                    navigate("../food", { state: { fromUserInfo: true } })
+                  }
+                />
+                <Button
+                  label="新增飲食"
+                  onClick={() =>
+                    navigate("../diary", { state: { fromUserInfo: true } })
+                  }
+                />
                 <Button
                   label="查看分析"
-                  onClick={() => navigate("../report")}
+                  onClick={() =>
+                    navigate("../report", { state: { fromUserInfo: true } })
+                  }
                 />
               </ButtonContainer>
             </TodayTargetContainer>
@@ -245,7 +259,10 @@ const UserInfo = () => {
 export default UserInfo;
 
 const Wrapper = styled.div`
-  margin: 50px 0 0 150px;
+  display: flex;
+  background-image: url("src/asset/draft.png");
+  margin: 0 0 0 150px;
+  z-index: 0;
 `;
 const MealSectionContainer = styled.div`
   margin: 12px 0;
@@ -256,12 +273,16 @@ const EmptyList = styled.div`
 `;
 const Container = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
-  margin: 0 auto 72px auto;
+  margin: 50px auto 72px auto;
   width: 80%;
-  padding: 0 24px;
+  background-color: #fff;
+  padding: 24px 24px;
   border: 1px solid gray;
+  border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  z-index: 2;
 `;
 
 const Title = styled.h1``;
@@ -314,6 +335,7 @@ const TotalTargetTitle = styled.span`
 const ButtonContainer = styled.div`
   position: absolute;
   right: 0;
+  top: -24px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 400px;

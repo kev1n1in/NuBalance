@@ -150,9 +150,11 @@ const Food: React.FC = () => {
 
 const Wrapper = styled.div`
   display: flex;
-  margin-left: 150px;
+  background-image: url("src/asset/draft.png");
+  margin: 0 0 0 150px;
+  height: 100vh;
+  z-index: 0;
 `;
-
 const Title = styled.h1`
   margin: 12px 0;
 `;
@@ -172,8 +174,16 @@ const ErrorMessage = styled.p`
 `;
 
 const Container = styled.div`
-  flex: 1;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  margin: 50px auto 72px auto;
+  width: 80%;
+  min-height: 300px;
+  padding: 24px 24px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 `;
 
 const DataContainer = styled.div`

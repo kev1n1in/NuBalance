@@ -14,6 +14,7 @@ import { useQuery, useMutation } from "react-query";
 import Loader from "../../components/Loader";
 import Slider from "../../components/Slider";
 import { Switch, FormControlLabel, Select, MenuItem } from "@mui/material";
+import HandwrittenText from "../../components/HandWrittenText";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -257,7 +258,13 @@ const Calculator = () => {
             </FormItem>
           </Form>
           <CaloriesContainer>
-            <TotalCalories>{totalCalories}</TotalCalories>
+            <HandwrittenText
+              text={totalCalories.toFixed(0)}
+              roughness={0}
+              color="black"
+              fill="green"
+              fontSize={125}
+            />
             <CaloriesText>calories / day</CaloriesText>
           </CaloriesContainer>
           <ButtonContainer>
@@ -271,13 +278,24 @@ const Calculator = () => {
 };
 
 const Wrapper = styled.div`
-  margin-left: 150px;
+  display: flex;
+  background-image: url("src/asset/draft.png");
+  margin: 0 0 0 150px;
+  z-index: 0;
 `;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 80%;
+  height: 800px;
+  margin: 50px auto 72px auto;
+  padding: 24px 24px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 8px;
+
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 `;
 
 const Title = styled.h1``;
@@ -294,7 +312,7 @@ const TdeeContainer = styled.div`
 const ManImg = styled.img`
   position: absolute;
   left: -48px;
-  top: 240px;
+  top: 300px;
 `;
 
 const Form = styled.div`
@@ -305,6 +323,7 @@ const FormItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 12px 0;
   width: 100%;
   gap: 24px;
 `;
@@ -329,18 +348,22 @@ const Input = styled.input`
 const CaloriesContainer = styled.div`
   display: flex;
   position: relative;
+  top: 160px;
   right: 48px;
 `;
 
-const TotalCalories = styled.div`
-  font-size: 36px;
-  font-weight: bold;
-`;
-
 const CaloriesText = styled.div`
-  font-size: 16px;
+  position: relative;
+  top: 56px;
+  right: 12px;
+  font-size: 20px;
+  font-weight: 700;
 `;
 
-const ButtonContainer = styled.div``;
+const ButtonContainer = styled.div`
+  position: relative;
+  top: 100px;
+  width: 250px;
+`;
 
 export default Calculator;
