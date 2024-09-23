@@ -3,7 +3,7 @@ import opentype from "opentype.js";
 import { RoughSVG } from "react-rough-fiber";
 
 interface HandwrittenTextProps {
-  text: string;
+  text: string | number;
   fill?: string;
   roughness?: number;
   fillStyle?: string;

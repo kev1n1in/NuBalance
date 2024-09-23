@@ -65,7 +65,7 @@ const Sidebar: React.FC = () => {
   return (
     <Wrapper>
       <NavBar>
-        <Logo onClick={() => handleNavigation("/landing")} />
+        <Logo />
         {["/userInfo", "/calculator", "/food", "/diary", "/report"].map(
           (path, index) => (
             <Item
@@ -124,7 +124,6 @@ const Logo = styled.div`
   width: 48px;
   border-radius: 50%;
   background-color: #000;
-  cursor: pointer;
 `;
 
 export default Sidebar;

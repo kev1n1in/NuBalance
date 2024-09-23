@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 interface ButtonProps {
   label: string;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   margin?: string;
   disabled?: boolean;
 }
@@ -22,7 +22,7 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 const StyledButton = styled.button<{ margin?: string }>`
-  width: 200px;
+  width: 100%;
   height: 50px;
   font-size: 16px;
   text-align: center;

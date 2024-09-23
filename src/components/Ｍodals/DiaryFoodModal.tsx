@@ -15,6 +15,10 @@ import eatingHappyImg from "./moodsImg/Eating_Happy.png";
 import rageImg from "./moodsImg/Rage.png";
 import suspiciousImg from "./moodsImg/Suspicious.png";
 import { motion } from "framer-motion";
+import breakImg from "./mealsImg/breakfats.png";
+import lunchImg from "./mealsImg/lunch.png";
+import dinnerImg from "./mealsImg/dinner.png";
+import snackImg from "./mealsImg/snack.png";
 
 interface FoodItem {
   id: string;
@@ -24,6 +28,7 @@ interface FoodItem {
 
 interface DiaryEntry {
   id: string;
+  meal?: string;
   food?: string;
   time?: string;
   mood?: string;
@@ -36,12 +41,23 @@ interface DiaryEntry {
     fat?: string;
   };
 }
+type MealItem = {
+  id: string;
+  name: string;
+  imgSrc: string;
+};
 
 type MoodItem = {
   id: string;
   name: string;
   imgSrc: string;
 };
+const meals: MealItem[] = [
+  { id: "breakfast", name: "早餐", imgSrc: breakImg },
+  { id: "lunch", name: "午餐", imgSrc: lunchImg },
+  { id: "dinner", name: "晚餐", imgSrc: dinnerImg },
+  { id: "snack", name: "點心", imgSrc: snackImg },
+];
 
 const moods: MoodItem[] = [
   { id: "awe", name: "驚訝", imgSrc: aweImg },
@@ -56,6 +72,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { selectedFood, setSelectedFood } = useFoodStore();
+  const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodItem | null>(null);
   const [currentFood, setCurrentFood] = useState<FoodItem | null>(null);
   const [note, setNote] = useState<string>("");
@@ -79,6 +96,9 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
     {
       onSuccess: (data) => {
         if (!isModalOpen) {
+          setSelectedMeal(
+            meals.find((meal) => meal.name === data.meal) || null
+          );
           setCurrentFood({
             id: entryId,
             food_name: data.food || "未知",
@@ -104,6 +124,11 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       },
     }
   );
+  const handleMealClick = (meal: MealItem) => {
+    setSelectedMeal((prevSelected) =>
+      prevSelected?.id === meal.id ? null : meal
+    );
+  };
 
   const handleMoodClick = (mood: MoodItem) => {
     setSelectedMood((prevSelected) =>
@@ -119,6 +144,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 
     const updatedData = {
       food: currentFood?.food_name || "",
+      meal: selectedMeal?.name || "",
       mood: selectedMood?.name || "",
       note: note || "",
       imageUrl: imageUrl || "",
@@ -166,6 +192,18 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       <Title>今天吃了</Title>
       <FoodSelectorWrapper>
         <FoodSelectorTitle>吃了啥？</FoodSelectorTitle>
+        <MealSelectorContainer>
+          {meals.map((meal) => (
+            <MealContainer
+              key={meal.id}
+              onClick={() => handleMealClick(meal)}
+              isSelected={selectedMeal?.id === meal.id}
+            >
+              <Meal src={meal.imgSrc} alt={meal.name} />
+              <MealName>{meal.name}</MealName>
+            </MealContainer>
+          ))}
+        </MealSelectorContainer>
         <FoodSelectorContainer>
           <FoodSelector onClick={openModal}>
             {currentFood ? currentFood.food_name : "選擇食物"}
@@ -236,7 +274,37 @@ const Wrapper = styled.div`
 const Title = styled.h1`
   text-align: center;
 `;
+const MealSelectorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 150px;
+  align-items: center;
+`;
 
+const MealContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
+  ({ isSelected }) => ({
+    initial: { scale: 1 },
+    animate: { scale: isSelected ? 1.3 : 1 },
+    transition: { type: "spring", stiffness: 300 },
+  })
+)<{ isSelected: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
+  cursor: pointer;
+`;
+
+const Meal = styled.img`
+  width: 75px;
+  height: auto;
+`;
+
+const MealName = styled.span`
+  margin-top: 8px;
+  font-size: 16px;
+  text-align: center;
+`;
 const FoodSelectorWrapper = styled.div`
   display: flex;
   width: 100%;

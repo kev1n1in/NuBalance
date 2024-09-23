@@ -27,3 +27,7 @@ declare module "react-range-slider-input" {
   const RangeSlider: any;
   export default RangeSlider;
 }
+declare module "opentype.js" {
+  const content: any;
+  export default content;
+}

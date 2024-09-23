@@ -20,4 +20,16 @@ const calculateTDEE = (
 
   return Math.round(BMR * activityMultiplier[activityLevel]);
 };
-export default calculateTDEE;
+
+const calculateBMI = (weight: number, height: number): number => {
+  const heightInMeters = height / 100;
+  const bmi = weight / (heightInMeters * heightInMeters);
+  return parseFloat(bmi.toFixed(2));
+};
+
+const TDEECalculator = {
+  calculateTDEE,
+  calculateBMI,
+};
+
+export default TDEECalculator;

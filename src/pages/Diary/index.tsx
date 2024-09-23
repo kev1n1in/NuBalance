@@ -189,7 +189,7 @@ const Diary = () => {
           />
         </TimePickerContainer>
         <MoodSelectorWrapper>
-          <MoodSelectorTitle>心情如何？</MoodSelectorTitle>
+          <MoodSelectorTitle>心情如何?(選填)</MoodSelectorTitle>
           <MoodSelectorContainer>
             {moods.map((mood) => (
               <MoodContainer
@@ -203,11 +203,11 @@ const Diary = () => {
           </MoodSelectorContainer>
         </MoodSelectorWrapper>
         <ImageUploadContainer>
-          <ImageUploadTitle>圖片</ImageUploadTitle>
+          <ImageUploadTitle>圖片(選填)</ImageUploadTitle>
           <ImageUploadInput ref={imageRef} type="file" accept="image/*" />
         </ImageUploadContainer>
         <NoteContainer>
-          <NoteTitle>備註</NoteTitle>
+          <NoteTitle>備註(選填)</NoteTitle>
           <NoteImg src={girlImg}></NoteImg>
           <NoteInput ref={noteRef} />
         </NoteContainer>

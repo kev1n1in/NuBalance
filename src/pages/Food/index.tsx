@@ -236,6 +236,7 @@ const NoItemsMessage = styled.p`
 `;
 
 const NoDataMessageContainer = styled.div`
+  margin: 24px 0;
   text-align: center;
 `;
 
@@ -254,6 +255,7 @@ const CreateLink = styled.span`
 `;
 const ButtonWrapper = styled.div`
   margin-right: 12px;
+  width: 150px;
 `;
 
 export default Food;
