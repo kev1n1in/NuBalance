@@ -17,6 +17,7 @@ import "flatpickr/dist/flatpickr.min.css";
 import trashImg from "./trash.png";
 import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
 import Modal from "../../components/Modal";
+import HandwrittenText from "../../components/HandWrittenText";
 
 interface DiaryEntry {
   id: string;
@@ -167,9 +168,14 @@ const UserInfo = () => {
           <TodayTargetWrapper>
             <TodayTargetContainer>
               <TotalTarget>
-                剩餘熱量
-                <br />
-                {remainingCalories ? remainingCalories.toFixed(0) : 0} 大卡
+                <TotalTargetTitle>剩餘熱量</TotalTargetTitle>
+                <HandwrittenText
+                  text={remainingCalories ? remainingCalories.toFixed(0) : "0"}
+                  roughness={0}
+                  color="black"
+                  fill="green"
+                  fontSize={100}
+                />
               </TotalTarget>
               <ButtonContainer>
                 <Button
@@ -251,8 +257,11 @@ const EmptyList = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 0 auto;
+  margin: 0 auto 72px auto;
   width: 80%;
+  padding: 0 24px;
+  border: 1px solid gray;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 `;
 
 const Title = styled.h1``;
@@ -278,22 +287,36 @@ const TodayTargetWrapper = styled.div`
 `;
 
 const TodayTargetContainer = styled.div`
+  position: relative;
   display: flex;
   height: 100px;
   align-items: center;
 `;
 
 const TotalTarget = styled.div`
+  position: absolute;
+  top: 24px;
+  left: -30px;
   width: 100px;
   font-size: 18px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 `;
-
+const TotalTargetTitle = styled.span`
+  position: absolute;
+  width: 100px;
+  left: 34px;
+  top: -12px;
+  font-size: 24px;
+  font-weight: 700;
+`;
 const ButtonContainer = styled.div`
+  position: absolute;
+  right: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  width: 400px;
   gap: 20px;
 `;
 const DeleteButtonContainer = styled.div`
