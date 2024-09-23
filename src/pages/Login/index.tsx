@@ -13,17 +13,16 @@ import styled from "styled-components";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import Button from "../../components/Button";
 import { updateUserProfile } from "../../firebase/firebaseServices";
-
-interface ButtonProps {
-  label: string;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}
+import WomenImg from "./womenSit.png";
+import HandWrittenText from "../../components/HandWrittenText";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
   const [inputEmail, setInputEmail] = useState("");
   const [inputPassword, setInputPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [paths, setPaths] = useState<string[]>([]);
+  const [width, setWidth] = useState(0);
   const navigate = useNavigate();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -123,49 +122,60 @@ const Login = () => {
       console.error("登出失敗", error);
     }
   };
-  const Button = ({ label, onClick }: ButtonProps) => {
-    return <button onClick={onClick}>{label}</button>;
-  };
+
   return (
     <>
       <GoogleOAuthProvider clientId={clientId}>
         <Wrapper>
-          <Banner />
-          <LoginContainer>
-            <h1>Hello</h1>
-            {isLoggedIn ? (
-              <div>
-                <p>Welcome, {user?.email || "User"}</p>
-                <ButtonContainer>
-                  <Button label="Log out" onClick={removeUserCookie} />
-                </ButtonContainer>
-              </div>
-            ) : (
-              <Form>
-                <InputTitle>Email</InputTitle>
-                <Input
-                  type="email"
-                  value={inputEmail}
-                  onChange={(e) => setInputEmail(e.target.value)}
-                  placeholder="Enter email"
-                />
-                <InputTitle>Password</InputTitle>
-                <Input
-                  type="password"
-                  value={inputPassword}
-                  onChange={(e) => setInputPassword(e.target.value)}
-                  placeholder="Enter password"
-                />
-                <ButtonContainer>
-                  <Button label="Log in" onClick={handleLogin} />
-                </ButtonContainer>
-                <GoogleLoginButton
-                  onSuccess={handleGoogleLogin}
-                  onError={() => console.error("Login Failed")}
-                />
-              </Form>
-            )}
-          </LoginContainer>
+          <Banner>
+            <Img src={WomenImg} />
+          </Banner>
+          <Container>
+            <HandWrittenText
+              text="Welcome"
+              roughness={0}
+              color="black"
+              fill="yellow"
+              fontSize={150}
+            />
+
+            <LoginContainer>
+              {isLoggedIn ? (
+                <div>
+                  <p>Welcome, {user?.email || "User"}</p>
+                  <ButtonContainer>
+                    <Button label="Log out" onClick={removeUserCookie} />
+                  </ButtonContainer>
+                </div>
+              ) : (
+                <Form>
+                  <InputTitle>Email</InputTitle>
+                  <Input
+                    type="email"
+                    value={inputEmail}
+                    onChange={(e) => setInputEmail(e.target.value)}
+                    placeholder="admin@1.com"
+                  />
+                  <InputTitle>Password</InputTitle>
+                  <Input
+                    type="password"
+                    value={inputPassword}
+                    onChange={(e) => setInputPassword(e.target.value)}
+                    placeholder="123456"
+                  />
+                  <ButtonContainer>
+                    <Button label="Log in" onClick={handleLogin} />
+                  </ButtonContainer>
+                  <GoogleButtonContainer>
+                    <GoogleLoginButton
+                      onSuccess={handleGoogleLogin}
+                      onError={() => console.error("Login Failed")}
+                    />
+                  </GoogleButtonContainer>
+                </Form>
+              )}
+            </LoginContainer>
+          </Container>
         </Wrapper>
       </GoogleOAuthProvider>
     </>
@@ -179,28 +189,59 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
 `;
+
 const Banner = styled.div`
+  position: relative;
+  background-image: url("src/asset/draft.png");
   width: 100%;
   height: 300px;
+  margin-bottom: 24px;
   background-color: gray;
 `;
+
+const Container = styled.div`
+  width: 80%;
+`;
+
+const Img = styled.img`
+  position: absolute;
+  right: 0;
+  top: 30px;
+  height: 400px;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
 `;
-const InputTitle = styled.span``;
+
+const InputTitle = styled.span`
+  font-family: "Caveat";
+  font-size: 48px;
+`;
+
 const Input = styled.input`
   margin-bottom: 10px;
   padding: 8px;
   font-size: 16px;
 `;
+
 const LoginContainer = styled.div`
-  width: 1000px;
-  margin: 0 24px;
+  position: relative;
+  top: -48px;
+  width: 100%;
 `;
+
 const ButtonContainer = styled.div`
   display: flex;
+  justify-content: right;
+  margin: 24px 0;
+`;
+
+const GoogleButtonContainer = styled.div`
+  display: flex;
   justify-content: center;
+  margin: 24px 0;
 `;
 
 export default Login;
