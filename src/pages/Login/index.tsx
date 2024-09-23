@@ -1,36 +1,37 @@
-import { useState, useEffect } from "react";
-import { signInWithGoogle, signOutUser } from "../../firebase/firebaseAuth";
+import { useState, useEffect, MouseEvent } from "react";
+import {
+  signInWithGoogle,
+  signInWithEmail,
+  signOutUser,
+} from "../../firebase/firebaseAuth";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { updateUserProfile } from "../../firebase/firebaseServices";
 import Cookies from "js-cookie";
 import { auth } from "../../firebase/firebaseConfig";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 import styled from "styled-components";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import Button from "../../components/Button";
+import { updateUserProfile } from "../../firebase/firebaseServices";
+
+interface ButtonProps {
+  label: string;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [inputUsername, setInputUsername] = useState("");
   const [inputEmail, setInputEmail] = useState("");
   const [inputPassword, setInputPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  const Username = "admin";
-  const Email = "admin@2.com";
-  const Password = "123456";
-
   useEffect(() => {
     const loggedIn = Cookies.get("isLoggedIn");
-    const savedUsername = Cookies.get("username");
 
-    if (loggedIn === "true" && savedUsername) {
+    if (loggedIn === "true") {
       setIsLoggedIn(true);
-      setInputUsername(savedUsername);
-      console.log(`Restored session for user: ${savedUsername}`);
     } else {
       setIsLoggedIn(false);
     }
@@ -39,7 +40,7 @@ const Login = () => {
       if (currentUser) {
         setUser(currentUser);
         Cookies.set("isLoggedIn", "true", { expires: 7 });
-        console.log("Logged in as:", currentUser.displayName);
+        console.log("Logged in as:", currentUser.email);
       } else {
         setUser(null);
         Cookies.remove("isLoggedIn");
@@ -50,22 +51,43 @@ const Login = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleLogin = () => {
-    if (
-      inputUsername === Username &&
-      inputEmail === Email &&
-      inputPassword === Password
-    ) {
-      console.log("Login Success with hardcoded credentials");
+  const handleLogin = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    console.log("Login Attempt with credentials:", {
+      email: inputEmail,
+      password: inputPassword,
+    });
 
-      Cookies.set("username", inputUsername, { expires: 7 });
-      Cookies.set("isLoggedIn", "true", { expires: 7 });
-      setIsLoggedIn(true);
+    try {
+      const user: User = await signInWithEmail(inputEmail, inputPassword);
+      console.log("Login Success:", user);
 
-      navigate("/userInfo");
-    } else {
-      console.log("Login Failed: Invalid credentials");
-      alert("Invalid username, email or password");
+      if (user) {
+        await updateUserProfile(user, inputEmail);
+
+        Cookies.set("username", user.email || "User", { expires: 7 });
+        Cookies.set("isLoggedIn", "true", { expires: 7 });
+        setIsLoggedIn(true);
+
+        navigate("/userInfo");
+      } else {
+        console.error("auth.currentUser is null. User is not logged in.");
+        alert("User is not logged in. Please log in first.");
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+
+      if (error.code === "auth/user-not-found") {
+        alert("User not found. Please check your email and try again.");
+      } else if (error.code === "auth/wrong-password") {
+        alert("Incorrect password. Please try again.");
+      } else if (error.code === "auth/invalid-email") {
+        alert("Invalid email format.");
+      } else {
+        alert(`Login failed: ${error.message}`);
+      }
     }
   };
 
@@ -73,8 +95,6 @@ const Login = () => {
     if (response?.credential) {
       try {
         const googleUser = await signInWithGoogle(response.credential);
-        updateUserProfile(googleUser);
-
         Cookies.set("username", googleUser.displayName || "Google User", {
           expires: 7,
         });
@@ -103,7 +123,9 @@ const Login = () => {
       console.error("登出失敗", error);
     }
   };
-
+  const Button = ({ label, onClick }: ButtonProps) => {
+    return <button onClick={onClick}>{label}</button>;
+  };
   return (
     <>
       <GoogleOAuthProvider clientId={clientId}>
@@ -113,19 +135,13 @@ const Login = () => {
             <h1>Hello</h1>
             {isLoggedIn ? (
               <div>
-                <p>Welcome, {inputUsername}</p>
+                <p>Welcome, {user?.email || "User"}</p>
                 <ButtonContainer>
                   <Button label="Log out" onClick={removeUserCookie} />
                 </ButtonContainer>
               </div>
             ) : (
               <Form>
-                <InputTitle>UserName</InputTitle>
-                <Input
-                  value={inputUsername}
-                  onChange={(e) => setInputUsername(e.target.value)}
-                  placeholder="Enter username"
-                />
                 <InputTitle>Email</InputTitle>
                 <Input
                   type="email"

@@ -272,7 +272,8 @@ export const getUserHistory = async (
   const userData = userSnapshot.data();
 
   if (!userData || !userData.history || userData.history.length === 0) {
-    throw new Error("沒有歷史紀錄");
+    console.log("沒有歷史紀錄");
+    return [];
   }
 
   const sortedHistory = userData.history.sort(

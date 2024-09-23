@@ -9,6 +9,7 @@ import {
   getUserHistory,
   getDiaryEntry,
   deleteDiaryEntry,
+  updateDiaryEntry,
 } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import userImg from "./userImg.png";
@@ -17,6 +18,12 @@ import "flatpickr/dist/flatpickr.min.css";
 import trashImg from "./trash.png";
 import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
 import Modal from "../../components/Modal";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 
 interface DiaryEntry {
   id: string;
@@ -106,48 +113,96 @@ const UserInfo = () => {
     dinner: diaryEntries.filter((entry) => entry.meal === "晚餐"),
     snack: diaryEntries.filter((entry) => entry.meal === "點心"),
   };
+
+  const onDragEnd = async (result: DropResult) => {
+    const { source, destination, draggableId } = result;
+    if (!destination || source.droppableId === destination.droppableId) {
+      return;
+    }
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      console.error("用戶未登入");
+      return;
+    }
+
+    try {
+      await updateDiaryEntry(currentUser, draggableId, {
+        meal: destination.droppableId,
+      });
+
+      queryClient.invalidateQueries(["diaryEntries", selectedDate]);
+    } catch (error) {
+      console.error("更新用餐區域失敗:", error);
+    }
+  };
+
   const MealSection = ({
     title,
     entries,
+    droppableId,
   }: {
     title: string;
     entries: DiaryEntry[];
+    droppableId: string;
   }) => (
-    <MealSectionContainer>
-      <DiaryTitle>{title}</DiaryTitle>
-      {entries.length > 0 ? (
-        entries.map((entry) => (
-          <DiaryItem key={entry.id} onClick={() => handleEdit(entry.id)}>
-            <FoodName>{entry.food}</FoodName>
-            <FoodNutrition>
-              <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
-              <FoodCarbo>
-                {entry.nutrition?.carbohydrates || "未知"} |{" "}
-              </FoodCarbo>
-              <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
-              <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
-            </FoodNutrition>
-            <DeleteButtonContainer>
-              <DeleteButton
-                src={trashImg}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(entry.id);
-                }}
-              />
-            </DeleteButtonContainer>
-          </DiaryItem>
-        ))
-      ) : (
-        <EmptyList>尚未新增</EmptyList>
+    <Droppable droppableId={droppableId}>
+      {(provided) => (
+        <MealSectionContainer
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+        >
+          <DiaryTitle>{title}</DiaryTitle>
+          {entries.length > 0 ? (
+            entries.map((entry, index) => (
+              <Draggable key={entry.id} draggableId={entry.id} index={index}>
+                {(provided) => (
+                  <DiaryItem
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    onClick={() => handleEdit(entry.id)}
+                  >
+                    <FoodName>{entry.food}</FoodName>
+                    <FoodNutrition>
+                      <FoodCal>
+                        {entry.nutrition?.calories || "未知"} |{" "}
+                      </FoodCal>
+                      <FoodCarbo>
+                        {entry.nutrition?.carbohydrates || "未知"} |{" "}
+                      </FoodCarbo>
+                      <FoodProtein>
+                        {entry.nutrition?.protein || "未知"} |{" "}
+                      </FoodProtein>
+                      <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
+                    </FoodNutrition>
+                    <DeleteButtonContainer>
+                      <DeleteButton
+                        src={trashImg}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(entry.id);
+                        }}
+                      />
+                    </DeleteButtonContainer>
+                  </DiaryItem>
+                )}
+              </Draggable>
+            ))
+          ) : (
+            <EmptyList>尚未新增</EmptyList>
+          )}
+          {provided.placeholder}
+        </MealSectionContainer>
       )}
-    </MealSectionContainer>
+    </Droppable>
   );
+
   const handleEdit = (entryId: string) => {
-    console.log("点击的 entryId:", entryId);
     setSelectedEntryId(entryId);
     setIsModalOpen(true);
   };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEntryId(null);
@@ -215,22 +270,38 @@ const UserInfo = () => {
             </TodayTargetContainer>
           </TodayTargetWrapper>
         </InfoWrapper>
-        <DiaryList>
-          <DatePickerContainer>
-            <Flatpickr
-              value={selectedDate}
-              onChange={(date: Date[]) => setSelectedDate(date[0])}
-              options={{
-                dateFormat: "Y-m-d",
-              }}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <DiaryList>
+            <DatePickerContainer>
+              <Flatpickr
+                value={selectedDate}
+                onChange={(date: Date[]) => setSelectedDate(date[0])}
+                options={{ dateFormat: "Y-m-d" }}
+              />
+            </DatePickerContainer>
+            <DiaryTitle>今天吃了</DiaryTitle>
+            <MealSection
+              title="早餐"
+              entries={meals.breakfast}
+              droppableId="早餐"
             />
-          </DatePickerContainer>
-          <DiaryTitle>今天吃了</DiaryTitle>
-          <MealSection title="早餐" entries={meals.breakfast} />
-          <MealSection title="午餐" entries={meals.lunch} />
-          <MealSection title="晚餐" entries={meals.dinner} />
-          <MealSection title="點心" entries={meals.snack} />
-        </DiaryList>
+            <MealSection
+              title="午餐"
+              entries={meals.lunch}
+              droppableId="午餐"
+            />
+            <MealSection
+              title="晚餐"
+              entries={meals.dinner}
+              droppableId="晚餐"
+            />
+            <MealSection
+              title="點心"
+              entries={meals.snack}
+              droppableId="點心"
+            />
+          </DiaryList>
+        </DragDropContext>
         {isModalOpen && selectedEntryId && (
           <Modal onClose={closeModal}>
             <DiaryFoodModal onClose={closeModal} entryId={selectedEntryId} />
