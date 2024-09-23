@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import Loader from "../../components/Loader";
 import Slider from "../../components/Slider";
+import { Switch, FormControlLabel, Select, MenuItem } from "@mui/material";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -59,6 +60,7 @@ const Calculator = () => {
         throw new Error("請先登入");
       }
       const bmi = TDEECalculator.calculateBMI(weight, height);
+      console.log("正在計算的 BMI:", bmi);
 
       await updateTDEEHistory(
         currentUser,
@@ -129,13 +131,26 @@ const Calculator = () => {
     <Wrapper>
       <Sidebar />
       <Container>
-        <Info />
+        <Title>TDEE 計算機</Title>
         <TdeeContainer>
           <Form>
             <ManImg src={manImg}></ManImg>
-
             <FormItem>
-              <Title>Age</Title>
+              <FormTitle>Gender</FormTitle>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={gender === "male"}
+                    onChange={(e) =>
+                      setGender(e.target.checked ? "male" : "female")
+                    }
+                  />
+                }
+                label={gender === "male" ? "Male" : "Female"}
+              />
+            </FormItem>
+            <FormItem>
+              <FormTitle>Age</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={age}
@@ -156,8 +171,9 @@ const Calculator = () => {
                 }}
               />
             </FormItem>
+
             <FormItem>
-              <Title>Weight</Title>
+              <FormTitle>Weight</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={weight}
@@ -179,7 +195,7 @@ const Calculator = () => {
               />
             </FormItem>
             <FormItem>
-              <Title>Height</Title>
+              <FormTitle>Height</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={height}
@@ -200,8 +216,9 @@ const Calculator = () => {
                 }}
               />
             </FormItem>
+
             <FormItem>
-              <Title>Body Fat</Title>
+              <FormTitle>Body Fat</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={bodyFat}
@@ -221,6 +238,22 @@ const Calculator = () => {
                   setBodyFat(Number(newValue));
                 }}
               />
+            </FormItem>
+            <FormItem>
+              <FormTitle>Activity Level</FormTitle>
+              <Select
+                label="Activity Level"
+                value={activityLevel}
+                onChange={(e) => setActivityLevel(e.target.value)}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value="Sedentary">久坐</MenuItem>
+                <MenuItem value="Light">輕度活動</MenuItem>
+                <MenuItem value="Moderate">中度活動</MenuItem>
+                <MenuItem value="Active">活躍</MenuItem>
+                <MenuItem value="Very Active">非常活躍</MenuItem>
+              </Select>
             </FormItem>
           </Form>
           <CaloriesContainer>
@@ -247,14 +280,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const Info = styled.div`
-  position: relative;
-  width: 80%;
-  height: 194px;
-  background-color: gray;
-  margin: 72px auto 36px auto;
-`;
-
+const Title = styled.h1``;
 const TdeeContainer = styled.div`
   display: flex;
   position: relative;
@@ -268,7 +294,7 @@ const TdeeContainer = styled.div`
 const ManImg = styled.img`
   position: absolute;
   left: -48px;
-  top: 120px;
+  top: 240px;
 `;
 
 const Form = styled.div`
@@ -287,7 +313,7 @@ const SliderWrapper = styled.div`
   flex-grow: 1;
 `;
 
-const Title = styled.span`
+const FormTitle = styled.span`
   font-size: 20px;
 `;
 
