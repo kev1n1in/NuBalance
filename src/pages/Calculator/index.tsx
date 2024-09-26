@@ -15,6 +15,9 @@ import Loader from "../../components/Loader";
 import Slider from "../../components/Slider";
 import { Switch, FormControlLabel, Select, MenuItem } from "@mui/material";
 import HandwrittenText from "../../components/HandWrittenText";
+import BGI from "../../asset/draft.png";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 
 const Calculator = () => {
   const [age, setAge] = useState(34);
@@ -28,6 +31,7 @@ const Calculator = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [reloadFlag, setReloadFlag] = useState(false);
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -53,7 +57,7 @@ const Calculator = () => {
 
   useEffect(() => {
     updateCalculation();
-  }, [age, gender, weight, height, activityLevel, bodyFat]);
+  }, [age, gender, weight, height, activityLevel]);
 
   const mutation = useMutation(
     async () => {
@@ -127,10 +131,14 @@ const Calculator = () => {
       setTotalCalories(latestTDEE.tdee);
     }
   }, [latestTDEE, isLoading]);
-
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   return (
     <Wrapper>
-      <Sidebar />
+      {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+      <HamburgerIcon onClick={handleMenuToggle} />
+      <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>TDEE 計算機</Title>
         <TdeeContainer>
@@ -248,6 +256,7 @@ const Calculator = () => {
                 onChange={(e) => setActivityLevel(e.target.value)}
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
+                style={{ width: "100%" }}
               >
                 <MenuItem value="Sedentary">久坐</MenuItem>
                 <MenuItem value="Light">輕度活動</MenuItem>
@@ -279,9 +288,12 @@ const Calculator = () => {
 
 const Wrapper = styled.div`
   display: flex;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
+  @media (max-width: 1000px) {
+    margin: 0;
+  }
 `;
 
 const Container = styled.div`
@@ -294,11 +306,17 @@ const Container = styled.div`
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 8px;
-
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @media (max-width: 768px) {
+    height: 1200px;
+  }
 `;
 
-const Title = styled.h1``;
+const Title = styled.h1`
+  @media (max-width: 1000px) {
+    text-align: center;
+  }
+`;
 const TdeeContainer = styled.div`
   display: flex;
   position: relative;
@@ -311,8 +329,16 @@ const TdeeContainer = styled.div`
 
 const ManImg = styled.img`
   position: absolute;
-  left: -48px;
+  left: -80px;
   top: 300px;
+  @media (max-width: 1000px) {
+    height: 300px;
+    left: -70px;
+    top: 350px;
+  }
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Form = styled.div`
@@ -326,10 +352,17 @@ const FormItem = styled.div`
   margin: 12px 0;
   width: 100%;
   gap: 24px;
+  @media (max-width: 768px) {
+    align-items: start;
+    flex-direction: column;
+  }
 `;
 
 const SliderWrapper = styled.div`
   flex-grow: 1;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const FormTitle = styled.span`
@@ -348,8 +381,10 @@ const Input = styled.input`
 const CaloriesContainer = styled.div`
   display: flex;
   position: relative;
-  top: 160px;
-  right: 48px;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    right: -36px;
+  }
 `;
 
 const CaloriesText = styled.div`
@@ -358,12 +393,23 @@ const CaloriesText = styled.div`
   right: 12px;
   font-size: 20px;
   font-weight: 700;
+  @media (max-width: 1000px) {
+    top: -60px;
+    left: 48px;
+  }
 `;
 
 const ButtonContainer = styled.div`
   position: relative;
   top: 100px;
   width: 250px;
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+  @media (max-width: 768px) {
+    top: 0;
+    bottom: 300px;
+  }
 `;
 
 export default Calculator;
