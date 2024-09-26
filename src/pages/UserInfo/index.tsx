@@ -19,6 +19,8 @@ import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
 import Modal from "../../components/Modal";
 import HandwrittenText from "../../components/HandWrittenText";
 import BGI from "../../asset/draft.png";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 
 interface DiaryEntry {
   id: string;
@@ -36,6 +38,7 @@ const UserInfo = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -151,7 +154,9 @@ const UserInfo = () => {
     setSelectedEntryId(entryId);
     setIsModalOpen(true);
   };
-
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEntryId(null);
@@ -159,7 +164,9 @@ const UserInfo = () => {
 
   return (
     <Wrapper>
-      <Sidebar />
+      {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+      <HamburgerIcon onClick={handleMenuToggle} />
+      <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>您的每日摘要</Title>
         <InfoWrapper>
@@ -264,6 +271,9 @@ const Wrapper = styled.div`
   background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
+  @media (max-width: 1000px) {
+    margin: 0;
+  }
 `;
 const MealSectionContainer = styled.div`
   margin: 12px 0;
@@ -288,6 +298,9 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   z-index: 2;
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
 `;
 
 const Title = styled.h1`
