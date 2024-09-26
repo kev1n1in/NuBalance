@@ -307,6 +307,9 @@ const Container = styled.div`
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
   @media (max-width: 768px) {
     height: 1200px;
   }
