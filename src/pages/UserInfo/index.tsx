@@ -18,6 +18,7 @@ import trashImg from "./trash.png";
 import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
 import Modal from "../../components/Modal";
 import HandwrittenText from "../../components/HandWrittenText";
+import BGI from "../../asset/draft.png";
 
 interface DiaryEntry {
   id: string;
@@ -260,12 +261,16 @@ export default UserInfo;
 
 const Wrapper = styled.div`
   display: flex;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
 `;
 const MealSectionContainer = styled.div`
   margin: 12px 0;
+  @media (max-width: 1000px) {
+    width: 480px;
+    margin: 0 auto;
+  }
 `;
 
 const EmptyList = styled.div`
@@ -285,16 +290,38 @@ const Container = styled.div`
   z-index: 2;
 `;
 
-const Title = styled.h1``;
+const Title = styled.h1`
+  @media (max-width: 1000px) {
+    text-align: center;
+  }
+`;
 
 const InfoWrapper = styled.div`
   display: flex;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+  }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 300px;
+    margin: 0 auto;
+  }
+  @media (max-width: 480px) {
+    flex-direction: column;
+    width: 200px;
+    margin: 0 auto;
+  }
 `;
 
 const UserInfoCotainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: auto 24px auto 0;
+  @media (max-width: 1000px) {
+    margin: 12px 24px auto 0;
+  }
 `;
 
 const UserImage = styled.img`
@@ -312,6 +339,9 @@ const TodayTargetContainer = styled.div`
   display: flex;
   height: 100px;
   align-items: center;
+  @media (max-width: 1000px) {
+    padding: 0 12px;
+  }
 `;
 
 const TotalTarget = styled.div`
@@ -338,8 +368,23 @@ const ButtonContainer = styled.div`
   top: -24px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 400px;
+  width: 360px;
   gap: 20px;
+  @media (max-width: 1000px) {
+    display: flex;
+    right: 30px;
+    top: -150px;
+    flex-direction: column;
+    width: 60%;
+    gap: 12px;
+  }
+  @media (max-width: 768px) {
+    right: 30px;
+    width: 40%;
+  }
+  @media (max-width: 480px) {
+    right: 0;
+  }
 `;
 const DeleteButtonContainer = styled.div`
   position: absolute;
@@ -394,6 +439,14 @@ const ProgressNumbers = styled.div`
 const DatePickerContainer = styled.div``;
 const DiaryList = styled.div`
   margin: 24px 0;
+  @media (max-width: 1000px) {
+    width: 480px;
+    margin: 12px auto 0 auto;
+  }
+  @media (max-width: 768px) {
+    width: 300px;
+    margin: 12px auto 0 auto;
+  }
 `;
 
 const DiaryTitle = styled.h2``;
