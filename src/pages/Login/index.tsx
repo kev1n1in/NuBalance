@@ -15,14 +15,13 @@ import Button from "../../components/Button";
 import { updateUserProfile } from "../../firebase/firebaseServices";
 import WomenImg from "./womenSit.png";
 import HandWrittenText from "../../components/HandWrittenText";
+import BGI from "../../asset/draft.png";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
   const [inputEmail, setInputEmail] = useState("");
   const [inputPassword, setInputPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [paths, setPaths] = useState<string[]>([]);
-  const [width, setWidth] = useState(0);
   const navigate = useNavigate();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -192,7 +191,7 @@ const Wrapper = styled.div`
 
 const Banner = styled.div`
   position: relative;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   width: 100%;
   height: 300px;
   margin-bottom: 24px;
@@ -201,6 +200,9 @@ const Banner = styled.div`
 
 const Container = styled.div`
   width: 80%;
+  @media (max-width: 768px) {
+    margin-top: 47px;
+  }
 `;
 
 const Img = styled.img`
@@ -208,6 +210,10 @@ const Img = styled.img`
   right: 0;
   top: 30px;
   height: 400px;
+  @media (max-width: 768px) {
+    top: 100px;
+    height: 300px;
+  }
 `;
 
 const Form = styled.form`
