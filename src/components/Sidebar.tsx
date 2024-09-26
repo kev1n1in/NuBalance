@@ -5,7 +5,11 @@ import { signOutUser } from "../firebase/firebaseAuth";
 import Cookies from "js-cookie";
 import { annotate } from "rough-notation";
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  toggleMenu: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -63,9 +67,9 @@ const Sidebar: React.FC = () => {
   }, [location]);
 
   return (
-    <Wrapper>
+    <Wrapper toggleMenu={toggleMenu}>
       <NavBar>
-        <Logo />
+        <Logo onClick={() => handleNavigation("/landing")} />
         {["/userInfo", "/calculator", "/food", "/diary", "/report"].map(
           (path, index) => (
             <Item
@@ -93,15 +97,22 @@ const Sidebar: React.FC = () => {
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ toggleMenu: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 150px;
   height: 100%;
-  background-color: gray;
+  background-color: #363636;
   justify-content: center;
   align-items: center;
+  transition: right 0.3s ease;
+
+  @media (max-width: 1000px) {
+    right: ${({ toggleMenu }) => (toggleMenu ? "0" : "-150px")};
+    left: auto;
+    z-index: 10;
+  }
 `;
 
 const NavBar = styled.div`
@@ -122,8 +133,10 @@ const Logo = styled.div`
   margin: 12px;
   height: 48px;
   width: 48px;
+  margin-top: 60px;
   border-radius: 50%;
   background-color: #000;
+  cursor: pointer;
 `;
 
 export default Sidebar;

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import Sidebar from "../../components/Sidebar";
+import BGI from "../../asset/draft.png";
 import Button from "../../components/Button";
 import breakImg from "./mealsImg/breakfats.png";
 import lunchImg from "./mealsImg/lunch.png";
@@ -22,12 +23,15 @@ import { addDiaryEntry } from "../../firebase/firebaseServices";
 import { uploadImageToStorage } from "../../firebase/firebaseServices";
 import { useFoodStore } from "../../stores/foodStore";
 import { useLocation, useNavigate } from "react-router-dom";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 
 type FoodItem = {
   id: string;
   food_name: string;
   food_info: string[];
 };
+
 type MealItem = {
   id: string;
   name: string;
@@ -60,6 +64,7 @@ const Diary = () => {
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodItem | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const noteRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
   const { state } = useLocation();
@@ -86,6 +91,7 @@ const Diary = () => {
   };
 
   const mutation = useMutation(
+    //any 要改
     async (newDiaryEntry: any) => {
       if (!auth.currentUser) {
         throw new Error("請先登入");
@@ -151,10 +157,14 @@ const Diary = () => {
 
     mutation.mutate(newDiaryEntry);
   };
-
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   return (
     <Wrapper>
-      <Sidebar />
+      {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+      <HamburgerIcon onClick={handleMenuToggle} />
+      <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Diary</Title>
         <MealSelectorContainer>
@@ -228,9 +238,12 @@ export default Diary;
 
 const Wrapper = styled.div`
   display: flex;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
+  @media (max-width: 1000px) {
+    margin: 0;
+  }
 `;
 
 const Container = styled.div`
@@ -243,6 +256,9 @@ const Container = styled.div`
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
 `;
 
 const Title = styled.h1`

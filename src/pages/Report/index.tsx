@@ -20,6 +20,9 @@ import {
   Area,
 } from "recharts";
 import { RoughNotation } from "react-rough-notation";
+import BGI from "../../asset/draft.png";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 
 interface HistoryItem {
   clientUpdateTime: { seconds: number };
@@ -68,7 +71,8 @@ const Report = () => {
     []
   );
   const [latestBMI, setLatestBMI] = useState<number | null>(0);
-
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
+  const currentUser = auth.currentUser;
   const {
     data: allHistory = [],
     isLoading: isLoadingTDEE,
@@ -76,7 +80,6 @@ const Report = () => {
   } = useQuery(
     "userHistory",
     async () => {
-      const currentUser = auth.currentUser;
       if (!currentUser) {
         throw new Error("用戶未登入");
       }
@@ -93,9 +96,8 @@ const Report = () => {
     },
     { refetchOnWindowFocus: false }
   );
-
+  // 這裡應該用useQuery 才對
   const fetchNutritionData = async () => {
-    const currentUser = auth.currentUser;
     if (!currentUser) return;
 
     const diaryEntries: DiaryEntry[] = await getDiaryEntry(
@@ -187,10 +189,15 @@ const Report = () => {
       </RoughNotation>
     );
   };
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
 
   return (
     <Wrapper>
-      <Sidebar />
+      {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+      <HamburgerIcon onClick={handleMenuToggle} />
+      <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>分析報告</Title>
 
@@ -297,9 +304,12 @@ const Report = () => {
 
 const Wrapper = styled.div`
   display: flex;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
+  @media (max-width: 1000px) {
+    margin: 0;
+  }
 `;
 const Title = styled.h1`
   text-align: center;
@@ -308,6 +318,9 @@ const Title = styled.h1`
 const Container = styled.div`
   width: 80%;
   margin: 0 auto;
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
 `;
 const ChartContainer = styled.div`
   margin: 24px 0;

@@ -1,71 +1,91 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { signOutUser } from "../firebase/firebaseAuth";
-import Cookies from "js-cookie";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onScrollToTop: () => void;
+  scrollProgress: number; // 用來控制 SVG 標題的位置和大小
+}
+
+const Header: React.FC<HeaderProps> = ({ onScrollToTop, scrollProgress }) => {
   const navigate = useNavigate();
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
+  // 監聽滾動事件，當滾動到頂部時觸發
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY === 0) {
+        onScrollToTop();
+      }
+    };
 
-  const handleLogout = async () => {
-    try {
-      await signOutUser();
-      Cookies.remove("isLoggedIn");
-      navigate("/");
-    } catch (error) {
-      console.error("登出失敗", error);
-    }
-  };
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [onScrollToTop]);
+
+  // 控制縮放和Y軸的位置
+  const scaleValue = 3 - scrollProgress * 2; // 最大 3 倍縮放，最小 1 倍
+  const translateY = Math.max(
+    70,
+    Math.round(
+      window.innerHeight / 2 +
+        300 -
+        scrollProgress * (window.innerHeight / 2 + 100 - 70)
+    )
+  );
+
+  // 避免縮放比例過小，並確保動畫順暢
+  const smoothScroll = `translateY(${
+    translateY - window.innerHeight / 2 + 100
+  }px) scale(${scaleValue})`;
+
+  // 根據滾動進度設置是否固定
+  const isFixed = scrollProgress >= 1;
 
   return (
-    <Wrapper>
-      <NavBar>
-        <Logo onClick={() => handleNavigation("/landing")} />
-        <Item onClick={() => handleNavigation("/userInfo")}>Home</Item>
-        <Item onClick={() => handleNavigation("/calculator")}>Calculator</Item>
-        <Item onClick={() => handleNavigation("/food")}>Food</Item>
-        <Item onClick={() => handleNavigation("/diary")}>Diary</Item>
-        <Item onClick={() => handleNavigation("/report")}>Report</Item>
-        <Item onClick={handleLogout}>Logout</Item>
-      </NavBar>
+    <Wrapper isFixed={isFixed}>
+      <h1 className="header-logo">
+        <svg
+          width="400"
+          height="200"
+          viewBox="0 0 400 200"
+          style={{
+            overflow: "visible",
+            transformOrigin: "center",
+            transform: smoothScroll,
+            transition: "transform 0.1s linear", // 使用 linear 確保滾動即時同步
+          }}
+        >
+          <text
+            x="50%"
+            y="50%"
+            dominantBaseline="middle"
+            textAnchor="middle"
+            fill="black"
+            fontSize="72"
+          >
+            NuBalance
+          </text>
+        </svg>
+      </h1>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
+// 使用 props 來動態設置 CSS
+const Wrapper = styled.div<{ isFixed: boolean }>`
   display: flex;
+  position: ${(props) =>
+    props.isFixed ? "fixed" : "absolute"}; // 動態設置 position
+  top: ${(props) => (props.isFixed ? "0" : "unset")}; // 當固定時設置在頂部
   width: 100%;
-  height: 150px;
+  height: 140px;
   justify-content: center;
   align-items: center;
-`;
-
-const NavBar = styled.div`
-  width: 80%;
-  border-radius: 40px;
-  background-color: gray;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-`;
-
-const Item = styled.div`
-  cursor: pointer;
-  padding: 8px 16px;
-  color: white;
-`;
-
-const Logo = styled.div`
-  cursor: pointer;
-  margin: 12px;
-  height: 48px;
-  width: 48px;
-  border-radius: 50%;
-  background-color: #000;
+  background-color: transparent;
+  z-index: 10;
 `;
 
 export default Header;

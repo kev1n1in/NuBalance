@@ -9,6 +9,9 @@ import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
 import { useFoodStore } from "../../stores/foodStore";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
+import BGI from "../../asset/draft.png";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 
 interface FoodItem {
   id: string;
@@ -21,8 +24,8 @@ const Food: React.FC = () => {
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
 
   const queryClient = useQueryClient();
   const currentUser = auth.currentUser;
@@ -81,10 +84,14 @@ const Food: React.FC = () => {
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   return (
     <Wrapper>
-      <Sidebar />
+      {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+      <HamburgerIcon onClick={handleMenuToggle} />
+      <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>食品資料庫</Title>
         <Input
@@ -150,10 +157,13 @@ const Food: React.FC = () => {
 
 const Wrapper = styled.div`
   display: flex;
-  background-image: url("src/asset/draft.png");
+  background-image: url(${BGI});
   margin: 0 0 0 150px;
   height: 100vh;
   z-index: 0;
+  @media (max-width: 1000px) {
+    margin: 0;
+  }
 `;
 const Title = styled.h1`
   margin: 12px 0;
@@ -184,6 +194,9 @@ const Container = styled.div`
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
 `;
 
 const DataContainer = styled.div`
