@@ -267,10 +267,13 @@ const Title = styled.h1`
 `;
 
 const MealSelectorContainer = styled.div`
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   height: 200px;
   align-items: center;
+  @media (max-width: 768px) {
+    grid-template-columns: 2fr 2fr;
+  }
 `;
 
 const MealContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
@@ -334,12 +337,20 @@ const FoodSelectorWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   height: 150px;
+  @media (max-width: 768px) {
+    margin-top: 48px;
+  }
 `;
 
 const FoodSelectorContainer = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   height: 100px;
-  margin-top: 24px;
+  margin: 24px 0;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    place-items: center;
+  }
 `;
 
 const FoodSelectorTitle = styled.h2`
@@ -354,15 +365,28 @@ const FoodSelector = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  @media (max-width: 768px) {
+    margin: 12px 0;
+  }
 `;
 
 const Nutrition = styled.div`
   margin-left: 48px;
   width: 300px;
+  @media (max-width: 768px) {
+    margin-left: 0px;
+    width: 100%;
+  }
 `;
 
 const TimePickerContainer = styled.div`
   display: grid;
+  @media (max-width: 768px) {
+    margin: 24px 0;
+  }
+  @media (max-width: 360px) {
+    margin: 48px 0;
+  }
 `;
 
 const TimePickerTitle = styled.h2``;
