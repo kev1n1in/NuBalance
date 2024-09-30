@@ -13,12 +13,11 @@ import tomato from "./tomato.png";
 import pear from "./pear.png";
 import pineapple from "./pineapple.png";
 import redCarrot from "./redCarrot.png";
-
-// 使用相對單位來讓圖片具備 RWD 功能
+import zIndex from "@mui/material/styles/zIndex";
 
 const GSAPWrapper: React.FC = () => {
-  const wordRefs = useRef([]);
-  const imageRefs = useRef([]);
+  const wordRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isCentered = useRef(false);
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
@@ -56,6 +55,9 @@ const GSAPWrapper: React.FC = () => {
       height: "auto",
       initial: { x: 100, y: -600 },
       final: { x: centerX - 200, y: centerY + 250 },
+      rotate: 0,
+      scale: 1,
+      zIndex: 0,
     },
     potato: {
       src: potato,
@@ -65,6 +67,7 @@ const GSAPWrapper: React.FC = () => {
       final: { x: centerX - 80, y: centerY + 110 },
       rotate: 0,
       scale: 1,
+      zIndex: 0,
     },
 
     tomato: {
@@ -127,6 +130,7 @@ const GSAPWrapper: React.FC = () => {
       rotate: 15,
       scale: 0,
       scaleY: 0,
+      zIndex: 0,
     },
 
     lemon: {
@@ -235,15 +239,17 @@ const GSAPWrapper: React.FC = () => {
 
     // 設定圖片初始位置
     Object.keys(images).forEach((key, index) => {
+      const imageKey = key as keyof typeof images;
+      const image = images[imageKey];
       gsap.set(imageRefs.current[index], {
-        x: images[key].initial.x,
-        y: images[key].initial.y,
-        scale: images[key].scale,
-        rotate: images[key].scale,
+        x: image.initial.x,
+        y: image.initial.y,
+        scale: image.scale,
+        rotate: image.scale,
       });
     });
 
-    const handleScroll = (event) => {
+    const handleScroll = (event: WheelEvent) => {
       const scrollDirection = event.deltaY > 0 ? "down" : "up";
       if (isAnimating.current) return;
 
@@ -265,14 +271,16 @@ const GSAPWrapper: React.FC = () => {
 
         // 圖片動畫
         Object.keys(images).forEach((key, index) => {
+          const imageKey = key as keyof typeof images;
+          const image = images[imageKey];
           gsap.to(imageRefs.current[index], {
-            x: images[key].final.x,
-            y: images[key].final.y,
+            x: images[imageKey].final.x,
+            y: images[imageKey].final.y,
             duration: 1.5,
-            scale: images[key].scale, // cheery 從 0 放大到 1
-            rotate: images[key].rotate,
-            delay: index * 0.2, // 增加延遲以達到漸進效果
-            zIndex: images[key].zIndex,
+            scale: images[imageKey].scale,
+            rotate: images[imageKey].rotate,
+            delay: index * 0.2,
+            zIndex: images[imageKey].zIndex,
             ease: "power4.out",
             onComplete: () => {
               if (index === Object.keys(images).length - 1) {
@@ -317,9 +325,11 @@ const GSAPWrapper: React.FC = () => {
 
         // 返回初始圖片位置
         Object.keys(images).forEach((key, index) => {
+          const imageKey = key as keyof typeof images;
+          const image = images[imageKey];
           gsap.to(imageRefs.current[index], {
-            x: images[key].initial.x,
-            y: images[key].initial.y,
+            x: image.initial.x,
+            y: image.initial.y,
             duration: 1.5,
             ease: "power3.out",
           });
@@ -371,17 +381,20 @@ const GSAPWrapper: React.FC = () => {
         </BalanceContainer>
       </WordsContainer>
       <ImageContainer>
-        {Object.keys(images).map((key, index) => (
-          <Image
-            key={index}
-            ref={(el) => (imageRefs.current[index] = el)}
-            src={images[key].src}
-            alt={key}
-            width={images[key].width}
-            height={images[key].height}
-            style={{ zIndex: images[key].zIndex }}
-          />
-        ))}
+        {Object.keys(images).map((key, index) => {
+          const imageKey = key as keyof typeof images;
+          return (
+            <Image
+              key={index}
+              ref={(el) => (imageRefs.current[index] = el)}
+              src={images[imageKey].src}
+              alt={imageKey}
+              width={images[imageKey].width}
+              height={images[imageKey].height}
+              style={{ zIndex: images[imageKey].zIndex }}
+            />
+          );
+        })}
       </ImageContainer>
     </Wrapper>
   );
