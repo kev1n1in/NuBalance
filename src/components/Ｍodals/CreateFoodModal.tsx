@@ -239,8 +239,8 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           })}
         />
         {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
-
-        <InputTitle>上傳圖片</InputTitle>
+        <Split />
+        <InputTitle>Or 掃描營養標籤</InputTitle>
         <Input type="file" onChange={handleImageChange} />
 
         {previewImage && <img src={previewImage} alt="圖片預覽" width="200" />}
@@ -265,9 +265,13 @@ const Form = styled.form`
   flex-direction: column;
 `;
 
-const InputTitle = styled.div``;
+const InputTitle = styled.div`
+  font-weight: 700;
+`;
 
-const Input = styled.input``;
+const Input = styled.input`
+  margin: 6px 0;
+`;
 
 const ErrorMessage = styled.p`
   color: red;
@@ -277,6 +281,13 @@ const ErrorMessage = styled.p`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: end;
+  margin-top: 12px;
+`;
+const Split = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: #000;
+  margin: 24px auto;
 `;
 
 export default CreateFoodModal;
