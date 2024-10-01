@@ -10,33 +10,85 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (chartRef.current) {
-      chartRef.current.innerHTML = "";
-
-      const width = chartRef.current.clientWidth;
-      const height = chartRef.current.clientHeight;
-
-      new Pie({
-        element: `#${chartRef.current.id}`,
-        data: {
-          labels: data.labels,
-          values: data.values,
-        },
-        roughness: 2,
-        colors: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
-        stroke: "black",
-        strokeWidth: 2,
-        width: width,
-        height: height,
-        margin: { top: 40, right: 20, bottom: 20, left: 20 },
-        legendPosition: "right",
-      });
-    }
-
-    return () => {
+    const adjustPieChart = () => {
       if (chartRef.current) {
         chartRef.current.innerHTML = "";
+
+        const width = chartRef.current.clientWidth;
+        const height = chartRef.current.clientHeight;
+
+        let bottomMargin, translateY, viewBoxY;
+
+        if (window.innerWidth < 360) {
+          bottomMargin = 0;
+          translateY = 0;
+          viewBoxY = 10;
+        } else if (window.innerWidth < 480) {
+          bottomMargin = 0;
+          translateY = 0;
+          viewBoxY = 200;
+        } else if (window.innerWidth < 768) {
+          bottomMargin = 20;
+          translateY = 0;
+          viewBoxY = 10;
+        } else if (window.innerWidth < 1000) {
+          bottomMargin = 120;
+          translateY = -50;
+          viewBoxY = -50;
+        } else if (window.innerWidth < 1280) {
+          bottomMargin = 0;
+          translateY = 100;
+          viewBoxY = 50;
+        } else {
+          bottomMargin = 80;
+          translateY = 200;
+          viewBoxY = 50;
+        }
+
+        const pieChart = new Pie({
+          element: `#${chartRef.current.id}`,
+          data: {
+            labels: data.labels,
+            values: data.values,
+          },
+          roughness: 2,
+          colors: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+          stroke: "black",
+          strokeWidth: 2,
+          width: width,
+          height: height,
+          margin: { top: 40, right: 20, bottom: bottomMargin, left: 20 },
+        });
+
+        setTimeout(() => {
+          if (chartRef.current) {
+            const svg = chartRef.current.querySelector("svg");
+            const roughPieChart =
+              chartRef.current.querySelector("g.roughpie-chart");
+
+            if (roughPieChart && svg) {
+              // 動態移動圖表的位置，使用 translate 調整 X 和 Y
+              roughPieChart.setAttribute(
+                "transform",
+                `translate(-40, ${translateY})`
+              );
+
+              // 動態調整 viewBox，包括 Y 軸位置的變化
+              const viewBoxValue = `0 ${viewBoxY} ${width} ${height}`;
+              svg.setAttribute("viewBox", viewBoxValue);
+              svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+            }
+          }
+        }, 100);
       }
+    };
+
+    window.addEventListener("resize", adjustPieChart);
+
+    adjustPieChart();
+
+    return () => {
+      window.removeEventListener("resize", adjustPieChart);
     };
   }, [data]);
 
@@ -63,6 +115,9 @@ const ChartWrapper = styled.div`
   width: 100%;
   height: 100%;
   padding-top: 75px;
+  @media (max-width: 768px) {
+    padding-top: 0;
+  }
 `;
 
 export default RoughPieChart;
