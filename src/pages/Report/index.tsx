@@ -157,23 +157,26 @@ const Report: React.FC = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>分析報告</Title>
-        <HandwrittenText
-          text={`BMI: ${latestBMI ? latestBMI.toFixed(2) : "無資料"}`}
-          roughness={0}
-          color="black"
-          fill="green"
-          fontSize={75}
-        />
-
-        <HandwrittenText
-          text={`BodyFat: ${
-            latestBodyFat ? latestBodyFat.toFixed(2) + "%" : "無資料"
-          }`}
-          roughness={0}
-          color="black"
-          fill="green"
-          fontSize={75}
-        />
+        <BMIWrittenContainer>
+          <HandwrittenText
+            text={`BMI: ${latestBMI ? latestBMI.toFixed(2) : "無資料"}`}
+            roughness={0}
+            color="black"
+            fill="green"
+            fontSize={75}
+          />
+        </BMIWrittenContainer>
+        <BodyFatWrittenContainer>
+          <HandwrittenText
+            text={`BodyFat: ${
+              latestBodyFat ? latestBodyFat.toFixed(2) + "%" : "無資料"
+            }`}
+            roughness={0}
+            color="black"
+            fill="green"
+            fontSize={75}
+          />
+        </BodyFatWrittenContainer>
         <ChartContainer>
           <ChartTitle>體重變化</ChartTitle>
           <RoughBarChart data={roughData} />
@@ -217,6 +220,12 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
+const BMIWrittenContainer = styled.div`
+  width: 45%;
+`;
+const BodyFatWrittenContainer = styled.div`
+  width: 60%;
+`;
 const ChartContainer = styled.div`
   margin: 24px 0;
   padding: 12px;
