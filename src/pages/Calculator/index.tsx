@@ -319,6 +319,10 @@ const Title = styled.h1`
   @media (max-width: 1000px) {
     text-align: center;
   }
+  @media (max-width: 360px) {
+    width: 120px;
+    margin: 0 auto;
+  }
 `;
 const TdeeContainer = styled.div`
   display: flex;
@@ -388,17 +392,40 @@ const CaloriesContainer = styled.div`
     flex-direction: column;
     right: -36px;
   }
+  @media (max-width: 768px) {
+    top: -36px;
+  }
+  @media (max-width: 480px) {
+    top: -30px;
+    left: 8px;
+  }
+  @media (max-width: 360px) {
+    top: -30px;
+    left: 4px;
+  }
 `;
 
 const CaloriesText = styled.div`
   position: relative;
-  top: 56px;
+  top: 140px;
+  width: 140px;
   right: 12px;
   font-size: 20px;
   font-weight: 700;
   @media (max-width: 1000px) {
     top: 0px;
-    left: 72px;
+    left: 120px;
+  }
+  @media (max-width: 768px) {
+    top: -24px;
+  }
+  @media (max-width: 480px) {
+    top: -16px;
+    left: 60px;
+  }
+  @media (max-width: 360px) {
+    top: -16px;
+    left: 12px;
   }
 `;
 
@@ -410,8 +437,7 @@ const ButtonContainer = styled.div`
     width: 100%;
   }
   @media (max-width: 768px) {
-    top: 0;
-    bottom: 300px;
+    top: -24px;
   }
 `;
 
