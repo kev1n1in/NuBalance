@@ -322,20 +322,15 @@ const InfoWrapper = styled.div`
     width: 100%;
     margin: 0 auto;
   }
-  @media (max-width: 768px) {
-    flex-direction: column;
-    width: 100%;
-    margin: 0 auto;
-  }
-  @media (max-width: 480px) {
-    flex-direction: column;
-    width: 200px;
-    margin: 0 auto;
-  }
 `;
 const InfoContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 const UserInfoCotainer = styled.div`
   display: flex;
@@ -345,6 +340,7 @@ const UserInfoCotainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 90%;
   }
 `;
 
@@ -356,6 +352,9 @@ const UserImage = styled.img`
   @media (max-width: 768px) {
     width: 250px;
   }
+  @media (max-width: 480px) {
+    width: 120px;
+  }
 `;
 
 const TodayTargetWrapper = styled.div`
@@ -364,6 +363,18 @@ const TodayTargetWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  @media (max-width: 480px) {
+    position: absolute;
+    top: 140px;
+    right: 24px;
+    width: 85%;
+  }
+  @media (max-width: 480px) {
+    position: absolute;
+    top: 200px;
+    right: 24px;
+    width: 85%;
+  }
 `;
 const HandwrittenContainer = styled.div`
   position: relative;
@@ -372,6 +383,9 @@ const HandwrittenContainer = styled.div`
   align-items: center;
   @media (max-width: 1000px) {
     left: 36px;
+  }
+  @media (max-width: 480px) {
+    left: 24px;
   }
 `;
 const TodayTargetContainer = styled.div`
@@ -382,6 +396,9 @@ const TodayTargetContainer = styled.div`
   @media (max-width: 1000px) {
     padding: 0 12px;
   }
+  @media (max-width: 480px) {
+    padding: 0 0;
+  }
 `;
 
 const TotalTarget = styled.div`
@@ -390,6 +407,9 @@ const TotalTarget = styled.div`
   font-size: 18px;
   display: flex;
   flex-direction: column;
+  @media (max-width: 480px) {
+    margin-top: 48px;
+  }
 `;
 const TotalTargetTitle = styled.span`
   position: relative;
@@ -401,6 +421,10 @@ const TotalTargetTitle = styled.span`
     text-align: center;
     letter-spacing: 16px;
     font-weight: 700;
+  }
+  @media (max-width: 480px) {
+    width: 100%;
+    letter-spacing: 0;
   }
 `;
 const ButtonContainer = styled.div`
@@ -423,7 +447,10 @@ const ButtonContainer = styled.div`
     gap: 48px;
   }
   @media (max-width: 480px) {
+    top: 0;
     right: 0;
+    width: 100%;
+    gap: 12px;
   }
 `;
 const DeleteButtonContainer = styled.div`
@@ -443,7 +470,7 @@ const DeleteButton = styled.img`
 const TargetProgressContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 120px;
+  margin-top: 100px;
 `;
 
 const IndicatorWrapper = styled.div`
@@ -483,7 +510,8 @@ const DiaryList = styled.div`
     width: 100%;
     margin: 60px 12px 0 12px;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 480px) {
+    margin: 24px 0;
   }
 `;
 
