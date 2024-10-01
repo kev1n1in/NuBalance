@@ -130,13 +130,16 @@ const Login = () => {
             <Img src={WomenImg} />
           </Banner>
           <Container>
-            <HandWrittenText
-              text="Welcome"
-              roughness={0}
-              color="black"
-              fill="yellow"
-              fontSize={150}
-            />
+            <TitleContainer>
+              {" "}
+              <HandWrittenText
+                text="Welcome"
+                roughness={0}
+                color="black"
+                fill="yellow"
+                fontSize={150}
+              />
+            </TitleContainer>
 
             <LoginContainer>
               {isLoggedIn ? (
@@ -204,16 +207,18 @@ const Container = styled.div`
     margin-top: 47px;
   }
 `;
-
+const TitleContainer = styled.div`
+  margin-bottom: 48px;
+`;
 const Img = styled.img`
   position: absolute;
   right: 0;
   top: 30px;
   height: 400px;
-  @media (max-width: 768px) {
+  /* @media (max-width: 768px) {
     top: 100px;
     height: 300px;
-  }
+  } */
 `;
 
 const Form = styled.form`

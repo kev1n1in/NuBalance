@@ -19,7 +19,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Router>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
             <Route
               path="/calculator"
               element={<PrivateRoute element={<Calculator />} />}
@@ -37,10 +37,7 @@ function App() {
               element={<PrivateRoute element={<UserInfo />} />}
             />
             <Route path="/food" element={<PrivateRoute element={<Food />} />} />
-            <Route
-              path="/landing"
-              element={<PrivateRoute element={<LandingPage />} />}
-            />
+            <Route path="/landing" element={<LandingPage />} />
           </Routes>
         </Router>
       </QueryClientProvider>

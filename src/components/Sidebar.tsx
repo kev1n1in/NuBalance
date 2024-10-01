@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
       await signOutUser();
       Cookies.remove("isLoggedIn");
       Cookies.remove("username");
-      navigate("/");
+      navigate("/landing");
     } catch (error) {
       console.error("登出失敗", error);
     }
@@ -121,6 +121,9 @@ const NavBar = styled.div`
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  @media (max-width: 1000px) {
+    margin-top: 48px;
+  }
 `;
 
 const Item = styled.div`
