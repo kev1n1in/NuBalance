@@ -8,12 +8,13 @@ import Sidebar from "../../components/Sidebar";
 import Overlay from "../../components/Overlay";
 import HamburgerIcon from "../../components/MenuButton";
 import { useNavigate } from "react-router-dom";
+import { User } from "firebase/auth";
 
 const LandingPage = () => {
   const [isTitleInHeader, setIsTitleInHeader] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const titleRef = useRef(null);
   const headerRef = useRef(null);
@@ -47,7 +48,7 @@ const LandingPage = () => {
       setUser(currentUser);
     });
 
-    return () => unsubscribe(); // 組件卸載時取消監聽
+    return () => unsubscribe();
   }, []);
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -105,7 +106,6 @@ const LandingPage = () => {
   );
 };
 
-// 樣式部分
 const Wrapper = styled.div``;
 
 const HeaderWrapper = styled.div`
@@ -113,7 +113,7 @@ const HeaderWrapper = styled.div`
   position: fixed;
   top: 0;
   width: 100%;
-  height: 140px; /* Header 的高度 */
+  height: 140px;
   justify-content: center;
   align-items: center;
   background-color: transparent;
