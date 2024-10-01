@@ -9,31 +9,75 @@ interface RoughBarChartProps {
 const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
+  const adjustLabels = () => {
     if (chartRef.current) {
-      chartRef.current.innerHTML = "";
+      const containerWidth = chartRef.current.clientWidth;
+      const containerHeight = chartRef.current.clientHeight;
+      const labels = chartRef.current.querySelectorAll("text.labelText");
+
+      labels.forEach((label) => {
+        const svgLabel = label as SVGTextElement;
+        const transform = label.getAttribute("transform");
+        const fontSize = Math.max(containerWidth * 0.03, 12);
+
+        svgLabel.style.fontSize = `${fontSize}px`;
+
+        if (transform && transform.includes("rotate(-90)")) {
+          const yPos = containerHeight * 0.5;
+          label.setAttribute("y", `-${containerWidth * 0.1}`);
+        } else {
+          const xPos = containerWidth * 0.5;
+          label.setAttribute("x", `${xPos * 0.8}`);
+          label.setAttribute("y", `${containerHeight * 0.87}`);
+        }
+      });
+    }
+  };
+
+  const renderChart = () => {
+    if (chartRef.current) {
+      const containerWidth = chartRef.current.clientWidth;
+      const containerHeight = chartRef.current.clientHeight;
+      chartRef.current.innerHTML = ""; // 清除舊的圖表
       const processedData = {
         labels: data.labels.slice().reverse(),
         values: data.values.map((value) => Math.max(0, value)).reverse(),
+      };
+      const margin = {
+        top: containerHeight * 0.1,
+        right: containerWidth * 0.05,
+        bottom: containerHeight * 0.2,
+        left: containerWidth * 0.1,
       };
 
       new Bar({
         element: `#${chartRef.current.id}`,
         data: processedData,
-        width: chartRef.current.clientWidth,
-        height: chartRef.current.clientHeight,
+        width: containerWidth,
+        height: containerHeight * 1.2,
         xLabel: "Date",
         yLabel: "Kg",
         roughness: 2,
         color: "skyblue",
-        margin: { top: 50, right: 50, bottom: 120, left: 70 },
+        margin,
       });
+
+      setTimeout(() => {
+        adjustLabels();
+      }, 100);
     }
-    console.log("我在動");
+  };
+
+  useEffect(() => {
+    renderChart();
+
+    const handleResize = () => {
+      renderChart();
+    };
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      if (chartRef.current) {
-        chartRef.current.innerHTML = "";
-      }
+      window.removeEventListener("resize", handleResize);
     };
   }, [data]);
 
@@ -48,7 +92,7 @@ const ChartContainer = styled.div`
   width: 100%;
   max-width: 1200px;
   height: 0;
-  padding-bottom: 50%;
+  padding-bottom: 70%;
   position: relative;
 `;
 
