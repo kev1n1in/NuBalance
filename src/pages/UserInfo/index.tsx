@@ -170,48 +170,52 @@ const UserInfo = () => {
       <Container>
         <Title>您的每日摘要</Title>
         <InfoWrapper>
-          <UserInfoCotainer>
-            <UserImage src={userImg} />
-          </UserInfoCotainer>
-          <TodayTargetWrapper>
-            <TodayTargetContainer>
+          <InfoContainer>
+            <UserInfoCotainer>
+              <UserImage src={userImg} />
               <TotalTarget>
                 <TotalTargetTitle>剩餘熱量</TotalTargetTitle>
-                <HandwrittenText
-                  text={remainingCalories ? remainingCalories.toFixed(0) : "0"}
-                  roughness={0}
-                  color="black"
-                  fill="green"
-                  fontSize={100}
-                />
+                <HandwrittenContainer>
+                  <HandwrittenText
+                    text={
+                      remainingCalories ? remainingCalories.toFixed(0) : "0"
+                    }
+                    roughness={0}
+                    color="black"
+                    fill="green"
+                    fontSize={75}
+                  />
+                </HandwrittenContainer>
               </TotalTarget>
-              <ButtonContainer>
-                <Button
-                  label="更改熱量估計"
-                  onClick={() =>
-                    navigate("../calculator", { state: { fromUserInfo: true } })
-                  }
-                />
-                <Button
-                  label="查詢食品"
-                  onClick={() =>
-                    navigate("../food", { state: { fromUserInfo: true } })
-                  }
-                />
-                <Button
-                  label="新增飲食"
-                  onClick={() =>
-                    navigate("../diary", { state: { fromUserInfo: true } })
-                  }
-                />
-                <Button
-                  label="查看分析"
-                  onClick={() =>
-                    navigate("../report", { state: { fromUserInfo: true } })
-                  }
-                />
-              </ButtonContainer>
-            </TodayTargetContainer>
+            </UserInfoCotainer>
+            <ButtonContainer>
+              <Button
+                label="更改熱量估計"
+                onClick={() =>
+                  navigate("../calculator", { state: { fromUserInfo: true } })
+                }
+              />
+              <Button
+                label="查詢食品"
+                onClick={() =>
+                  navigate("../food", { state: { fromUserInfo: true } })
+                }
+              />
+              <Button
+                label="新增飲食"
+                onClick={() =>
+                  navigate("../diary", { state: { fromUserInfo: true } })
+                }
+              />
+              <Button
+                label="查看分析"
+                onClick={() =>
+                  navigate("../report", { state: { fromUserInfo: true } })
+                }
+              />
+            </ButtonContainer>
+          </InfoContainer>
+          <TodayTargetWrapper>
             <TodayTargetContainer>
               <TargetProgressContainer>
                 <Line
@@ -271,6 +275,7 @@ const Wrapper = styled.div`
   background-image: url(${BGI});
   margin: 0 0 0 150px;
   z-index: 0;
+
   @media (max-width: 1000px) {
     margin: 0;
   }
@@ -278,7 +283,7 @@ const Wrapper = styled.div`
 const MealSectionContainer = styled.div`
   margin: 12px 0;
   @media (max-width: 1000px) {
-    width: 480px;
+    width: 100%;
     margin: 0 auto;
   }
 `;
@@ -291,7 +296,7 @@ const Container = styled.div`
   position: relative;
   flex-direction: column;
   margin: 50px auto 72px auto;
-  width: 80%;
+  width: 90%;
   background-color: #fff;
   padding: 24px 24px;
   border: 1px solid gray;
@@ -311,6 +316,7 @@ const Title = styled.h1`
 
 const InfoWrapper = styled.div`
   display: flex;
+  flex-direction: column;
   @media (max-width: 1000px) {
     flex-direction: column;
     width: 100%;
@@ -318,7 +324,7 @@ const InfoWrapper = styled.div`
   }
   @media (max-width: 768px) {
     flex-direction: column;
-    width: 300px;
+    width: 100%;
     margin: 0 auto;
   }
   @media (max-width: 480px) {
@@ -327,30 +333,51 @@ const InfoWrapper = styled.div`
     margin: 0 auto;
   }
 `;
-
+const InfoContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
 const UserInfoCotainer = styled.div`
   display: flex;
-  flex-direction: column;
-  margin: auto 24px auto 0;
+  margin: 0;
+  width: 400px;
   @media (max-width: 1000px) {
-    margin: 12px 24px auto 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 `;
 
 const UserImage = styled.img`
-  width: 120px;
+  width: 140px;
+  @media (max-width: 1000px) {
+    width: 250px;
+  }
+  @media (max-width: 768px) {
+    width: 250px;
+  }
 `;
 
 const TodayTargetWrapper = styled.div`
+  position: relative;
+  bottom: 48px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 `;
-
+const HandwrittenContainer = styled.div`
+  position: relative;
+  display: flex;
+  width: auto;
+  align-items: center;
+  @media (max-width: 1000px) {
+    left: 36px;
+  }
+`;
 const TodayTargetContainer = styled.div`
   position: relative;
   display: flex;
-  height: 100px;
+  width: auto;
   align-items: center;
   @media (max-width: 1000px) {
     padding: 0 12px;
@@ -358,42 +385,42 @@ const TodayTargetContainer = styled.div`
 `;
 
 const TotalTarget = styled.div`
-  position: absolute;
-  top: 24px;
-  left: -30px;
-  width: 100px;
+  position: relative;
+  width: auto;
   font-size: 18px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 `;
 const TotalTargetTitle = styled.span`
-  position: absolute;
-  width: 100px;
-  left: 34px;
-  top: -12px;
-  font-size: 24px;
-  font-weight: 700;
+  position: relative;
+  top: 24px;
+  left: 20px;
+  font-size: 30px;
+  @media (max-width: 1000px) {
+    left: 0;
+    text-align: center;
+    letter-spacing: 16px;
+    font-weight: 700;
+  }
 `;
 const ButtonContainer = styled.div`
-  position: absolute;
-  right: 0;
-  top: -24px;
+  position: relative;
+  align-items: center;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 360px;
-  gap: 20px;
+  width: 300px;
+  gap: 10px;
   @media (max-width: 1000px) {
     display: flex;
     right: 30px;
-    top: -150px;
+    top: 120px;
     flex-direction: column;
-    width: 60%;
-    gap: 12px;
+    width: 40%;
+    gap: 48px;
+    margin: 0 auto;
   }
   @media (max-width: 768px) {
-    right: 30px;
-    width: 40%;
+    gap: 48px;
   }
   @media (max-width: 480px) {
     right: 0;
@@ -416,7 +443,7 @@ const DeleteButton = styled.img`
 const TargetProgressContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 60px;
+  margin-top: 120px;
 `;
 
 const IndicatorWrapper = styled.div`
@@ -451,14 +478,12 @@ const ProgressNumbers = styled.div`
 `;
 const DatePickerContainer = styled.div``;
 const DiaryList = styled.div`
-  margin: 24px 0;
+  margin: 60px 0;
   @media (max-width: 1000px) {
-    width: 480px;
-    margin: 12px auto 0 auto;
+    width: 100%;
+    margin: 60px 12px 0 12px;
   }
   @media (max-width: 768px) {
-    width: 300px;
-    margin: 12px auto 0 auto;
   }
 `;
 
