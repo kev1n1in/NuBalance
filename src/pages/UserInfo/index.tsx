@@ -339,8 +339,11 @@ const UserInfoCotainer = styled.div`
   @media (max-width: 1000px) {
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     width: 90%;
+  }
+  @media (max-width: 480px) {
+    align-items: center;
   }
 `;
 
@@ -371,6 +374,12 @@ const TodayTargetWrapper = styled.div`
   }
   @media (max-width: 480px) {
     position: absolute;
+    top: 160px;
+    right: 24px;
+    width: 85%;
+  }
+  @media (max-width: 360px) {
+    position: absolute;
     top: 200px;
     right: 24px;
     width: 85%;
@@ -383,6 +392,7 @@ const HandwrittenContainer = styled.div`
   align-items: center;
   @media (max-width: 1000px) {
     left: 36px;
+    width: 85%;
   }
   @media (max-width: 480px) {
     left: 24px;
