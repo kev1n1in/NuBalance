@@ -165,6 +165,21 @@ const Wrapper = styled.div`
     margin: 0;
   }
 `;
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 50px auto 72px auto;
+  width: 90%;
+  min-height: 300px;
+  padding: 24px 24px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  @media (max-width: 1000px) {
+    margin: 50px 100px 72px 50px;
+  }
+`;
 const Title = styled.h1`
   margin: 12px 0;
 `;
@@ -181,22 +196,6 @@ const ErrorMessage = styled.p`
   color: red;
   margin-top: -10px;
   margin-bottom: 10px;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px auto 72px auto;
-  width: 80%;
-  min-height: 300px;
-  padding: 24px 24px;
-  background-color: #fff;
-  border: 1px solid gray;
-  border-radius: 8px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-  @media (max-width: 1000px) {
-    margin: 50px 100px 72px 50px;
-  }
 `;
 
 const DataContainer = styled.div`

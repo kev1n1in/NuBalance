@@ -249,7 +249,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 80%;
+  width: 90%;
   margin: 50px auto 72px auto;
   padding: 24px 24px;
   background-color: #fff;

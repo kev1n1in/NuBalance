@@ -299,7 +299,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 80%;
+  width: 90%;
   height: 800px;
   margin: 50px auto 72px auto;
   padding: 24px 24px;
@@ -397,8 +397,8 @@ const CaloriesText = styled.div`
   font-size: 20px;
   font-weight: 700;
   @media (max-width: 1000px) {
-    top: -60px;
-    left: 48px;
+    top: 0px;
+    left: 72px;
   }
 `;
 
