@@ -1,72 +1,149 @@
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Header from "../../components/Header";
-import Button from "../../components/Button";
+import { auth } from "../../firebase/firebaseConfig";
+import { gsap } from "gsap";
+import GSAPHEAD from "../../components/GSAPHead/Wrapper";
+import GSAPMAIN from "../../components/GSAPMain/Wrapper";
+import Sidebar from "../../components/Sidebar";
+import Overlay from "../../components/Overlay";
+import HamburgerIcon from "../../components/MenuButton";
 import { useNavigate } from "react-router-dom";
+import { User } from "firebase/auth";
+
 const LandingPage = () => {
+  const [isTitleInHeader, setIsTitleInHeader] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [toggleMenu, setToggleMenu] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  const titleRef = useRef(null);
+  const headerRef = useRef(null);
   const navigate = useNavigate();
+
+  const handleScroll = () => {
+    const scrollY = window.scrollY;
+    const scrollDirection = scrollY > 0 ? "down" : "up";
+
+    if (scrollDirection === "down" && !isTitleInHeader) {
+      gsap.to(titleRef.current, {
+        y: 0,
+        duration: 0,
+        ease: "power4.out",
+        onComplete: () => setIsTitleInHeader(true),
+      });
+      setIsAtTop(false);
+    } else if (scrollY === 0 && isTitleInHeader) {
+      gsap.to(titleRef.current, {
+        y: 200,
+        duration: 0,
+        ease: "power4.out",
+        onComplete: () => setIsTitleInHeader(false),
+      });
+      setIsAtTop(true);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isTitleInHeader]);
+  useEffect(() => {
+    gsap.set(titleRef.current, { transition: "none" });
+
+    if (window.scrollY === 0) {
+      gsap.set(titleRef.current, { y: 200 });
+    } else {
+      gsap.set(titleRef.current, { y: 0 });
+      setIsTitleInHeader(true);
+    }
+
+    setTimeout(() => {
+      gsap.set(titleRef.current, { transition: "all 0.5s ease" });
+    }, 0);
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   const handleLogin = () => {
     navigate("/login");
   };
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   return (
     <Wrapper>
-      <Header />
-      <h1>我是落地頁啦</h1>
-      <Banner>
-        <LayoutContainer>
-          <StoryContainer>
-            <Story />
-            <ButtonContainer>
-              <Button label="Log in" onClick={handleLogin} />
-              <Button label="Sign up" />
-            </ButtonContainer>
-          </StoryContainer>
-          <Image />
-        </LayoutContainer>
-      </Banner>
-      <ProductInfo />
-      <ProductInfo />
-      <ProductInfo />
+      <HeaderWrapper ref={headerRef}>
+        {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+        {user ? (
+          <>
+            <HamburgerIcon onClick={handleMenuToggle} />
+            <Sidebar toggleMenu={toggleMenu} />
+          </>
+        ) : (
+          <LoginButton onClick={handleLogin}>Login</LoginButton>
+        )}
+        <Title ref={titleRef} isTitleInHeader={isTitleInHeader}>
+          NuBalance
+        </Title>
+      </HeaderWrapper>
+      <GSAPHEAD />
+      <GSAPMAIN />
+
+      {/* <ProductInfo /> */}
     </Wrapper>
   );
 };
+
 const Wrapper = styled.div``;
-const LayoutContainer = styled.div`
+
+const HeaderWrapper = styled.div`
   display: flex;
-  position: relative;
-  width: 90%;
-  margin: 0 auto;
-`;
-const Banner = styled.div`
-  display: flex;
+  position: fixed;
+  top: 0;
   width: 100%;
-  height: 400px;
-  background-color: ghostwhite;
+  height: 140px;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  z-index: 10;
 `;
 
-const StoryContainer = styled.div`
-  margin-top: 100px;
-  width: 630px;
-`;
-const Story = styled.div`
+const Title = styled.p<{ isTitleInHeader: boolean }>`
+  position: ${({ isTitleInHeader }) =>
+    isTitleInHeader ? "fixed" : "absolute"};
+  top: ${({ isTitleInHeader }) => (isTitleInHeader ? "50px" : "50px")};
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: ${({ isTitleInHeader }) => (isTitleInHeader ? "24px" : "48px")};
+  transition: all 0.5s ease;
+  color: black;
   width: 100%;
-  height: 150px;
-  background-color: gray;
+  text-align: center;
 `;
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: end;
-`;
-const Image = styled.div`
+
+const LoginButton = styled.div`
   position: absolute;
-  top: 148px;
-  right: 148px;
-  width: 200px;
-  height: 100px;
-  background-color: #000;
+  right: 8px;
+  top: 24px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 11;
 `;
 const ProductInfo = styled.div`
   width: 100%;
-  height: 400px;
+  height: 800px;
   margin-top: 20px;
   background-color: gray;
 `;
