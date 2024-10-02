@@ -44,7 +44,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
   );
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setErrorMessage(""); // 清空錯誤訊息
+    setErrorMessage("");
     setSearchTerm(event.target.value);
   };
 

@@ -1,11 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import styled from "styled-components";
 import asparagus from "./asparagus.png";
 import avocado from "./avocado.png";
 import banana from "./banana.png";
-import cheery from "./cheery.png";
 import lemon from "./lemon.png";
 import garlic from "./garlic.png";
 import potato from "./potato.png";
@@ -13,9 +11,8 @@ import tomato from "./tomato.png";
 import pear from "./pear.png";
 import pineapple from "./pineapple.png";
 import redCarrot from "./redCarrot.png";
-import zIndex from "@mui/material/styles/zIndex";
 
-const GSAPWrapper: React.FC = () => {
+const GSAPHEAD: React.FC = () => {
   const wordRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isCentered = useRef(false);
@@ -33,13 +30,13 @@ const GSAPWrapper: React.FC = () => {
     { letter: "R", zIndex: 5 },
     { letter: "I", zIndex: 0 },
     { letter: "T", zIndex: 0 },
-    { letter: "I", zIndex: 10 },
+    { letter: "I", zIndex: -1 },
     { letter: "O", zIndex: 10 },
     { letter: "N", zIndex: 10 },
   ];
 
   const balanceWords = [
-    { letter: "B", zIndex: 0 },
+    { letter: "B", zIndex: -1 },
     { letter: "A", zIndex: 0 },
     { letter: "L", zIndex: 0 },
     { letter: "A", zIndex: 0 },
@@ -92,13 +89,13 @@ const GSAPWrapper: React.FC = () => {
     },
     pear: {
       src: pear,
-      width: "130vw",
+      width: "120vw",
       height: "auto",
       initial: { x: centerX - 80, y: -500 },
-      final: { x: centerX - 80, y: centerY - 110 },
+      final: { x: centerX - 80, y: centerY - 100 },
       rotate: 0,
       scale: 1,
-      zIndex: -1,
+      zIndex: 10,
     },
 
     redCarrot: {
@@ -115,22 +112,11 @@ const GSAPWrapper: React.FC = () => {
       src: banana,
       width: "210vw",
       height: "auto",
-      initial: { x: centerX + 280, y: -700 },
-      final: { x: centerX + 280, y: 180 },
-      rotate: -10,
+      initial: { x: windowWidth + 200, y: centerY - 100 },
+      final: { x: centerX + 340, y: centerY + 50 },
+      rotate: 170,
       scale: 1,
       zIndex: 2,
-    },
-    cheery: {
-      src: cheery,
-      width: "100px",
-      height: "auto",
-      initial: { x: centerX + 500, y: centerY + 100 },
-      final: { x: centerX + 510, y: centerY + 110 },
-      rotate: 15,
-      scale: 0,
-      scaleY: 0,
-      zIndex: 0,
     },
 
     lemon: {
@@ -138,10 +124,10 @@ const GSAPWrapper: React.FC = () => {
       width: "100vw",
       height: "auto",
       initial: { x: centerX + 335, y: -500 },
-      final: { x: centerX + 510, y: centerY + 10 },
-      rotate: 85,
+      final: { x: centerX + 460, y: centerY - 38 },
+      rotate: 65,
       scale: 1,
-      zIndex: -2,
+      zIndex: 1,
     },
     pineapple: {
       src: pineapple,
@@ -158,7 +144,7 @@ const GSAPWrapper: React.FC = () => {
       width: "100px",
       height: "auto",
       initial: { x: 250, y: -200 },
-      final: { x: 250, y: centerY - 180 },
+      final: { x: 250, y: centerY - 200 },
       rotate: 0,
       scale: 1,
       zIndex: 10,
@@ -213,11 +199,11 @@ const GSAPWrapper: React.FC = () => {
   const finalPositions = [
     ...nutritionWords.map((_, index) => ({
       x: index * fontGap - 75,
-      y: centerY / 2 - 150,
+      y: centerY / 2 - 170,
     })),
     ...balanceWords.map((_, index) => ({
       x: index * fontGap + 350,
-      y: centerY / 2 - 70,
+      y: centerY / 2 - 90,
     })),
   ];
 
@@ -424,7 +410,6 @@ const Word = styled.div`
   font-family: "Fira Code", monospace;
   font-size: 24px;
   font-weight: bold;
-  z-index: 1;
 `;
 
 const ImageContainer = styled.div`
@@ -446,4 +431,4 @@ const BalanceContainer = styled.div`
   margin-left: 10rem;
 `;
 
-export default GSAPWrapper;
+export default GSAPHEAD;

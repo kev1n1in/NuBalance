@@ -5,7 +5,7 @@ interface HameburgerIconProps {
   onClick: () => void;
 }
 
-const HamburgerIcon: React.FC<HameburgerIconProps> = ({ onClick }) => {
+const HamburgerIcon = ({ onClick }: HameburgerIconProps) => {
   const [active, setActive] = useState(false);
 
   const toggleMenu = () => {

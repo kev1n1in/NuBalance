@@ -37,7 +37,7 @@ function App() {
               element={<PrivateRoute element={<UserInfo />} />}
             />
             <Route path="/food" element={<PrivateRoute element={<Food />} />} />
-            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/" element={<LandingPage />} />
           </Routes>
         </Router>
       </QueryClientProvider>

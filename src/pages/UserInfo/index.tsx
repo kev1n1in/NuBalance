@@ -178,7 +178,7 @@ const UserInfo = () => {
                 <HandwrittenContainer>
                   <HandwrittenText
                     text={
-                      remainingCalories ? remainingCalories.toFixed(0) : "0"
+                      remainingCalories ? remainingCalories.toFixed(0) : "2141"
                     }
                     roughness={0}
                     color="black"
@@ -245,6 +245,7 @@ const UserInfo = () => {
           </TodayTargetWrapper>
         </InfoWrapper>
         <DiaryList>
+          <DiaryTitle>今天吃了</DiaryTitle>
           <DatePickerContainer>
             <Flatpickr
               value={selectedDate}
@@ -252,7 +253,7 @@ const UserInfo = () => {
               options={{ dateFormat: "Y-m-d" }}
             />
           </DatePickerContainer>
-          <DiaryTitle>今天吃了</DiaryTitle>
+
           <MealSection title="早餐" entries={meals.breakfast} />
           <MealSection title="午餐" entries={meals.lunch} />
           <MealSection title="晚餐" entries={meals.dinner} />
@@ -515,7 +516,7 @@ const ProgressNumbers = styled.div`
 `;
 const DatePickerContainer = styled.div``;
 const DiaryList = styled.div`
-  margin: 60px 0;
+  margin: 0;
   @media (max-width: 1000px) {
     width: 100%;
     margin: 60px 12px 0 12px;

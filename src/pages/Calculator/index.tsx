@@ -26,7 +26,7 @@ const Calculator = () => {
   const [height, setHeight] = useState(175);
   const [activityLevel, setActivityLevel] = useState("Moderate");
   const [bodyFat, setBodyFat] = useState(17);
-  const [totalCalories, setTotalCalories] = useState(0);
+  const [totalCalories, setTotalCalories] = useState(2141);
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const navigate = useNavigate();
   const location = useLocation();
@@ -127,7 +127,7 @@ const Calculator = () => {
       setWeight(latestTDEE.weight || "60");
       setHeight(latestTDEE.height || "170");
       setActivityLevel(latestTDEE.activityLevel || "Moderate");
-      setBodyFat(latestTDEE.bodyFat || "15%");
+      setBodyFat(latestTDEE.bodyFat || "15");
       setTotalCalories(latestTDEE.tdee);
     }
   }, [latestTDEE, isLoading]);
@@ -145,7 +145,7 @@ const Calculator = () => {
           <Form>
             <ManImg src={manImg}></ManImg>
             <FormItem>
-              <FormTitle>Gender</FormTitle>
+              <FormTitle>性別</FormTitle>
               <FormControlLabel
                 control={
                   <Switch
@@ -159,7 +159,7 @@ const Calculator = () => {
               />
             </FormItem>
             <FormItem>
-              <FormTitle>Age</FormTitle>
+              <FormTitle>年齡</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={age}
@@ -182,7 +182,7 @@ const Calculator = () => {
             </FormItem>
 
             <FormItem>
-              <FormTitle>Weight</FormTitle>
+              <FormTitle>體重</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={weight}
@@ -204,7 +204,7 @@ const Calculator = () => {
               />
             </FormItem>
             <FormItem>
-              <FormTitle>Height</FormTitle>
+              <FormTitle>身高</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={height}
@@ -227,7 +227,7 @@ const Calculator = () => {
             </FormItem>
 
             <FormItem>
-              <FormTitle>Body Fat</FormTitle>
+              <FormTitle>體脂肪</FormTitle>
               <SliderWrapper>
                 <Slider
                   value={bodyFat}
@@ -249,14 +249,14 @@ const Calculator = () => {
               />
             </FormItem>
             <FormItem>
-              <FormTitle>Activity Level</FormTitle>
+              <FormTitle>活動程度</FormTitle>
               <Select
                 label="Activity Level"
                 value={activityLevel}
                 onChange={(e) => setActivityLevel(e.target.value)}
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
-                style={{ width: "100%" }}
+                style={{ width: "90%" }}
               >
                 <MenuItem value="Sedentary">久坐</MenuItem>
                 <MenuItem value="Light">輕度活動</MenuItem>
@@ -268,13 +268,13 @@ const Calculator = () => {
           </Form>
           <CaloriesContainer>
             <HandwrittenText
-              text={totalCalories.toFixed(0)}
+              text={totalCalories ? totalCalories.toFixed(0) : "2000"}
               roughness={0}
               color="black"
               fill="green"
               fontSize={125}
             />
-            <CaloriesText>calories / day</CaloriesText>
+            <CaloriesText>大卡 / 天</CaloriesText>
           </CaloriesContainer>
           <ButtonContainer>
             <Button label="保存" onClick={handleSave}></Button>
@@ -374,6 +374,7 @@ const SliderWrapper = styled.div`
 
 const FormTitle = styled.span`
   font-size: 20px;
+  width: 140px;
 `;
 
 const Input = styled.input`

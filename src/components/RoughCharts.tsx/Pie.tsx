@@ -52,7 +52,7 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
             values: data.values,
           },
           roughness: 2,
-          colors: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+          colors: ["#36A2EB", "#FFCE56", "#4BC0C0"],
           stroke: "black",
           strokeWidth: 2,
           width: width,
@@ -67,13 +67,10 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
               chartRef.current.querySelector("g.roughpie-chart");
 
             if (roughPieChart && svg) {
-              // 動態移動圖表的位置，使用 translate 調整 X 和 Y
               roughPieChart.setAttribute(
                 "transform",
                 `translate(-40, ${translateY})`
               );
-
-              // 動態調整 viewBox，包括 Y 軸位置的變化
               const viewBoxValue = `0 ${viewBoxY} ${width} ${height}`;
               svg.setAttribute("viewBox", viewBoxValue);
               svg.setAttribute("preserveAspectRatio", "xMidYMid meet");

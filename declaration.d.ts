@@ -31,3 +31,4 @@ declare module "opentype.js" {
   const content: any;
   export default content;
 }
+declare module "rough-viz";

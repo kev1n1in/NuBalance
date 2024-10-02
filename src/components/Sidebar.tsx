@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
       await signOutUser();
       Cookies.remove("isLoggedIn");
       Cookies.remove("username");
-      navigate("/landing");
+      navigate("/");
     } catch (error) {
       console.error("登出失敗", error);
     }
@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
   return (
     <Wrapper toggleMenu={toggleMenu}>
       <NavBar>
-        <Logo onClick={() => handleNavigation("/landing")} />
+        <Logo onClick={() => handleNavigation("/")} />
         {["/userInfo", "/calculator", "/food", "/diary", "/report"].map(
           (path, index) => (
             <Item

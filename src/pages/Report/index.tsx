@@ -20,7 +20,6 @@ interface HistoryItem {
 }
 interface NutritionData {
   fat: string;
-  calories: string;
   carbohydrates: string;
   protein: string;
 }
@@ -35,7 +34,6 @@ const Report: React.FC = () => {
     { date: string; weight: number }[]
   >([]);
   const [nutritionData, setNutritionData] = useState<{
-    calories: number;
     carbohydrates: number;
     protein: number;
     fat: number;
@@ -104,15 +102,12 @@ const Report: React.FC = () => {
           return;
         }
 
-        let totalCalories = 0;
         let totalCarbohydrates = 0;
         let totalProtein = 0;
         let totalFat = 0;
 
         diaryEntries.forEach((entry) => {
           if (entry.nutrition) {
-            totalCalories +=
-              parseFloat(entry.nutrition.calories.replace(/[^\d.-]/g, "")) || 0;
             totalCarbohydrates +=
               parseFloat(
                 entry.nutrition.carbohydrates.replace(/[^\d.-]/g, "")
@@ -124,11 +119,14 @@ const Report: React.FC = () => {
           }
         });
 
+        const adjustedCarbohydrates = totalCarbohydrates * 4;
+        const adjustedProtein = totalProtein * 4;
+        const adjustedFat = totalFat * 9;
+
         setNutritionData({
-          calories: totalCalories,
-          carbohydrates: totalCarbohydrates,
-          protein: totalProtein,
-          fat: totalFat,
+          carbohydrates: adjustedCarbohydrates,
+          protein: adjustedProtein,
+          fat: adjustedFat,
         });
       }
     };
@@ -159,7 +157,9 @@ const Report: React.FC = () => {
         <Title>分析報告</Title>
         <BMIWrittenContainer>
           <HandwrittenText
-            text={`BMI: ${latestBMI ? latestBMI.toFixed(2) : "無資料"}`}
+            text={`BMI: ${
+              typeof latestBMI === "number" ? latestBMI.toFixed(2) : "0"
+            }`}
             roughness={0}
             color="black"
             fill="green"
@@ -169,7 +169,9 @@ const Report: React.FC = () => {
         <BodyFatWrittenContainer>
           <HandwrittenText
             text={`BodyFat: ${
-              latestBodyFat ? latestBodyFat.toFixed(2) + "%" : "無資料"
+              typeof latestBodyFat === "number"
+                ? latestBodyFat.toFixed(2) + "%"
+                : "0"
             }`}
             roughness={0}
             color="black"
@@ -179,7 +181,11 @@ const Report: React.FC = () => {
         </BodyFatWrittenContainer>
         <ChartContainer>
           <ChartTitle>體重變化</ChartTitle>
-          <RoughBarChart data={roughData} />
+          {weightChartData.length > 0 ? (
+            <RoughBarChart data={roughData} />
+          ) : (
+            <p>沒有體重變化的歷史資料</p>
+          )}
         </ChartContainer>
         <ChartContainer>
           <ChartTitle>營養素總和</ChartTitle>
@@ -187,9 +193,8 @@ const Report: React.FC = () => {
             <CenteredChartContainer>
               <RoughPieChart
                 data={{
-                  labels: ["熱量", "碳水化合物", "蛋白質", "脂肪"],
+                  labels: ["Carbohydrates", "Protein", "Fat"],
                   values: [
-                    nutritionData.calories,
                     nutritionData.carbohydrates,
                     nutritionData.protein,
                     nutritionData.fat,

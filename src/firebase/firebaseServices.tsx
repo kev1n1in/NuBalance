@@ -122,6 +122,7 @@ export const fetchFoodData = async (
 };
 
 interface DiaryEntry {
+  id?: string;
   meal: string;
   food: string;
   time: Date;
@@ -242,6 +243,7 @@ export const updateTDEEHistory = async (
         gender,
         activityLevel,
         bodyFat,
+        bmi,
         clientUpdateTime: Timestamp.fromDate(new Date()),
       }),
     });
@@ -310,6 +312,7 @@ export const getDiaryEntry = async (user: User, date: string) => {
 
   const diaryEntries = diarySnapshot.docs.map((doc) => ({
     id: doc.id,
+
     ...doc.data(),
   }));
 
