@@ -18,8 +18,19 @@ import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+let isUserProfileUpdated = false;
+
 export const updateUserProfile = async (user: User, userName?: string) => {
   try {
+    if (isUserProfileUpdated) {
+      console.log("User profile already updated.");
+      return; // 防止重複執行
+    }
+
+    if (!user || !user.uid) {
+      throw new Error("User 或 UID 未定義，無法更新資料");
+    }
+
     const userRef = doc(db, "users", user.uid);
     await setDoc(
       userRef,
@@ -27,13 +38,14 @@ export const updateUserProfile = async (user: User, userName?: string) => {
         uid: user.uid,
         email: user.email,
         username: userName || user.displayName || "Unknown",
-        createdAt: user.metadata.creationTime,
+        createdAt: user.metadata.creationTime, // 確保時間格式正確
         lastLoged: serverTimestamp(),
       },
       { merge: true }
     );
 
     console.log("用戶資料已更新到 Firestore");
+    isUserProfileUpdated = true; // 設置為已更新
   } catch (error) {
     console.error("更新用戶資料失敗:", error);
     throw error;

@@ -19,6 +19,9 @@ import BGI from "../../asset/draft.png";
 import emailIcon from "./email.png";
 import passwordIcon from "./password.png";
 import userIcon from "./user.png";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
+import Sidebar from "../../components/Sidebar";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -27,6 +30,7 @@ const Login = () => {
   const [inputPassword, setInputPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const navigate = useNavigate();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -56,10 +60,6 @@ const Login = () => {
 
   const handleLogin = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("Login Attempt with credentials:", {
-      email: inputEmail,
-      password: inputPassword,
-    });
 
     try {
       const user: User = await signInWithEmail(inputEmail, inputPassword);
@@ -81,10 +81,18 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = async (response: CredentialResponse) => {
+  const handleGoogleLogin = async (
+    event: Event,
+    response: CredentialResponse
+  ) => {
+    event.preventDefault();
     if (response?.credential) {
       try {
-        const googleUser = await signInWithGoogle(response.credential);
+        const userCredential = await signInWithGoogle(response.credential);
+
+        // 從 UserCredential 中提取 user
+        const googleUser = userCredential.user;
+
         Cookies.set("username", googleUser.displayName || "Google User", {
           expires: 7,
         });
@@ -114,14 +122,21 @@ const Login = () => {
   };
   const handleSignUp = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("Sign Up Attempt with credentials:", {
-      userName: inputUser,
-      email: inputEmail,
-      password: inputPassword,
-    });
+    const fields = [
+      { value: inputUser, name: "UserName" },
+      { value: inputEmail, name: "Email" },
+      { value: inputPassword, name: "Password" },
+    ];
+
+    const missingFields = fields
+      .filter((field) => !field.value)
+      .map((field) => field.name);
+
+    if (missingFields) {
+      alert(`請填寫以下欄位:${missingFields.join(",")}`);
+    }
 
     try {
-      // 使用 signUpWithEmail 註冊新用戶
       const newUser = await signUpWithEmail(
         inputEmail,
         inputPassword,
@@ -129,54 +144,39 @@ const Login = () => {
       );
       console.log("Sign Up Success:", newUser);
 
-      // 彈出註冊成功提示
       alert("註冊成功！請使用您的帳號登入。");
 
-      // 切換回登入狀態
       setIsSignUp(false);
     } catch (error) {
       console.error("Sign Up failed:", error);
       alert("註冊失敗，請確認輸入資料並再試一次。");
     }
   };
-
+  const handleMenuToggle = () => {
+    setToggleMenu((prev) => !prev);
+  };
   return (
     <>
+      {isLoggedIn && (
+        <>
+          {toggleMenu && <Overlay onClick={handleMenuToggle} />}
+          <HamburgerIcon onClick={handleMenuToggle} />
+          <Sidebar toggleMenu={toggleMenu} />
+        </>
+      )}
       <GoogleOAuthProvider clientId={clientId}>
         <Wrapper>
           <Container>
             <Img src={WomenImg} />
-            {/* <HandWrittenTextWrapper>
-              <HandWrittenTextContainer>
-                <HandWrittenText
-                  text="Welcome"
-                  roughness={0}
-                  color="black"
-                  fill="yellow"
-                  fontSize={150}
-                />
-              </HandWrittenTextContainer>
-            </HandWrittenTextWrapper> */}
-
-            <LoginContainer>
-              {isLoggedIn ? (
-                <div>
-                  <p>Welcome, {user?.email || "User"}</p>
-                  <ButtonContainer>
-                    <Button
-                      color="white"
-                      backgroundColor="black"
-                      label="Log out"
-                      onClick={removeUserCookie}
-                    />
-                  </ButtonContainer>
-                </div>
-              ) : (
+            {!isLoggedIn && (
+              <LoginContainer>
                 <Form>
                   <EmailLoginContainer>
                     <Title>{isSignUp ? "SignUp" : "LogIn"}</Title>
                     <UsernameContainer isVisible={isSignUp}>
-                      <InputTitle>UserName</InputTitle>
+                      <InputTitle>
+                        UserName<RequiredStar>*</RequiredStar>
+                      </InputTitle>
                       <InputContainer>
                         <InputIcon src={userIcon}></InputIcon>
                         <Input
@@ -187,7 +187,9 @@ const Login = () => {
                         />
                       </InputContainer>
                     </UsernameContainer>
-                    <InputTitle>Email</InputTitle>
+                    <InputTitle>
+                      Email<RequiredStar>*</RequiredStar>
+                    </InputTitle>
                     <InputContainer>
                       <InputIcon src={emailIcon}></InputIcon>
                       <Input
@@ -197,7 +199,9 @@ const Login = () => {
                         placeholder="admin@1.com"
                       />
                     </InputContainer>
-                    <InputTitle>Password</InputTitle>
+                    <InputTitle>
+                      Password<RequiredStar>*</RequiredStar>
+                    </InputTitle>
                     <InputContainer>
                       <InputIcon src={passwordIcon}></InputIcon>
                       <InputIcon></InputIcon>
@@ -244,8 +248,8 @@ const Login = () => {
                     </SignUpText>
                   </EmailLoginContainer>
                 </Form>
-              )}
-            </LoginContainer>
+              </LoginContainer>
+            )}
           </Container>
         </Wrapper>
       </GoogleOAuthProvider>
@@ -277,15 +281,6 @@ const Container = styled.div`
   @media (max-width: 768px) {
     margin-top: 47px;
   }
-`;
-const HandWrittenTextWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-`;
-const HandWrittenTextContainer = styled.div`
-  margin-bottom: 48px;
-  width: 40%;
 `;
 const Img = styled.img`
   position: absolute;
@@ -340,6 +335,12 @@ const Input = styled.input`
   }
 `;
 const InputTitle = styled.div``;
+const RequiredStar = styled.span`
+  position: relative;
+  bottom: 4px;
+  color: red;
+  margin-left: 4px;
+`;
 const InputContainer = styled.div`
   position: relative;
   margin: 12px 0;
@@ -356,12 +357,7 @@ const EmailLoginContainer = styled.div`
   height: 100%;
   margin: 0 auto;
 `;
-const GoogleLoginContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 30%;
-  height: 100%;
-`;
+
 const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
