@@ -17,6 +17,7 @@ import BGI from "../../asset/draft.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
 import { Timestamp } from "firebase/firestore";
+import RequiredMark from "../../components/RequiredMark";
 
 const Calculator = () => {
   const [userData, setUserData] = useState({
@@ -172,9 +173,13 @@ const Calculator = () => {
         <TdeeContainer>
           <Form>
             {/* <ManImg src={manImg}></ManImg> */}
-            <FormItem>
-              <FormTitle>Gender</FormTitle>
+            <HeadFormItem>
               <GenderContainer>
+                <FormTitle>
+                  Gender
+                  <RequiredMark />
+                </FormTitle>
+
                 <GenderText
                   isSelected={userData.gender === "male"}
                   isMale={true}
@@ -190,10 +195,73 @@ const Calculator = () => {
                   Female
                 </GenderText>
               </GenderContainer>
-            </FormItem>
+
+              <ActiveContainer>
+                <FormTitle>
+                  Activity
+                  <RequiredMark />
+                </FormTitle>
+                <Select
+                  label="Activity Level"
+                  value={userData.activityLevel}
+                  onChange={(e) =>
+                    handleInputChange("activityLevel", e.target.value)
+                  }
+                  sx={{
+                    "& .MuiSelect-select": {
+                      fontFamily: "KG Second Chances",
+                      fontSize: "18px",
+                      padding: "8px",
+                    },
+                    "& fieldset": {
+                      legend: {
+                        display: "none",
+                      },
+                    },
+                  }}
+                  displayEmpty
+                  inputProps={{ "aria-label": "Without label" }}
+                  style={{ width: "50%", marginLeft: "40px" }}
+                >
+                  <MenuItem
+                    sx={{ fontFamily: "KG Second Chances" }}
+                    value="Sedentary"
+                  >
+                    Sedentary
+                  </MenuItem>
+                  <MenuItem
+                    sx={{ fontFamily: "KG Second Chances" }}
+                    value="Light"
+                  >
+                    Light
+                  </MenuItem>
+                  <MenuItem
+                    sx={{ fontFamily: "KG Second Chances" }}
+                    value="Moderate"
+                  >
+                    Moderate
+                  </MenuItem>
+                  <MenuItem
+                    sx={{ fontFamily: "KG Second Chances" }}
+                    value="Active"
+                  >
+                    Active
+                  </MenuItem>
+                  <MenuItem
+                    sx={{ fontFamily: "KG Second Chances" }}
+                    value="Very Active"
+                  >
+                    Very Active
+                  </MenuItem>
+                </Select>
+              </ActiveContainer>
+            </HeadFormItem>
 
             <FormItem>
-              <FormTitle>Age</FormTitle>
+              <FormTitle>
+                Age
+                <RequiredMark />
+              </FormTitle>
               <SliderWrapper>
                 <Slider
                   value={userData.age}
@@ -217,7 +285,10 @@ const Calculator = () => {
             </FormItem>
 
             <FormItem>
-              <FormTitle>Weight</FormTitle>
+              <FormTitle>
+                Weight
+                <RequiredMark />
+              </FormTitle>
               <SliderWrapper>
                 <Slider
                   value={userData.weight}
@@ -241,7 +312,10 @@ const Calculator = () => {
             </FormItem>
 
             <FormItem>
-              <FormTitle>Height</FormTitle>
+              <FormTitle>
+                Height
+                <RequiredMark />
+              </FormTitle>
               <SliderWrapper>
                 <Slider
                   value={userData.height}
@@ -287,35 +361,23 @@ const Calculator = () => {
                 }
               />
             </FormItem>
-            <FormItem>
-              <FormTitle>Activity</FormTitle>
-              <Select
-                label="Activity Level"
-                value={userData.activityLevel}
-                onChange={(e) =>
-                  handleInputChange("activityLevel", e.target.value)
-                }
-                displayEmpty
-                inputProps={{ "aria-label": "Without label" }}
-                style={{ width: "90%" }}
-              >
-                <MenuItem value="Sedentary">Sedentary</MenuItem>
-                <MenuItem value="Light">Light</MenuItem>
-                <MenuItem value="Moderate">Moderate</MenuItem>
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="Very Active">Very Active</MenuItem>
-              </Select>
-            </FormItem>
           </Form>
           <CaloriesContainer>
-            <TotalCalories>
-              {userData.totalCalories
-                ? userData.totalCalories.toFixed(0)
-                : "2000"}
-            </TotalCalories>
-            <CaloriesText>calories/day</CaloriesText>
+            <TotalCaloriesContainer>
+              <TotalCalories>
+                {userData.totalCalories
+                  ? userData.totalCalories.toFixed(0)
+                  : "2000"}
+              </TotalCalories>
+              <CaloriesText>calories/day</CaloriesText>
+            </TotalCaloriesContainer>
+
             <ButtonContainer>
-              <Button label="保存" onClick={handleSave}></Button>
+              <Button
+                strokeColor="black"
+                label="Save"
+                onClick={handleSave}
+              ></Button>
             </ButtonContainer>
           </CaloriesContainer>
         </TdeeContainer>
@@ -338,9 +400,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 90%;
-  height: 800px;
+  height: 90vh;
   margin: 50px auto 72px auto;
-  padding: 24px 24px;
+  padding: 24px 24px 0 24px;
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 8px;
@@ -372,24 +434,43 @@ const TdeeContainer = styled.div`
   align-items: flex-end;
 `;
 
-const ManImg = styled.img`
-  position: absolute;
-  left: -80px;
-  top: 300px;
-  @media (max-width: 1000px) {
-    height: 300px;
-    left: -70px;
-    top: 350px;
-  }
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
 const Form = styled.div`
   width: 100%;
 `;
+const HeadFormItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  width: 100%;
+  gap: 24px;
+`;
+const GenderContainer = styled.div`
+  display: flex;
+  width: 50%;
+  gap: 20px;
+`;
 
+const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
+  font-size: 30px;
+  margin: 8px 12px 0 0;
+  cursor: pointer;
+  color: ${({ isSelected, isMale }) =>
+    isSelected ? (isMale ? "#92bde2" : "pink") : "#bdbdbd"};
+  font-weight: ${({ isSelected }) => (isSelected ? "bold" : "normal")};
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: ${({ isSelected, isMale }) =>
+      isSelected ? (isMale ? "#92bde2" : "#FFB6C1") : "#BDBDBD"};
+  }
+`;
+
+const ActiveContainer = styled.div`
+  display: flex;
+  justify-content: end;
+  width: 50%;
+`;
 const FormItem = styled.div`
   display: flex;
   align-items: center;
@@ -412,7 +493,9 @@ const SliderWrapper = styled.div`
 
 const FormTitle = styled.span`
   font-size: 36px;
-  width: 140px;
+  margin-right: 24px;
+  width: 170px;
+  color: black;
 `;
 
 const Input = styled.input`
@@ -422,6 +505,7 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 4px;
   text-align: center;
+  font-family: "KG Second Chances";
 `;
 
 const CaloriesContainer = styled.div`
@@ -444,12 +528,24 @@ const CaloriesContainer = styled.div`
     left: 4px;
   }
 `;
-
+const TotalCaloriesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 24px;
+`;
+const TotalCalories = styled.div`
+  display: flex;
+  align-self: end;
+  width: 150px;
+  font-size: 64px;
+  color: #71b271;
+`;
 const CaloriesText = styled.div`
   display: flex;
-  position: absolute;
-  top: 48px;
-  left: 164px;
+  position: relative;
+  align-self: end;
+  right: 12px;
+  bottom: 12px;
   font-size: 20px;
   font-weight: 700;
   @media (max-width: 1000px) {
@@ -471,36 +567,13 @@ const CaloriesText = styled.div`
 
 const ButtonContainer = styled.div`
   position: relative;
-  margin: 24px 0 0 160px;
-  width: 250px;
+  margin-top: 24px;
+  width: 150px;
   @media (max-width: 1000px) {
     width: 100%;
   }
   @media (max-width: 768px) {
     top: -24px;
-  }
-`;
-const TotalCalories = styled.div`
-  font-size: 64px;
-  color: #71b271;
-`;
-
-const GenderContainer = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
-  font-size: 30px;
-  cursor: pointer;
-  color: ${({ isSelected, isMale }) =>
-    isSelected ? (isMale ? "#92bde2" : "pink") : "gray"};
-  font-weight: ${({ isSelected }) => (isSelected ? "bold" : "normal")};
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: ${({ isSelected, isMale }) =>
-      isSelected ? (isMale ? "#92bde2" : "#FFB6C1") : "#BDBDBD"};
   }
 `;
 

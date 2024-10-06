@@ -22,6 +22,7 @@ import userIcon from "./user.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
 import Sidebar from "../../components/Sidebar";
+import RequiredMark from "../../components/RequiredMark";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -175,7 +176,8 @@ const Login = () => {
                     <Title>{isSignUp ? "SignUp" : "LogIn"}</Title>
                     <UsernameContainer isVisible={isSignUp}>
                       <InputTitle>
-                        UserName<RequiredStar>*</RequiredStar>
+                        UserName
+                        <RequiredMark />
                       </InputTitle>
                       <InputContainer>
                         <InputIcon src={userIcon}></InputIcon>
@@ -188,7 +190,8 @@ const Login = () => {
                       </InputContainer>
                     </UsernameContainer>
                     <InputTitle>
-                      Email<RequiredStar>*</RequiredStar>
+                      Email
+                      <RequiredMark />
                     </InputTitle>
                     <InputContainer>
                       <InputIcon src={emailIcon}></InputIcon>
@@ -200,7 +203,8 @@ const Login = () => {
                       />
                     </InputContainer>
                     <InputTitle>
-                      Password<RequiredStar>*</RequiredStar>
+                      Password
+                      <RequiredMark />
                     </InputTitle>
                     <InputContainer>
                       <InputIcon src={passwordIcon}></InputIcon>
