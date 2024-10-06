@@ -93,10 +93,10 @@ const Food: React.FC = () => {
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>食品資料庫</Title>
+        <Title>Food Database</Title>
         <Input
           type="text"
-          placeholder="搜尋食品..."
+          placeholder="Search for food..."
           value={searchTerm}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
@@ -120,6 +120,7 @@ const Food: React.FC = () => {
                   </ResultItem>
                   <ButtonWrapper>
                     <Button
+                      strokeColor="black"
                       label="加入菜單"
                       onClick={() => handleAddFood(item)}
                     />
@@ -129,15 +130,17 @@ const Food: React.FC = () => {
             : triggerSearch && <NoItemsMessage>查無結果</NoItemsMessage>}
 
           <CreateLinkContainer>
-            找不到嗎？試試
-            <CreateLink onClick={openModal}>新增</CreateLink>
+            Can't find it? Try
+            <CreateLink onClick={openModal}> adding </CreateLink>
+            it.
           </CreateLinkContainer>
         </DataContainer>
 
         {!triggerSearch && !searchTerm.trim() && (
           <NoDataMessageContainer>
             <NoDataMessage>
-              目前沒有食品資料，請輸入關鍵字進行查詢
+              There is currently no food data available. Please enter a keyword
+              to search.
             </NoDataMessage>
           </NoDataMessageContainer>
         )}
@@ -185,6 +188,7 @@ const Title = styled.h1`
 `;
 
 const Input = styled.input`
+  font-family: "KG Second Chances", sans-serif;
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
@@ -218,15 +222,14 @@ const ResultItemContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   border: 1px solid #ddd;
+  margin-bottom: 12px;
   &:hover {
     background-color: #f9f9f9;
   }
 `;
 const ResultItem = styled.div`
   width: 100%;
-  margin-bottom: 10px;
   padding: 10px;
-
   border-radius: 4px;
   background-color: "f0f0f0";
   cursor: pointer;
@@ -257,9 +260,7 @@ const NoDataMessage = styled.span`
   color: #555;
 `;
 
-const CreateLinkContainer = styled.h3`
-  margin-top: 20px;
-`;
+const CreateLinkContainer = styled.h3``;
 
 const CreateLink = styled.span`
   color: #007bff;
