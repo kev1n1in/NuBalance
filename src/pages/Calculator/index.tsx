@@ -8,25 +8,27 @@ import {
   getUserHistory,
 } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
-import manImg from "./man.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import Loader from "../../components/Loader";
 import Slider from "../../components/Slider";
-import { Switch, FormControlLabel, Select, MenuItem } from "@mui/material";
-import HandwrittenText from "../../components/HandWrittenText";
+import { Select, MenuItem } from "@mui/material";
 import BGI from "../../asset/draft.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
+import { Timestamp } from "firebase/firestore";
 
 const Calculator = () => {
-  const [age, setAge] = useState(34);
-  const [gender, setGender] = useState("male");
-  const [weight, setWeight] = useState(60);
-  const [height, setHeight] = useState(175);
-  const [activityLevel, setActivityLevel] = useState("Moderate");
-  const [bodyFat, setBodyFat] = useState(17);
-  const [totalCalories, setTotalCalories] = useState(2141);
+  const [userData, setUserData] = useState({
+    age: 34,
+    gender: "male",
+    weight: 60,
+    height: 175,
+    activityLevel: "Moderate",
+    bodyFat: 17,
+    totalCalories: 2141,
+  });
+
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,37 +48,80 @@ const Calculator = () => {
 
   const updateCalculation = () => {
     const newTDEE = TDEECalculator.calculateTDEE(
-      weight,
-      height,
-      age,
-      gender,
-      activityLevel
+      userData.weight,
+      userData.height,
+      userData.age,
+      userData.gender,
+      userData.activityLevel
     );
-    setTotalCalories(newTDEE);
+    setUserData((prevState) => ({
+      ...prevState,
+      totalCalories: newTDEE,
+    }));
   };
 
+  // 自動更新 TDEE 計算
   useEffect(() => {
     updateCalculation();
-  }, [age, gender, weight, height, activityLevel]);
+  }, [
+    userData.age,
+    userData.gender,
+    userData.weight,
+    userData.height,
+    userData.activityLevel,
+  ]);
+
+  // 從 Firebase 中獲取最新的 TDEE 數據
+  const { data: latestTDEE, isLoading } = useQuery(
+    "latestTDEE",
+    async () => {
+      if (!currentUser) {
+        throw new Error("用戶未登入");
+      }
+      const latestHistory = await getUserHistory(currentUser, true);
+      return latestHistory;
+    },
+    {
+      enabled: !!currentUser,
+      onSuccess: (latestHistory) => {
+        if (latestHistory) {
+          setUserData((prevState) => ({
+            ...prevState,
+            age: latestHistory.age || 34,
+            gender: latestHistory.gender || "male",
+            weight: latestHistory.weight || 60,
+            height: latestHistory.height || 175,
+            activityLevel: latestHistory.activityLevel || "Moderate",
+            bodyFat: latestHistory.bodyFat || 17,
+            totalCalories: latestHistory.tdee || 2141,
+          }));
+        }
+      },
+    }
+  );
 
   const mutation = useMutation(
     async () => {
       if (!currentUser) {
         throw new Error("請先登入");
       }
-      const bmi = TDEECalculator.calculateBMI(weight, height);
+      const bmi = TDEECalculator.calculateBMI(userData.weight, userData.height);
       console.log("正在計算的 BMI:", bmi);
+
+      // 獲取當前的時間戳
+      const clientUpdateTime = Timestamp.fromDate(new Date());
 
       await updateTDEEHistory(
         currentUser,
-        totalCalories,
-        age,
-        weight,
-        height,
-        gender,
-        activityLevel,
-        bodyFat,
-        bmi
+        userData.totalCalories,
+        userData.age,
+        userData.weight,
+        userData.height,
+        userData.gender,
+        userData.activityLevel,
+        userData.bodyFat,
+        bmi,
+        clientUpdateTime // 傳遞 clientUpdateTime
       );
     },
     {
@@ -106,186 +151,179 @@ const Calculator = () => {
     mutation.mutate();
   };
 
-  const { data: latestTDEE, isLoading } = useQuery(
-    "latestTDEE",
-    async () => {
-      if (!currentUser) {
-        throw new Error("用戶未登入");
-      }
-      const latestHistory = await getUserHistory(currentUser, true);
-      return latestHistory;
-    },
-    {
-      enabled: !!currentUser,
-    }
-  );
+  const handleInputChange = (field: string, value: any) => {
+    setUserData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
 
-  useEffect(() => {
-    if (latestTDEE && !isLoading) {
-      setAge(latestTDEE.age || "25");
-      setGender(latestTDEE.gender || "male");
-      setWeight(latestTDEE.weight || "60");
-      setHeight(latestTDEE.height || "170");
-      setActivityLevel(latestTDEE.activityLevel || "Moderate");
-      setBodyFat(latestTDEE.bodyFat || "15");
-      setTotalCalories(latestTDEE.tdee);
-    }
-  }, [latestTDEE, isLoading]);
   const handleMenuToggle = () => {
     setToggleMenu((prev) => !prev);
   };
+
   return (
     <Wrapper>
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>TDEE 計算機</Title>
+        <Title>TDEE Calculator</Title>
         <TdeeContainer>
           <Form>
-            <ManImg src={manImg}></ManImg>
+            {/* <ManImg src={manImg}></ManImg> */}
             <FormItem>
-              <FormTitle>性別</FormTitle>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={gender === "male"}
-                    onChange={(e) =>
-                      setGender(e.target.checked ? "male" : "female")
-                    }
-                  />
-                }
-                label={gender === "male" ? "Male" : "Female"}
-              />
+              <FormTitle>Gender</FormTitle>
+              <GenderContainer>
+                <GenderText
+                  isSelected={userData.gender === "male"}
+                  isMale={true}
+                  onClick={() => handleInputChange("gender", "male")}
+                >
+                  Male
+                </GenderText>
+                <GenderText
+                  isSelected={userData.gender === "female"}
+                  isMale={false}
+                  onClick={() => handleInputChange("gender", "female")}
+                >
+                  Female
+                </GenderText>
+              </GenderContainer>
             </FormItem>
+
             <FormItem>
-              <FormTitle>年齡</FormTitle>
+              <FormTitle>Age</FormTitle>
               <SliderWrapper>
                 <Slider
-                  value={age}
+                  value={userData.age}
                   min={0}
                   max={100}
-                  onChange={(e) => setAge(Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange("age", Number(e.target.value))
+                  }
                 />
               </SliderWrapper>
               <Input
                 type="text"
-                value={age}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const newValue = value
-                    .replace(/[^0-9]/g, "")
-                    .replace(/^0+/, "");
-                  setAge(Number(newValue));
-                }}
+                value={userData.age}
+                onChange={(e) =>
+                  handleInputChange(
+                    "age",
+                    Number(e.target.value.replace(/[^0-9]/g, ""))
+                  )
+                }
               />
             </FormItem>
 
             <FormItem>
-              <FormTitle>體重</FormTitle>
+              <FormTitle>Weight</FormTitle>
               <SliderWrapper>
                 <Slider
-                  value={weight}
+                  value={userData.weight}
                   min={0}
                   max={200}
-                  onChange={(e) => setWeight(Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange("weight", Number(e.target.value))
+                  }
                 />
               </SliderWrapper>
               <Input
                 type="text"
-                value={weight}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const newValue = value
-                    .replace(/[^0-9]/g, "")
-                    .replace(/^0+/, "");
-                  setWeight(Number(newValue));
-                }}
-              />
-            </FormItem>
-            <FormItem>
-              <FormTitle>身高</FormTitle>
-              <SliderWrapper>
-                <Slider
-                  value={height}
-                  min={100}
-                  max={250}
-                  onChange={(e) => setHeight(Number(e.target.value))}
-                />
-              </SliderWrapper>
-              <Input
-                type="text"
-                value={height}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const newValue = value
-                    .replace(/[^0-9]/g, "")
-                    .replace(/^0+/, "");
-                  setHeight(Number(newValue));
-                }}
+                value={userData.weight}
+                onChange={(e) =>
+                  handleInputChange(
+                    "weight",
+                    Number(e.target.value.replace(/[^0-9]/g, ""))
+                  )
+                }
               />
             </FormItem>
 
             <FormItem>
-              <FormTitle>體脂肪</FormTitle>
+              <FormTitle>Height</FormTitle>
               <SliderWrapper>
                 <Slider
-                  value={bodyFat}
-                  min={0}
-                  max={50}
-                  onChange={(e) => setBodyFat(Number(e.target.value))}
+                  value={userData.height}
+                  min={100}
+                  max={250}
+                  onChange={(e) =>
+                    handleInputChange("height", Number(e.target.value))
+                  }
                 />
               </SliderWrapper>
               <Input
                 type="text"
-                value={bodyFat}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const newValue = value
-                    .replace(/[^0-9]/g, "")
-                    .replace(/^0+/, "");
-                  setBodyFat(Number(newValue));
-                }}
+                value={userData.height}
+                onChange={(e) =>
+                  handleInputChange(
+                    "height",
+                    Number(e.target.value.replace(/[^0-9]/g, ""))
+                  )
+                }
+              />
+            </FormItem>
+
+            <FormItem>
+              <FormTitle>Body Fat</FormTitle>
+              <SliderWrapper>
+                <Slider
+                  value={userData.bodyFat}
+                  min={0}
+                  max={50}
+                  onChange={(e) =>
+                    handleInputChange("bodyFat", Number(e.target.value))
+                  }
+                />
+              </SliderWrapper>
+              <Input
+                type="text"
+                value={userData.bodyFat}
+                onChange={(e) =>
+                  handleInputChange(
+                    "bodyFat",
+                    Number(e.target.value.replace(/[^0-9]/g, ""))
+                  )
+                }
               />
             </FormItem>
             <FormItem>
-              <FormTitle>活動程度</FormTitle>
+              <FormTitle>Activity</FormTitle>
               <Select
                 label="Activity Level"
-                value={activityLevel}
-                onChange={(e) => setActivityLevel(e.target.value)}
+                value={userData.activityLevel}
+                onChange={(e) =>
+                  handleInputChange("activityLevel", e.target.value)
+                }
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
                 style={{ width: "90%" }}
               >
-                <MenuItem value="Sedentary">久坐</MenuItem>
-                <MenuItem value="Light">輕度活動</MenuItem>
-                <MenuItem value="Moderate">中度活動</MenuItem>
-                <MenuItem value="Active">活躍</MenuItem>
-                <MenuItem value="Very Active">非常活躍</MenuItem>
+                <MenuItem value="Sedentary">Sedentary</MenuItem>
+                <MenuItem value="Light">Light</MenuItem>
+                <MenuItem value="Moderate">Moderate</MenuItem>
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Very Active">Very Active</MenuItem>
               </Select>
             </FormItem>
           </Form>
           <CaloriesContainer>
-            <HandwrittenText
-              text={totalCalories ? totalCalories.toFixed(0) : "2000"}
-              roughness={0}
-              color="black"
-              fill="green"
-              fontSize={125}
-            />
-            <CaloriesText>大卡 / 天</CaloriesText>
+            <TotalCalories>
+              {userData.totalCalories
+                ? userData.totalCalories.toFixed(0)
+                : "2000"}
+            </TotalCalories>
+            <CaloriesText>calories/day</CaloriesText>
+            <ButtonContainer>
+              <Button label="保存" onClick={handleSave}></Button>
+            </ButtonContainer>
           </CaloriesContainer>
-          <ButtonContainer>
-            <Button label="保存" onClick={handleSave}></Button>
-          </ButtonContainer>
         </TdeeContainer>
       </Container>
       <Loader isLoading={isLoading} />
     </Wrapper>
   );
 };
-
 const Wrapper = styled.div`
   display: flex;
   background-image: url(${BGI});
@@ -328,7 +366,7 @@ const TdeeContainer = styled.div`
   display: flex;
   position: relative;
   flex-direction: column;
-  width: 80%;
+  width: 90%;
   height: 500px;
   margin: 0 auto;
   align-items: flex-end;
@@ -373,7 +411,7 @@ const SliderWrapper = styled.div`
 `;
 
 const FormTitle = styled.span`
-  font-size: 20px;
+  font-size: 36px;
   width: 140px;
 `;
 
@@ -389,6 +427,7 @@ const Input = styled.input`
 const CaloriesContainer = styled.div`
   display: flex;
   position: relative;
+
   @media (max-width: 1000px) {
     flex-direction: column;
     right: -36px;
@@ -407,10 +446,10 @@ const CaloriesContainer = styled.div`
 `;
 
 const CaloriesText = styled.div`
-  position: relative;
-  top: 140px;
-  width: 140px;
-  right: 12px;
+  display: flex;
+  position: absolute;
+  top: 48px;
+  left: 164px;
   font-size: 20px;
   font-weight: 700;
   @media (max-width: 1000px) {
@@ -432,13 +471,36 @@ const CaloriesText = styled.div`
 
 const ButtonContainer = styled.div`
   position: relative;
-  top: 100px;
+  margin: 24px 0 0 160px;
   width: 250px;
   @media (max-width: 1000px) {
     width: 100%;
   }
   @media (max-width: 768px) {
     top: -24px;
+  }
+`;
+const TotalCalories = styled.div`
+  font-size: 64px;
+  color: #71b271;
+`;
+
+const GenderContainer = styled.div`
+  display: flex;
+  gap: 20px;
+`;
+
+const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
+  font-size: 30px;
+  cursor: pointer;
+  color: ${({ isSelected, isMale }) =>
+    isSelected ? (isMale ? "#92bde2" : "pink") : "gray"};
+  font-weight: ${({ isSelected }) => (isSelected ? "bold" : "normal")};
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: ${({ isSelected, isMale }) =>
+      isSelected ? (isMale ? "#92bde2" : "#FFB6C1") : "#BDBDBD"};
   }
 `;
 

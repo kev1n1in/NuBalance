@@ -203,7 +203,8 @@ export const updateTDEEHistory = async (
   gender: string,
   activityLevel: string,
   bodyFat?: number,
-  bmi?: number
+  bmi?: number,
+  clientUpdateTime?: Timestamp
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -225,27 +226,33 @@ export const updateTDEEHistory = async (
   });
 
   if (existingRecordIndex !== -1) {
-    const updatedHistory = history[existingRecordIndex];
-    updatedHistory.tdee = tdee;
-    updatedHistory.age = age;
-    updatedHistory.weight = weight;
-    updatedHistory.height = height;
-    updatedHistory.gender = gender;
-    updatedHistory.activityLevel = activityLevel;
-    updatedHistory.bodyFat = bodyFat;
-    updatedHistory.bmi = bmi;
-    updatedHistory.clientUpdateTime = Timestamp.fromDate(new Date());
+    // 找到同一天的紀錄，更新該紀錄
+    const updatedHistory = {
+      ...history[existingRecordIndex],
+      tdee,
+      age,
+      weight,
+      height,
+      gender,
+      activityLevel,
+      bodyFat,
+      bmi,
+      clientUpdateTime: clientUpdateTime || Timestamp.fromDate(new Date()),
+    };
 
+    // 使用 arrayRemove 移除舊的紀錄
     await updateDoc(userRef, {
       history: arrayRemove(history[existingRecordIndex]),
     });
 
+    // 使用 arrayUnion 添加更新後的紀錄
     await updateDoc(userRef, {
       history: arrayUnion(updatedHistory),
     });
 
     console.log("當天的 TDEE 記錄已更新");
   } else {
+    // 當天沒有紀錄，新增一筆
     await updateDoc(userRef, {
       history: arrayUnion({
         tdee,
@@ -263,6 +270,7 @@ export const updateTDEEHistory = async (
     console.log("TDEE 記錄已新增");
   }
 
+  // 更新最後更新的時間
   await updateDoc(userRef, {
     lastUpdated: serverTimestamp(),
   });
@@ -270,7 +278,8 @@ export const updateTDEEHistory = async (
 
 export const getUserHistory = async (
   user: User,
-  returnLatest: boolean = false
+  returnLatest: boolean = false,
+  targetDate?: Date
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -290,11 +299,32 @@ export const getUserHistory = async (
     return [];
   }
 
-  const sortedHistory = userData.history.sort(
+  let filteredHistory = userData.history;
+
+  const sortedHistory = filteredHistory.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
 
-  return returnLatest ? sortedHistory[0] : sortedHistory;
+  if (returnLatest) {
+    return sortedHistory.length > 0 ? [sortedHistory[0]] : [];
+  }
+
+  if (targetDate) {
+    // 創建新的日期對象並加1天
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(nextDay.getDate() + 1); // 將日期加1天
+
+    const targetTimestamp = nextDay.getTime() / 1000;
+
+    filteredHistory = sortedHistory
+      .filter((item: any) => {
+        const updateTime = item.clientUpdateTime.seconds;
+        return updateTime <= targetTimestamp; // 使用加1天的時間戳
+      })
+      .slice(0, 7); // 取前7筆紀錄
+  }
+
+  return filteredHistory.length > 0 ? filteredHistory : [];
 };
 
 export const getDiaryEntry = async (user: User, date: string) => {
