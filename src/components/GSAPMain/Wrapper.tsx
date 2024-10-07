@@ -49,47 +49,49 @@ const GSAPMain: React.FC = () => {
 
   return (
     <Wrapper id="wrapper">
-      <CardContainer ref={containerRef}>
+      <CardsContainer ref={containerRef}>
         {[
           {
-            title: "碳水化合物",
+            title: "Carbohydrates",
             content:
-              "碳水化合物是人體最先用於轉化成能量的來源,因為合成肌肉雖然以蛋白質為原料，但人體能量來源依然以碳水化合物為主，攝取太少將會很難維持運動訓練與日常生活所需的能量,如果碳水化合物攝取不足，身體就沒有足夠的熱量，人會容易感到暈眩。",
+              "Carbohydrates – or carbs – are the body’s primary fuel. They provide energy for your muscles and the central nervous system during movement and exercise. ",
             image: carb,
           },
           {
-            title: "蛋白質",
+            title: "Protein",
             content:
-              "蛋白質是組成人體細胞的原料，蛋白質除了幫助生長發育之外，亦有助於修補組織，包括肌肉、血液等,另外，蛋白質負責調節人體代謝和運送營養物質,如果蛋白質攝取不足，人的抵抗力便會下降，並且容易疲憊",
+              "Protein is essential to many processes in the body. It provides structure to the tissue. That includes cell membranes, organs, muscle, hair, skin, nails, bones, tendons, ligaments and blood plasma.",
             image: protein,
           },
           {
-            title: "脂肪",
+            title: "Fat",
             content:
-              "脂肪對人體十分重要，脂肪能夠供給我們人體無法自行製造的脂肪酸。能夠幫助脂溶性維他命吸收，比如說脂溶性維他命A、D、E 及 K 等，需要脂肪幫助運送才能被人體吸收並利用。當人體攝取的碳水化合物不足時，就會由脂肪來負責提供能量，盡量減少蛋白質被分解。",
+              "Fat is vital for the body as an energy reserve, for insulation and protection of your organs, and for absorption and transport of fat-soluble vitamins.。",
             image: fat,
           },
         ].map((item, index) => (
-          <Card ref={(el) => (cardRefs.current[index] = el)} key={index}>
-            <Back title={item.title} content={item.content} />
-            <Front>
-              <img src={item.image} alt={item.title} />
-              <FrontTitle>{item.title}</FrontTitle>
-            </Front>
-          </Card>
+          <CardContainer>
+            <Card ref={(el) => (cardRefs.current[index] = el)} key={index}>
+              <Back title={item.title} content={item.content} />
+              <Front>
+                <img src={item.image} alt={item.title} />
+                <FrontTitle>{item.title}</FrontTitle>
+              </Front>
+            </Card>
+          </CardContainer>
         ))}
-      </CardContainer>
+      </CardsContainer>
+
       <TextWrapper>
         <Title>NUTRITION</Title>
-        <SubTitle>三大營養素</SubTitle>
+        <SubTitle>Macronutrients</SubTitle>
       </TextWrapper>
     </Wrapper>
   );
 };
 
-// 样式定义
 const Wrapper = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
   position: relative;
@@ -101,7 +103,7 @@ const Wrapper = styled.div`
   background-color: #ffffff;
 `;
 
-const CardContainer = styled.div`
+const CardsContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -136,13 +138,15 @@ const Card = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   margin: 50px 0;
-  transform-style: preserve-3d;
-  transition: transform 0.8s ease;
+  transform-style: preserve-3d; // 保持 3D 效果
+  transition: transform 0.8s ease; // 控制翻轉效果
   z-index: 20;
-  transform: rotateY(180deg);
-
-  &:hover {
-    transform: rotateY(0deg); // hover 時觸發 Y 軸旋轉
+  transform: rotateY(180deg); // 初始狀態為翻轉過去的
+`;
+const CardContainer = styled.div`
+  perspective: 1000px; // 添加視角，讓 3D 效果更明顯
+  &:hover ${Card} {
+    transform: rotateY(0deg); // hover 到外部容器時觸發卡片翻轉
   }
 `;
 
