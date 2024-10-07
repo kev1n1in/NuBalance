@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
   return (
     <Wrapper toggleMenu={toggleMenu}>
       <NavBar>
-        <Logo onClick={() => handleNavigation("/")} />
+        <Logo onClick={() => handleNavigation("/")}>NuBalance</Logo>
         {["/userInfo", "/calculator", "/food", "/diary", "/report"].map(
           (path, index) => (
             <Item
@@ -78,19 +78,19 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
               onClick={() => handleItemClick(path, index)}
             >
               {index === 0
-                ? "用戶資訊"
+                ? "User Info"
                 : index === 1
-                ? "TDEE計算器"
+                ? "Calculator"
                 : index === 2
-                ? "食物資料庫"
+                ? "Food"
                 : index === 3
-                ? "日記"
-                : "數據報告"}
+                ? "Diary"
+                : "Report"}
             </Item>
           )
         )}
         <Item onClick={handleLogout} ref={(el) => (itemRefs.current[5] = el)}>
-          登出
+          Log out
         </Item>
       </NavBar>
     </Wrapper>
@@ -133,12 +133,12 @@ const Item = styled.div`
 `;
 
 const Logo = styled.div`
-  margin: 12px;
+  display: flex;
+  justify-self: center;
+  font-size: 24px;
   height: 48px;
-  width: 48px;
   margin-top: 60px;
-  border-radius: 50%;
-  background-color: #000;
+  color: white;
   cursor: pointer;
 `;
 
