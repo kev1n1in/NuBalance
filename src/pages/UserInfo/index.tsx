@@ -17,10 +17,15 @@ import "flatpickr/dist/flatpickr.min.css";
 import trashImg from "./trash.png";
 import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
 import Modal from "../../components/Modal";
-import HandwrittenText from "../../components/HandWrittenText";
 import BGI from "../../asset/draft.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
+import Loader from "../../components/Loader";
+import calculatorImg from "./calculator.png";
+import createImg from "./create.png";
+import searchImg from "./search.png";
+import report from "./report.png";
+import useConfirmDialog from "../../hooks/useConfirmDialog";
 
 interface DiaryEntry {
   id: string;
@@ -41,6 +46,7 @@ const UserInfo = () => {
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { ConfirmDialogComponent, openDialog } = useConfirmDialog();
 
   const {
     data: latestTDEE = { tdee: 1800 },
@@ -82,15 +88,15 @@ const UserInfo = () => {
   const remainingCalories = tdee - todayNutrition;
   const percentage = (todayNutrition / tdee) * 100;
 
-  if (isLoadingTDEE || isLoadingDiary) return <div>Loading...</div>;
-
   if (errorTDEE || errorDiary) {
     const errorMessageTDEE = (errorTDEE as Error)?.message || "未知的錯誤";
     const errorMessageDiary = (errorDiary as Error)?.message || "未知的錯誤";
 
     return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
   }
-
+  const handleDeleteClick = (entryId: string, entryFood: string) => {
+    openDialog(entryFood, () => handleDelete(entryId));
+  };
   const handleDelete = async (id: string) => {
     try {
       const currentUser = auth.currentUser;
@@ -120,6 +126,7 @@ const UserInfo = () => {
     entries: DiaryEntry[];
   }) => (
     <MealSectionContainer>
+      <Loader isLoading={isLoadingTDEE || isLoadingDiary} />
       <DiaryTitle>{title}</DiaryTitle>
       {entries.length > 0 ? (
         entries.map((entry) => (
@@ -128,7 +135,7 @@ const UserInfo = () => {
             <FoodNutrition>
               <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
               <FoodCarbo>
-                {entry.nutrition?.carbohydrates || "未知"} |{" "}
+                {entry.nutrition?.carbohydrates || "未知"} |
               </FoodCarbo>
               <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
               <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
@@ -138,14 +145,14 @@ const UserInfo = () => {
                 src={trashImg}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(entry.id);
+                  handleDeleteClick(entry.id, entry.food || "此項目");
                 }}
               />
             </DeleteButtonContainer>
           </DiaryItem>
         ))
       ) : (
-        <EmptyList>尚未新增</EmptyList>
+        <EmptyList>No entries yet</EmptyList>
       )}
     </MealSectionContainer>
   );
@@ -164,56 +171,67 @@ const UserInfo = () => {
 
   return (
     <Wrapper>
+      {ConfirmDialogComponent}
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>您的每日摘要</Title>
+        <Title>Diary Summary</Title>
         <InfoWrapper>
           <InfoContainer>
             <UserInfoCotainer>
               <UserImage src={userImg} />
               <TotalTarget>
-                <TotalTargetTitle>剩餘熱量</TotalTargetTitle>
+                <TotalTargetTitle>Calories Remaining</TotalTargetTitle>
                 <HandwrittenContainer>
-                  <HandwrittenText
-                    text={
-                      remainingCalories ? remainingCalories.toFixed(0) : "2141"
-                    }
-                    roughness={0}
-                    color="black"
-                    fill="green"
-                    fontSize={75}
-                  />
+                  <RemainCalories>
+                    {remainingCalories ? remainingCalories.toFixed(0) : "2141"}
+                  </RemainCalories>
                 </HandwrittenContainer>
               </TotalTarget>
             </UserInfoCotainer>
-            <ButtonContainer>
-              <Button
-                label="更改熱量估計"
-                onClick={() =>
-                  navigate("../calculator", { state: { fromUserInfo: true } })
-                }
-              />
-              <Button
-                label="查詢食品"
-                onClick={() =>
-                  navigate("../food", { state: { fromUserInfo: true } })
-                }
-              />
-              <Button
-                label="新增飲食"
-                onClick={() =>
-                  navigate("../diary", { state: { fromUserInfo: true } })
-                }
-              />
-              <Button
-                label="查看分析"
-                onClick={() =>
-                  navigate("../report", { state: { fromUserInfo: true } })
-                }
-              />
-            </ButtonContainer>
+            <ButtonsContainer>
+              <ButtonContainer>
+                <ButtonImg src={calculatorImg} />
+                <Button
+                  label="Calculate TDEE"
+                  justifyContent={"flex-start"}
+                  onClick={() =>
+                    navigate("../calculator", { state: { fromUserInfo: true } })
+                  }
+                />
+              </ButtonContainer>
+              <ButtonContainer>
+                <ButtonImg src={searchImg} />
+                <Button
+                  label="Search Food"
+                  justifyContent={"flex-start"}
+                  onClick={() =>
+                    navigate("../food", { state: { fromUserInfo: true } })
+                  }
+                />
+              </ButtonContainer>
+              <ButtonContainer>
+                <ButtonImg src={createImg} />
+                <Button
+                  label="Create Diary"
+                  justifyContent={"flex-start"}
+                  onClick={() =>
+                    navigate("../diary", { state: { fromUserInfo: true } })
+                  }
+                />
+              </ButtonContainer>
+              <ButtonContainer>
+                <ButtonImg src={report} />
+                <Button
+                  label="Check Report"
+                  justifyContent={"flex-start"}
+                  onClick={() =>
+                    navigate("../report", { state: { fromUserInfo: true } })
+                  }
+                />
+              </ButtonContainer>
+            </ButtonsContainer>
           </InfoContainer>
           <TodayTargetWrapper>
             <TodayTargetContainer>
@@ -232,7 +250,7 @@ const UserInfo = () => {
                   }}
                 >
                   <Progress>
-                    {todayNutrition ? todayNutrition.toFixed(0) : 0} 大卡
+                    {todayNutrition ? todayNutrition.toFixed(0) : 0} Cal
                   </Progress>
                   <TriangleIndicator />
                 </IndicatorWrapper>
@@ -245,7 +263,7 @@ const UserInfo = () => {
           </TodayTargetWrapper>
         </InfoWrapper>
         <DiaryList>
-          <DiaryTitle>今天吃了</DiaryTitle>
+          <DiaryTitle>Today I ate</DiaryTitle>
           <DatePickerContainer>
             <Flatpickr
               value={selectedDate}
@@ -254,10 +272,10 @@ const UserInfo = () => {
             />
           </DatePickerContainer>
 
-          <MealSection title="早餐" entries={meals.breakfast} />
-          <MealSection title="午餐" entries={meals.lunch} />
-          <MealSection title="晚餐" entries={meals.dinner} />
-          <MealSection title="點心" entries={meals.snack} />
+          <MealSection title="Breakfast" entries={meals.breakfast} />
+          <MealSection title="Lunch" entries={meals.lunch} />
+          <MealSection title="Dinner" entries={meals.dinner} />
+          <MealSection title="Snack" entries={meals.snack} />
         </DiaryList>
         {isModalOpen && selectedEntryId && (
           <Modal onClose={closeModal}>
@@ -349,7 +367,7 @@ const UserInfoCotainer = styled.div`
 `;
 
 const UserImage = styled.img`
-  width: 140px;
+  width: 200px;
   @media (max-width: 1000px) {
     width: 250px;
   }
@@ -386,11 +404,36 @@ const TodayTargetWrapper = styled.div`
     width: 85%;
   }
 `;
+const TotalTarget = styled.div`
+  position: relative;
+  width: auto;
+  font-size: 18px;
+  display: flex;
+  @media (max-width: 480px) {
+    margin-top: 48px;
+  }
+`;
+const TotalTargetTitle = styled.span`
+  position: relative;
+  top: 24px;
+  font-size: 30px;
+  @media (max-width: 1000px) {
+    left: 0;
+    text-align: center;
+    letter-spacing: 16px;
+    font-weight: 700;
+  }
+  @media (max-width: 480px) {
+    width: 100%;
+    letter-spacing: 0;
+  }
+`;
 const HandwrittenContainer = styled.div`
   position: relative;
   display: flex;
   width: auto;
-  align-items: center;
+  top: 12px;
+  right: 24px;
   @media (max-width: 1000px) {
     left: 36px;
     width: 85%;
@@ -398,6 +441,10 @@ const HandwrittenContainer = styled.div`
   @media (max-width: 480px) {
     left: 24px;
   }
+`;
+const RemainCalories = styled.div`
+  font-size: 48px;
+  color: #6db96d;
 `;
 const TodayTargetContainer = styled.div`
   position: relative;
@@ -412,38 +459,12 @@ const TodayTargetContainer = styled.div`
   }
 `;
 
-const TotalTarget = styled.div`
-  position: relative;
-  width: auto;
-  font-size: 18px;
+const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  @media (max-width: 480px) {
-    margin-top: 48px;
-  }
-`;
-const TotalTargetTitle = styled.span`
+  justify-content: left;
   position: relative;
-  top: 24px;
-  left: 20px;
-  font-size: 30px;
-  @media (max-width: 1000px) {
-    left: 0;
-    text-align: center;
-    letter-spacing: 16px;
-    font-weight: 700;
-  }
-  @media (max-width: 480px) {
-    width: 100%;
-    letter-spacing: 0;
-  }
-`;
-const ButtonContainer = styled.div`
-  position: relative;
-  align-items: center;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 300px;
+  width: 170px;
   gap: 10px;
   @media (max-width: 1000px) {
     display: flex;
@@ -463,6 +484,15 @@ const ButtonContainer = styled.div`
     width: 100%;
     gap: 12px;
   }
+`;
+const ButtonImg = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+`;
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
 const DeleteButtonContainer = styled.div`
   position: absolute;
@@ -537,7 +567,9 @@ const DiaryItem = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 `;
-const FoodName = styled.span``;
+const FoodName = styled.span`
+  font-size: 24px;
+`;
 
 const FoodNutrition = styled.div``;
 const FoodCal = styled.span``;
