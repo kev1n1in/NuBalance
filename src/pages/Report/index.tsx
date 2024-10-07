@@ -230,6 +230,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 80%;
+
   margin: 0 auto;
   z-index: 0;
 `;
@@ -241,6 +242,7 @@ const BarChartContainer = styled.div`
   position: relative;
   margin: 24px 0;
   padding: 12px;
+
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 4px;
