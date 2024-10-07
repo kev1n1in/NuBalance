@@ -31,6 +31,8 @@ interface DiaryEntry {
   id: string;
   food?: string;
   meal?: string;
+  bmi?: string;
+  bodyFat?: string;
   nutrition?: {
     calories?: string;
     carbohydrates?: string;
@@ -49,7 +51,7 @@ const UserInfo = () => {
   const { ConfirmDialogComponent, openDialog } = useConfirmDialog();
 
   const {
-    data: latestTDEE = { tdee: 1800 },
+    data: latestTDEE = { tdee: 1800, bmi: 0, bodyFat: 0 }, // 預設值
     isLoading: isLoadingTDEE,
     error: errorTDEE,
   } = useQuery("latestTDEE", async () => {
@@ -57,8 +59,20 @@ const UserInfo = () => {
     if (!currentUser) {
       throw new Error("用戶未登入");
     }
+
+    // 獲取完整的歷史紀錄物件
     const latestHistory = await getUserHistory(currentUser, true);
-    return latestHistory;
+
+    // 從 latestHistory 中提取所需的數據
+    const tdee = latestHistory?.tdee || 1800; // 預設值 1800
+    const bmi = latestHistory?.bmi || 0; // 預設值 0
+    const bodyFat = latestHistory?.bodyFat || 0; // 預設值 0
+
+    // 打印出來檢查
+    console.log("最新歷史紀錄:", latestHistory);
+
+    // 返回提取的數據
+    return { tdee, bmi, bodyFat };
   });
 
   const {
@@ -87,7 +101,8 @@ const UserInfo = () => {
   const tdee = latestTDEE.tdee;
   const remainingCalories = tdee - todayNutrition;
   const percentage = (todayNutrition / tdee) * 100;
-
+  const latestBMI = latestTDEE.bmi;
+  const latestBodyFat = latestTDEE.bodyFat;
   if (errorTDEE || errorDiary) {
     const errorMessageTDEE = (errorTDEE as Error)?.message || "未知的錯誤";
     const errorMessageDiary = (errorDiary as Error)?.message || "未知的錯誤";
@@ -191,6 +206,16 @@ const UserInfo = () => {
                         : "2141"}
                     </RemainCalories>
                   </HandwrittenContainer>
+                  <BodyDataContainer>
+                    <BMIText>{`BMI: ${
+                      typeof latestBMI === "number" ? latestBMI.toFixed(2) : "0"
+                    }`}</BMIText>
+                    <BodyFatText>{`BodyFat: ${
+                      typeof latestBodyFat === "number"
+                        ? latestBodyFat.toFixed(2) + "%"
+                        : "0"
+                    }`}</BodyFatText>
+                  </BodyDataContainer>
                 </RemainCaloriesContainer>
                 <ButtonsContainer>
                   <ButtonContainer>
@@ -275,6 +300,11 @@ const UserInfo = () => {
               value={selectedDate}
               onChange={(date: Date[]) => setSelectedDate(date[0])}
               options={{ dateFormat: "Y-m-d" }}
+              style={{
+                borderRadius: "4px",
+                fontFamily: "KG Second Chances",
+                width: "100px",
+              }}
             />
           </DatePickerContainer>
 
@@ -334,6 +364,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
+  font-size: 48px;
   @media (max-width: 1000px) {
     text-align: center;
   }
@@ -372,6 +403,21 @@ const UserInfoCotainer = styled.div`
     align-items: center;
   }
 `;
+const BodyDataContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-left: 8px;
+  font-size: 18px;
+  color: #555;
+`;
+
+const BMIText = styled.span`
+  font-weight: bold;
+`;
+
+const BodyFatText = styled.span`
+  font-weight: bold;
+`;
 
 const UserImage = styled.img`
   height: 280px;
@@ -387,6 +433,7 @@ const UserImage = styled.img`
 `;
 const RemainCaloriesContainer = styled.div`
   display: flex;
+  align-items: end;
 `;
 const TodayTargetWrapper = styled.div`
   position: relative;
@@ -425,9 +472,9 @@ const TotalTarget = styled.div`
 `;
 const TotalTargetTitle = styled.span`
   position: relative;
-  top: 24px;
   width: 350px;
   font-size: 30px;
+  top: 4px;
   @media (max-width: 1000px) {
     left: 0;
     text-align: center;
@@ -454,7 +501,7 @@ const HandwrittenContainer = styled.div`
   }
 `;
 const RemainCalories = styled.div`
-  font-size: 48px;
+  font-size: 52px;
   color: #6db96d;
 `;
 const TodayTargetContainer = styled.div`
@@ -508,11 +555,12 @@ const ButtonContainer = styled.div`
 `;
 const DeleteButtonContainer = styled.div`
   position: absolute;
-  top: 8px;
+  top: 50%;
   right: 8px;
   width: 30px;
   height: 30px;
   z-index: 10;
+  transform: translateY(-50%);
 `;
 const DeleteButton = styled.img`
   width: 30px;
@@ -574,8 +622,9 @@ const DiaryItem = styled.div`
   position: relative;
   flex-direction: column;
   margin: 12px 0;
-  padding: 4px 40px 4px 4px;
-  border: 1px solid gray;
+  padding: 4px 40px 8px 8px;
+  border: 2px solid gray;
+  border-radius: 4px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 `;
