@@ -182,85 +182,91 @@ const UserInfo = () => {
             <UserInfoCotainer>
               <UserImage src={userImg} />
               <TotalTarget>
-                <TotalTargetTitle>Calories Remaining</TotalTargetTitle>
-                <HandwrittenContainer>
-                  <RemainCalories>
-                    {remainingCalories ? remainingCalories.toFixed(0) : "2141"}
-                  </RemainCalories>
-                </HandwrittenContainer>
+                <RemainCaloriesContainer>
+                  <TotalTargetTitle>Calories Remaining</TotalTargetTitle>
+                  <HandwrittenContainer>
+                    <RemainCalories>
+                      {remainingCalories
+                        ? remainingCalories.toFixed(0)
+                        : "2141"}
+                    </RemainCalories>
+                  </HandwrittenContainer>
+                </RemainCaloriesContainer>
+                <ButtonsContainer>
+                  <ButtonContainer>
+                    <ButtonImg src={calculatorImg} />
+                    <Button
+                      label="Calculate TDEE"
+                      justifyContent={"flex-start"}
+                      onClick={() =>
+                        navigate("../calculator", {
+                          state: { fromUserInfo: true },
+                        })
+                      }
+                    />
+                  </ButtonContainer>
+                  <ButtonContainer>
+                    <ButtonImg src={searchImg} />
+                    <Button
+                      label="Search Food"
+                      justifyContent={"flex-start"}
+                      onClick={() =>
+                        navigate("../food", { state: { fromUserInfo: true } })
+                      }
+                    />
+                  </ButtonContainer>
+                  <ButtonContainer>
+                    <ButtonImg src={createImg} />
+                    <Button
+                      label="Create Diary"
+                      justifyContent={"flex-start"}
+                      onClick={() =>
+                        navigate("../diary", { state: { fromUserInfo: true } })
+                      }
+                    />
+                  </ButtonContainer>
+                  <ButtonContainer>
+                    <ButtonImg src={report} />
+                    <Button
+                      label="Check Report"
+                      justifyContent={"flex-start"}
+                      onClick={() =>
+                        navigate("../report", { state: { fromUserInfo: true } })
+                      }
+                    />
+                  </ButtonContainer>
+                </ButtonsContainer>
+                <TodayTargetWrapper>
+                  <TodayTargetContainer>
+                    <TargetProgressContainer>
+                      <Line
+                        percent={Math.max(0, Math.min(percentage, 100))}
+                        strokeWidth={4}
+                        strokeColor={todayNutrition > 0 ? "green" : "gray"}
+                        trailWidth={10}
+                        trailColor="#d3d3d3"
+                        strokeLinecap="butt"
+                      />
+                      <IndicatorWrapper
+                        style={{
+                          left: `${Math.max(0, Math.min(percentage, 100))}%`,
+                        }}
+                      >
+                        <Progress>
+                          {todayNutrition ? todayNutrition.toFixed(0) : 0} Cal
+                        </Progress>
+                        <TriangleIndicator />
+                      </IndicatorWrapper>
+                      <ProgressNumbers>
+                        <span>0</span>
+                        <span>{tdee ? tdee : 0}</span>
+                      </ProgressNumbers>
+                    </TargetProgressContainer>
+                  </TodayTargetContainer>
+                </TodayTargetWrapper>
               </TotalTarget>
             </UserInfoCotainer>
-            <ButtonsContainer>
-              <ButtonContainer>
-                <ButtonImg src={calculatorImg} />
-                <Button
-                  label="Calculate TDEE"
-                  justifyContent={"flex-start"}
-                  onClick={() =>
-                    navigate("../calculator", { state: { fromUserInfo: true } })
-                  }
-                />
-              </ButtonContainer>
-              <ButtonContainer>
-                <ButtonImg src={searchImg} />
-                <Button
-                  label="Search Food"
-                  justifyContent={"flex-start"}
-                  onClick={() =>
-                    navigate("../food", { state: { fromUserInfo: true } })
-                  }
-                />
-              </ButtonContainer>
-              <ButtonContainer>
-                <ButtonImg src={createImg} />
-                <Button
-                  label="Create Diary"
-                  justifyContent={"flex-start"}
-                  onClick={() =>
-                    navigate("../diary", { state: { fromUserInfo: true } })
-                  }
-                />
-              </ButtonContainer>
-              <ButtonContainer>
-                <ButtonImg src={report} />
-                <Button
-                  label="Check Report"
-                  justifyContent={"flex-start"}
-                  onClick={() =>
-                    navigate("../report", { state: { fromUserInfo: true } })
-                  }
-                />
-              </ButtonContainer>
-            </ButtonsContainer>
           </InfoContainer>
-          <TodayTargetWrapper>
-            <TodayTargetContainer>
-              <TargetProgressContainer>
-                <Line
-                  percent={Math.max(0, Math.min(percentage, 100))}
-                  strokeWidth={4}
-                  strokeColor={todayNutrition > 0 ? "green" : "gray"}
-                  trailWidth={10}
-                  trailColor="#d3d3d3"
-                  strokeLinecap="butt"
-                />
-                <IndicatorWrapper
-                  style={{
-                    left: `${Math.max(0, Math.min(percentage, 100))}%`,
-                  }}
-                >
-                  <Progress>
-                    {todayNutrition ? todayNutrition.toFixed(0) : 0} Cal
-                  </Progress>
-                  <TriangleIndicator />
-                </IndicatorWrapper>
-                <ProgressNumbers>
-                  <span>0</span>
-                  <span>{tdee ? tdee : 0}</span>
-                </ProgressNumbers>
-              </TargetProgressContainer>
-            </TodayTargetContainer>
-          </TodayTargetWrapper>
         </InfoWrapper>
         <DiaryList>
           <DiaryTitle>Today I ate</DiaryTitle>
@@ -336,6 +342,7 @@ const Title = styled.h1`
 const InfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
   @media (max-width: 1000px) {
     flex-direction: column;
     width: 100%;
@@ -344,7 +351,7 @@ const InfoWrapper = styled.div`
 `;
 const InfoContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  width: 100%;
   @media (max-width: 480px) {
     flex-direction: column;
     align-items: center;
@@ -353,8 +360,8 @@ const InfoContainer = styled.div`
 `;
 const UserInfoCotainer = styled.div`
   display: flex;
+  width: 100%;
   margin: 0;
-  width: 400px;
   @media (max-width: 1000px) {
     flex-direction: column;
     justify-content: center;
@@ -367,7 +374,7 @@ const UserInfoCotainer = styled.div`
 `;
 
 const UserImage = styled.img`
-  width: 200px;
+  height: 280px;
   @media (max-width: 1000px) {
     width: 250px;
   }
@@ -378,13 +385,14 @@ const UserImage = styled.img`
     width: 120px;
   }
 `;
-
+const RemainCaloriesContainer = styled.div`
+  display: flex;
+`;
 const TodayTargetWrapper = styled.div`
   position: relative;
   bottom: 48px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   @media (max-width: 480px) {
     position: absolute;
     top: 140px;
@@ -405,10 +413,12 @@ const TodayTargetWrapper = styled.div`
   }
 `;
 const TotalTarget = styled.div`
-  position: relative;
-  width: auto;
-  font-size: 18px;
   display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  font-size: 18px;
+
   @media (max-width: 480px) {
     margin-top: 48px;
   }
@@ -416,6 +426,7 @@ const TotalTarget = styled.div`
 const TotalTargetTitle = styled.span`
   position: relative;
   top: 24px;
+  width: 350px;
   font-size: 30px;
   @media (max-width: 1000px) {
     left: 0;
@@ -461,11 +472,11 @@ const TodayTargetContainer = styled.div`
 
 const ButtonsContainer = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: left;
   position: relative;
-  width: 170px;
+  width: 100%;
   gap: 10px;
+  margin-top: 20px;
   @media (max-width: 1000px) {
     display: flex;
     right: 30px;
@@ -493,6 +504,7 @@ const ButtonImg = styled.img`
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
+  width: 170px;
 `;
 const DeleteButtonContainer = styled.div`
   position: absolute;
