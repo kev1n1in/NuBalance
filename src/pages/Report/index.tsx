@@ -44,6 +44,7 @@ const Report: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
+  const [activeTab, setActiveTab] = useState<string>("Weight");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -159,9 +160,13 @@ const Report: React.FC = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Report</Title>
-
-        <ChartContainer>
+        <BarChartContainer
+          style={{ display: activeTab === "Weight" ? "block" : "none" }}
+        >
           <ChartHeaderContainer>
+            <BarFolderTab onClick={() => setActiveTab("Nutrients")}>
+              Nutrients
+            </BarFolderTab>
             <ChartTitle>Weight change for the 7 days before</ChartTitle>
             <DatePickerContainer>
               <Flatpickr
@@ -182,8 +187,13 @@ const Report: React.FC = () => {
           ) : (
             <p>沒有體重變化的歷史資料</p>
           )}
-        </ChartContainer>
-        <ChartContainer>
+        </BarChartContainer>
+        <PieChartContainer
+          style={{ display: activeTab === "Nutrients" ? "block" : "none" }}
+        >
+          <PieFolderTab onClick={() => setActiveTab("Weight")}>
+            Weight
+          </PieFolderTab>
           <ChartTitle>Today total nutrients (%)</ChartTitle>
           {nutritionData ? (
             <CenteredChartContainer>
@@ -201,7 +211,7 @@ const Report: React.FC = () => {
           ) : (
             <p>No nutrient records for today.</p>
           )}
-        </ChartContainer>
+        </PieChartContainer>
       </Container>
     </Wrapper>
   );
@@ -217,26 +227,124 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 80%;
   margin: 0 auto;
+  z-index: 0;
 `;
 const ChartHeaderContainer = styled.div`
   display: flex;
 `;
 
-const BodyFatText = styled.p`
-  color: #4ea34e;
-`;
-
-const ChartContainer = styled.div`
+const BarChartContainer = styled.div`
+  position: relative;
   margin: 24px 0;
   padding: 12px;
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  &:after {
+    content: "";
+    position: absolute;
+    top: -5px; /* 偽元素的位置 */
+    left: 16px; /* 距離左邊的距離 */
+    width: 200px; /* 標籤的寬度 */
+    height: 20px; /* 標籤的高度 */
+    background-color: #fff; /* 標籤的顏色 */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    z-index: 1; /* 確保偽元素在容器上方 */
+  }
+  &:before {
+    content: "Weight";
+    position: absolute;
+    top: -40px; /* 偽元素的位置 */
+    left: 16px; /* 距離左邊的距離 */
+    width: 200px; /* 標籤的寬度 */
+    height: 60px; /* 標籤的高度 */
+    font-size: 24px;
+    text-align: center;
+    padding-right: 4px;
+    background-color: #fff; /* 標籤的顏色 */
+    border: 1px solid black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: -1; /* 確保偽元素在容器上方 */
+  }
 `;
-
+const BarFolderTab = styled.div`
+  display: flex;
+  position: absolute;
+  top: -40px; /* 偽元素的位置 */
+  left: 220px; /* 距離左邊的距離 */
+  width: 200px; /* 標籤的寬度 */
+  height: 60px; /* 標籤的高度 */
+  font-size: 24px;
+  justify-content: center;
+  padding-right: 4px;
+  background-color: #fff; /* 標籤的顏色 */
+  border: 1px solid black;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  z-index: -2; /* 確保偽元素在容器上方 */
+  cursor: pointer;
+`;
+const PieChartContainer = styled.div`
+  position: relative;
+  margin: 24px 0;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  &:after {
+    content: "";
+    position: absolute;
+    top: -5px; /* 偽元素的位置 */
+    left: 220px; /* 距離左邊的距離 */
+    width: 200px; /* 標籤的寬度 */
+    height: 20px; /* 標籤的高度 */
+    background-color: #fff; /* 標籤的顏色 */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    z-index: 1; /* 確保偽元素在容器上方 */
+  }
+  &:before {
+    content: "Nutrients";
+    position: absolute;
+    top: -40px; /* 偽元素的位置 */
+    left: 220px; /* 距離左邊的距離 */
+    width: 200px; /* 標籤的寬度 */
+    height: 60px; /* 標籤的高度 */
+    font-size: 24px;
+    text-align: center;
+    padding-right: 4px;
+    background-color: #fff; /* 標籤的顏色 */
+    border: 1px solid black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: -1; /* 確保偽元素在容器上方 */
+  }
+`;
+const PieFolderTab = styled.div`
+  display: flex;
+  position: absolute;
+  top: -40px; /* 偽元素的位置 */
+  left: 16px; /* 距離左邊的距離 */
+  width: 200px; /* 標籤的寬度 */
+  height: 60px; /* 標籤的高度 */
+  font-size: 24px;
+  justify-content: center;
+  padding-right: 4px;
+  background-color: #fff; /* 標籤的顏色 */
+  border: 1px solid black;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  z-index: -2; /* 確保偽元素在容器上方 */
+  cursor: pointer;
+`;
 const CenteredChartContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -254,6 +362,7 @@ const DatePickerContainer = styled.div`
 const Title = styled.h1`
   text-align: center;
   font-size: 40px;
+  margin: 24px 0;
 `;
 
 export default Report;
