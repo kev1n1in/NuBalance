@@ -30,6 +30,7 @@ import { annotate } from "rough-notation";
 import { useDropzone } from "react-dropzone";
 import polaroid from "./polaroid.png";
 import penImg from "./pen.png";
+import useAlert from "../../hooks/useAlertMessage";
 
 type FoodItem = {
   id: string;
@@ -71,11 +72,11 @@ const Diary = () => {
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const noteRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState<string | null>(null);
   const [annotations, setAnnotations] = useState<Array<any>>([]);
   const titleRefs = useRef<Array<HTMLHeadingElement | null>>([]);
   const [imageFile, setImageFile] = useState<File | null>(null); // 用來存放選中的檔案
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -154,15 +155,19 @@ const Diary = () => {
     },
     {
       onSuccess: () => {
-        alert("成功新增！");
-        setSelectedMeal(null);
-        setSelectedFood(null);
-        setSelectedMood(null);
-        setSelectedTime(new Date());
-        if (noteRef.current) noteRef.current.value = "";
-        if (state?.fromUserInfo) {
-          navigate("../userInfo");
-        }
+        addAlert("Created successfully");
+        setTimeout(() => {
+          setSelectedMeal(null);
+          setSelectedFood(null);
+          setSelectedMood(null);
+          setSelectedTime(new Date());
+
+          if (noteRef.current) noteRef.current.value = "";
+
+          if (state?.fromUserInfo) {
+            navigate("../userInfo");
+          }
+        }, 1000);
       },
       onError: (error) => {
         console.error("日記條目保存失敗:", error);
@@ -172,7 +177,7 @@ const Diary = () => {
 
   const handleSubmit = async () => {
     if (!selectedMeal || !selectedFood || !selectedTime) {
-      alert("請填寫所有必填欄位");
+      addAlert("請填寫所有必填欄位");
       return;
     }
 
@@ -208,6 +213,7 @@ const Diary = () => {
   };
   return (
     <Wrapper>
+      <AlertMessage />
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />

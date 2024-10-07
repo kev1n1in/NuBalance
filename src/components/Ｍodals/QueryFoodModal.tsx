@@ -75,14 +75,14 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
 
   return (
     <Wrapper>
-      <Title>吃了啥？</Title>
+      <Title>What did you eat?</Title>
       <InputContainer>
         <Input
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="請輸入食物關鍵字"
+          placeholder="Please Enter Food Keyword"
         />
         <SearchImg />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -106,11 +106,13 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             </ResultItem>
           ))
         ) : (
-          <p>目前沒有相關結果</p>
+          <p>There is no result</p>
         )}
 
         <NoItemsMessage>
-          找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
+          Can't find it? Try
+          <CreateLink onClick={openModal}> adding </CreateLink>
+          it.
         </NoItemsMessage>
       </FoodDataContainer>
 
@@ -121,12 +123,16 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             <FoodInfo>{selectedItem.food_info.join("｜")}</FoodInfo>
           </SelectResult>
         ) : (
-          <SelectResult>尚未選擇任何食物</SelectResult>
+          <SelectResult>Search Result</SelectResult>
         )}
       </SelectedFoodContainer>
 
       <ButtonContainer>
-        <Button label="加入" onClick={handleAddClick}></Button>
+        <Button
+          strokeColor="gary"
+          label="Save"
+          onClick={handleAddClick}
+        ></Button>
       </ButtonContainer>
 
       {isModalOpen && (
@@ -158,6 +164,7 @@ const InputContainer = styled.div`
 `;
 
 const Input = styled.input`
+  font-family: "KG Second Chances", sans-serif;
   padding: 8px;
   font-size: 16px;
 `;

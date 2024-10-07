@@ -7,6 +7,8 @@ import { addFoodItem } from "../../firebase/firebaseServices";
 import { auth, storage } from "../../firebase/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Loader from "../Loader";
+import RequiredMark from "../RequiredMark";
+import useAlert from "../../hooks/useAlertMessage";
 
 interface FormValues {
   foodInfo: string[];
@@ -33,6 +35,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [recognizedText, setRecognizedText] = useState<string>("");
+  const { addAlert, AlertMessage } = useAlert();
 
   const {
     register,
@@ -157,40 +160,51 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
       );
     },
     onSuccess: (id, data) => {
-      alert(`食品資料新增成功，文件 ID: ${id}`);
       onFoodCreated(data.foodName);
       queryClient.invalidateQueries("foods");
-      onClose();
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     },
     onError: (error: Error) => {
-      alert(`新增失敗: ${error.message}`);
+      addAlert(`新增失敗: ${error.message}`);
     },
   });
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      mutation.mutate(data);
+      addAlert("提交中，請稍等...");
+      setTimeout(() => {
+        mutation.mutate(data);
+      }, 1000);
     } catch (error) {
       console.error("數據提交失敗:", error);
-      alert("數據提交失敗，請稍後重試");
+      addAlert("數據提交失敗，請稍後重試");
     }
   };
 
   return (
     <ModalWrapper>
+      <AlertMessage />
       <Loader isLoading={isUploading} />
-      <Title>新增食品</Title>
+      <Title>Create Custom Food Entry</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <InputTitle>食品名稱</InputTitle>
+        <InputTitle>
+          Food Name
+          <RequiredMark />
+        </InputTitle>
         <Input
-          placeholder="請輸入食品名稱"
+          placeholder=""
           {...register("foodName", { required: "食品名稱是必填的" })}
         />
         {errors.foodName && (
           <ErrorMessage>{errors.foodName.message}</ErrorMessage>
         )}
 
-        <InputTitle>熱量</InputTitle>
+        <InputTitle>
+          Calories
+          <RequiredMark />
+        </InputTitle>
         <Input
           type="number"
           step="any"
@@ -203,7 +217,10 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           <ErrorMessage>{errors.calories.message}</ErrorMessage>
         )}
 
-        <InputTitle>碳水化合物</InputTitle>
+        <InputTitle>
+          Carbohydrates
+          <RequiredMark />
+        </InputTitle>
         <Input
           type="number"
           step="any"
@@ -216,7 +233,10 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           <ErrorMessage>{errors.carbohydrates.message}</ErrorMessage>
         )}
 
-        <InputTitle>蛋白質</InputTitle>
+        <InputTitle>
+          Protein
+          <RequiredMark />
+        </InputTitle>
         <Input
           type="number"
           step="any"
@@ -229,7 +249,10 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           <ErrorMessage>{errors.protein.message}</ErrorMessage>
         )}
 
-        <InputTitle>脂肪</InputTitle>
+        <InputTitle>
+          Fat
+          <RequiredMark />
+        </InputTitle>
         <Input
           type="number"
           step="any"
@@ -240,12 +263,16 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
         />
         {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
         <Split />
-        <InputTitle>Or 掃描營養標籤</InputTitle>
+        <InputTitle>Or Scan Nutrition Label</InputTitle>
         <Input type="file" onChange={handleImageChange} />
 
         {previewImage && <img src={previewImage} alt="圖片預覽" width="200" />}
         <ButtonContainer>
-          <Button label="加入我的菜單" disabled={isUploading || !imageUrl} />
+          <Button
+            strokeColor="gray"
+            label="Save"
+            disabled={isUploading || !imageUrl}
+          />
         </ButtonContainer>
       </Form>
     </ModalWrapper>
@@ -270,6 +297,7 @@ const InputTitle = styled.div`
 `;
 
 const Input = styled.input`
+  font-family: "KG Second Chances", sans-serif;
   margin: 6px 0;
 `;
 

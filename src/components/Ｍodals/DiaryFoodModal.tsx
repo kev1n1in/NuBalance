@@ -19,6 +19,7 @@ import breakImg from "./mealsImg/breakfats.png";
 import lunchImg from "./mealsImg/lunch.png";
 import dinnerImg from "./mealsImg/dinner.png";
 import snackImg from "./mealsImg/snack.png";
+import useAlert from "../../hooks/useAlertMessage";
 
 interface FoodItem {
   id: string;
@@ -53,10 +54,10 @@ type MoodItem = {
   imgSrc: string;
 };
 const meals: MealItem[] = [
-  { id: "breakfast", name: "早餐", imgSrc: breakImg },
-  { id: "lunch", name: "午餐", imgSrc: lunchImg },
-  { id: "dinner", name: "晚餐", imgSrc: dinnerImg },
-  { id: "snack", name: "點心", imgSrc: snackImg },
+  { id: "早餐", name: "breakfast", imgSrc: breakImg },
+  { id: "午餐", name: "lunch", imgSrc: lunchImg },
+  { id: "晚餐", name: "dinner", imgSrc: dinnerImg },
+  { id: "點心", name: "snack", imgSrc: snackImg },
 ];
 
 const moods: MoodItem[] = [
@@ -77,6 +78,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
   const [currentFood, setCurrentFood] = useState<FoodItem | null>(null);
   const [note, setNote] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const { addAlert, AlertMessage } = useAlert();
 
   const currentUser = auth.currentUser;
 
@@ -144,7 +146,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 
     const updatedData = {
       food: currentFood?.food_name || "",
-      meal: selectedMeal?.name || "",
+      meal: selectedMeal?.id || "",
       mood: selectedMood?.name || "",
       note: note || "",
       imageUrl: imageUrl || "",
@@ -160,7 +162,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       await updateDiaryEntry(currentUser, entryId, updatedData);
       console.log("日記條目已更新");
 
-      alert("編輯成功");
+      addAlert("編輯成功");
       onClose();
     } catch (error) {
       console.error("更新日記條目失敗:", error);
@@ -189,9 +191,9 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 
   return (
     <Wrapper>
-      <Title>今天吃了</Title>
+      <AlertMessage />
+      <Title>Today I ate</Title>
       <FoodSelectorWrapper>
-        <FoodSelectorTitle>吃了啥？</FoodSelectorTitle>
         <MealSelectorContainer>
           {meals.map((meal) => (
             <MealContainer
@@ -234,13 +236,13 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       </MoodSelectorContainer>
 
       <NoteContainer>
-        <NoteTitle>備註：</NoteTitle>
+        <NoteTitle>Note：</NoteTitle>
         <NoteTextarea value={note} onChange={(e) => setNote(e.target.value)} />
       </NoteContainer>
 
       {imageUrl && (
         <FoodImgContainer>
-          <FoodImg>圖片：</FoodImg>
+          <FoodImg>Image：</FoodImg>
           <ImagePreview src={imageUrl} alt="圖片" />
         </FoodImgContainer>
       )}
@@ -258,7 +260,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       )}
 
       <ButtonContainer>
-        <Button label="保存" onClick={handleSave} />
+        <Button strokeColor="gray" label="Save" onClick={handleSave} />
       </ButtonContainer>
     </Wrapper>
   );
@@ -314,12 +316,9 @@ const FoodSelectorWrapper = styled.div`
 
 const FoodSelectorContainer = styled.div`
   display: flex;
+  justify-content: space-evenly;
   height: 100px;
   margin-top: 24px;
-`;
-
-const FoodSelectorTitle = styled.h2`
-  width: 100%;
 `;
 
 const FoodSelector = styled.div`
@@ -333,8 +332,8 @@ const FoodSelector = styled.div`
 `;
 
 const Nutrition = styled.div`
-  margin-left: 48px;
-  width: 150px;
+  margin-left: 24px;
+  width: 180px;
 `;
 
 const FoodInfo = styled.p``;
@@ -352,30 +351,34 @@ const NoteTitle = styled.span`
 `;
 const FoodImgContainer = styled.div`
   display: flex;
+  flex-direction: column;
   margin-top: 20px;
-  text-align: center;
+  text-align: left;
 `;
 
 const FoodImg = styled.span`
   font-weight: bold;
+  width: 100%;
   margin-right: 10px;
 `;
 
 const NoteTextarea = styled.textarea`
   color: #fff;
-  background-color: gray;
+  border: 2px solid gray;
+  background-color: #dedede;
 `;
 
 const ImagePreview = styled.img`
-  width: 200px;
+  width: 100%;
   height: auto;
   margin-top: 10px;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
+  position: relative;
   justify-content: center;
-  margin-top: 20px;
+  margin: 20px 0;
 `;
 
 const MoodSelectorContainer = styled.div`

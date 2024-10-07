@@ -18,6 +18,7 @@ import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
 import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
+import useAlert from "../../hooks/useAlertMessage";
 
 const Calculator = () => {
   const [userData, setUserData] = useState({
@@ -35,6 +36,7 @@ const Calculator = () => {
   const location = useLocation();
   const [reloadFlag, setReloadFlag] = useState(false);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
+  const { addAlert, AlertMessage } = useAlert();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -127,22 +129,24 @@ const Calculator = () => {
     },
     {
       onSuccess: () => {
-        alert("TDEE 和 BMI 計算已保存到 Firebase");
+        addAlert("保存成功");
 
-        if (location.state?.fromSidebar) {
-          setReloadFlag(true);
-          setTimeout(() => {
-            setReloadFlag(false);
-          }, 500);
-        } else {
-          navigate("/userinfo");
-        }
+        setTimeout(() => {
+          if (location.state?.fromSidebar) {
+            setReloadFlag(true);
+            setTimeout(() => {
+              setReloadFlag(false);
+            }, 500);
+          } else {
+            navigate("/userinfo");
+          }
+        }, 1000); // 2秒的延遲時間，你可以調整
       },
       onError: (error: unknown) => {
         if (error instanceof Error) {
-          alert(`保存 TDEE 計算失敗: ${error.message}`);
+          addAlert(`保存 TDEE 計算失敗: ${error.message}`);
         } else {
-          alert("保存 TDEE 計算失敗: 未知錯誤");
+          addAlert("保存 TDEE 計算失敗: 未知錯誤");
         }
       },
     }
@@ -165,6 +169,7 @@ const Calculator = () => {
 
   return (
     <Wrapper>
+      <AlertMessage />
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />

@@ -23,6 +23,7 @@ import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
 import Sidebar from "../../components/Sidebar";
 import RequiredMark from "../../components/RequiredMark";
+import useAlert from "../../hooks/useAlertMessage";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,8 +33,10 @@ const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
+  const [messages, setMessages] = useState<string[]>([]);
   const navigate = useNavigate();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const { addAlert, AlertMessage } = useAlert();
 
   useEffect(() => {
     const loggedIn = Cookies.get("isLoggedIn");
@@ -72,15 +75,22 @@ const Login = () => {
         Cookies.set("username", user.email || "User", { expires: 7 });
         Cookies.set("isLoggedIn", "true", { expires: 7 });
         setIsLoggedIn(true);
-
+        addAlert("登入成功！！");
         navigate("/userInfo");
       } else {
-        alert("User is not logged in. Please log in first.");
+        addAlert("User is not logged in. Please log in first.");
       }
     } catch (error: any) {
+      addAlert("Login failed. Please try again.");
       console.error("Login failed:", error);
     }
   };
+  const handleInputChange =
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      removeMessage();
+    };
 
   const handleGoogleLogin = async (
     event: Event,
@@ -91,7 +101,6 @@ const Login = () => {
       try {
         const userCredential = await signInWithGoogle(response.credential);
 
-        // 從 UserCredential 中提取 user
         const googleUser = userCredential.user;
 
         Cookies.set("username", googleUser.displayName || "Google User", {
@@ -102,25 +111,14 @@ const Login = () => {
 
         navigate("/userInfo");
       } catch (error) {
+        addAlert("Google login failed.");
         console.error("Firebase login failed:", error);
       }
     } else {
-      console.log("Login Failed:", response);
+      addAlert("Login Failed.");
     }
   };
 
-  const removeUserCookie = async () => {
-    try {
-      await signOutUser();
-      Cookies.remove("isLoggedIn");
-      Cookies.remove("username");
-      setIsLoggedIn(false);
-      console.log("成功登出");
-      setUser(null);
-    } catch (error) {
-      console.error("登出失敗", error);
-    }
-  };
   const handleSignUp = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const fields = [
@@ -133,8 +131,9 @@ const Login = () => {
       .filter((field) => !field.value)
       .map((field) => field.name);
 
-    if (missingFields) {
-      alert(`請填寫以下欄位:${missingFields.join(",")}`);
+    if (missingFields.length > 0) {
+      addAlert(`請填寫以下欄位: ${missingFields.join(", ")}`);
+      return;
     }
 
     try {
@@ -144,20 +143,35 @@ const Login = () => {
         inputUser
       );
       console.log("Sign Up Success:", newUser);
-
-      alert("註冊成功！請使用您的帳號登入。");
+      addAlert("註冊成功！請使用您的帳號登入。");
 
       setIsSignUp(false);
-    } catch (error) {
+    } catch (error: any) {
+      addAlert(`註冊失敗: ${error.message}`);
       console.error("Sign Up failed:", error);
-      alert("註冊失敗，請確認輸入資料並再試一次。");
     }
   };
+
+  const removeMessage = () => {
+    setMessages((prevMessages) => prevMessages.slice(1)); // 每次移除 array 中的第一個訊息
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        removeMessage(); // 自動移除訊息
+      }, 10);
+
+      return () => clearTimeout(timer); // 清除計時器避免 memory leak
+    }
+  }, [messages]);
+
   const handleMenuToggle = () => {
     setToggleMenu((prev) => !prev);
   };
   return (
     <>
+      <AlertMessage />
       {isLoggedIn && (
         <>
           {toggleMenu && <Overlay onClick={handleMenuToggle} />}
@@ -228,10 +242,7 @@ const Login = () => {
                       <SplitText>OR</SplitText>
                     </Split>
                     <GoogleButtonContainer>
-                      <GoogleLoginButton
-                        onSuccess={handleGoogleLogin}
-                        onError={() => console.error("Login Failed")}
-                      />
+                      <GoogleLoginButton />
                     </GoogleButtonContainer>
                     <SignUpText>
                       {isSignUp ? (
