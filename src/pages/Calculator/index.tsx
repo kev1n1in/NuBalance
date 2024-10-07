@@ -19,6 +19,7 @@ import Overlay from "../../components/Overlay";
 import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
+import pointer from "./pointer.png";
 
 const Calculator = () => {
   const [userData, setUserData] = useState({
@@ -124,7 +125,7 @@ const Calculator = () => {
         userData.activityLevel,
         userData.bodyFat,
         bmi,
-        clientUpdateTime // 傳遞 clientUpdateTime
+        clientUpdateTime
       );
     },
     {
@@ -140,7 +141,7 @@ const Calculator = () => {
           } else {
             navigate("/userinfo");
           }
-        }, 1000); // 2秒的延遲時間，你可以調整
+        }, 1000);
       },
       onError: (error: unknown) => {
         if (error instanceof Error) {
@@ -177,7 +178,6 @@ const Calculator = () => {
         <Title>TDEE Calculator</Title>
         <TdeeContainer>
           <Form>
-            {/* <ManImg src={manImg}></ManImg> */}
             <HeadFormItem>
               <GenderContainer>
                 <FormTitle>
@@ -206,59 +206,70 @@ const Calculator = () => {
                   Activity
                   <RequiredMark />
                 </FormTitle>
-                <Select
-                  label="Activity Level"
-                  value={userData.activityLevel}
-                  onChange={(e) =>
-                    handleInputChange("activityLevel", e.target.value)
-                  }
-                  sx={{
-                    "& .MuiSelect-select": {
-                      fontFamily: "KG Second Chances",
-                      fontSize: "18px",
-                      padding: "8px",
-                    },
-                    "& fieldset": {
-                      legend: {
-                        display: "none",
+                <SelectContainer>
+                  <Select
+                    label="Activity Level"
+                    value={userData.activityLevel}
+                    onChange={(e) =>
+                      handleInputChange("activityLevel", e.target.value)
+                    }
+                    sx={{
+                      "& .MuiSelect-select": {
+                        fontFamily: "KG Second Chances",
+                        fontSize: "24px",
+                        padding: "8px 4px 4px 8px",
                       },
-                    },
-                  }}
-                  displayEmpty
-                  inputProps={{ "aria-label": "Without label" }}
-                  style={{ width: "50%", marginLeft: "40px" }}
-                >
-                  <MenuItem
-                    sx={{ fontFamily: "KG Second Chances" }}
-                    value="Sedentary"
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "3px solid gray",
+                        borderRadius: "12px",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "gray",
+                      },
+                      "& fieldset": {
+                        legend: {
+                          display: "none",
+                        },
+                      },
+                    }}
+                    displayEmpty
+                    inputProps={{ "aria-label": "Without label" }}
+                    style={{ width: "100%" }}
+                    IconComponent={() => null}
                   >
-                    Sedentary
-                  </MenuItem>
-                  <MenuItem
-                    sx={{ fontFamily: "KG Second Chances" }}
-                    value="Light"
-                  >
-                    Light
-                  </MenuItem>
-                  <MenuItem
-                    sx={{ fontFamily: "KG Second Chances" }}
-                    value="Moderate"
-                  >
-                    Moderate
-                  </MenuItem>
-                  <MenuItem
-                    sx={{ fontFamily: "KG Second Chances" }}
-                    value="Active"
-                  >
-                    Active
-                  </MenuItem>
-                  <MenuItem
-                    sx={{ fontFamily: "KG Second Chances" }}
-                    value="Very Active"
-                  >
-                    Very Active
-                  </MenuItem>
-                </Select>
+                    <MenuItem
+                      sx={{ fontFamily: "KG Second Chances" }}
+                      value="Sedentary"
+                    >
+                      Sedentary
+                    </MenuItem>
+                    <MenuItem
+                      sx={{ fontFamily: "KG Second Chances" }}
+                      value="Light"
+                    >
+                      Light
+                    </MenuItem>
+                    <MenuItem
+                      sx={{ fontFamily: "KG Second Chances" }}
+                      value="Moderate"
+                    >
+                      Moderate
+                    </MenuItem>
+                    <MenuItem
+                      sx={{ fontFamily: "KG Second Chances" }}
+                      value="Active"
+                    >
+                      Active
+                    </MenuItem>
+                    <MenuItem
+                      sx={{ fontFamily: "KG Second Chances" }}
+                      value="Very Active"
+                    >
+                      Very Active
+                    </MenuItem>
+                  </Select>
+                  <Pointer src={pointer} />
+                </SelectContainer>
               </ActiveContainer>
             </HeadFormItem>
 
@@ -421,6 +432,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
+  font-size: 40px;
   @media (max-width: 1000px) {
     text-align: center;
   }
@@ -433,7 +445,7 @@ const TdeeContainer = styled.div`
   display: flex;
   position: relative;
   flex-direction: column;
-  width: 90%;
+  width: 100%;
   height: 500px;
   margin: 0 auto;
   align-items: flex-end;
@@ -458,7 +470,7 @@ const GenderContainer = styled.div`
 
 const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
   font-size: 30px;
-  margin: 8px 12px 0 0;
+  margin: 8px 12px 0 8px;
   cursor: pointer;
   color: ${({ isSelected, isMale }) =>
     isSelected ? (isMale ? "#92bde2" : "pink") : "#bdbdbd"};
@@ -474,6 +486,7 @@ const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
 const ActiveContainer = styled.div`
   display: flex;
   justify-content: end;
+  align-items: end;
   width: 50%;
 `;
 const FormItem = styled.div`
@@ -581,5 +594,16 @@ const ButtonContainer = styled.div`
     top: -24px;
   }
 `;
-
+const SelectContainer = styled.div`
+  position: relative;
+  width: 50%;
+`;
+const Pointer = styled.img`
+  position: absolute;
+  width: 36px;
+  top: 0;
+  right: 12px;
+  transform: rotate(60deg);
+  pointer-events: none;
+`;
 export default Calculator;

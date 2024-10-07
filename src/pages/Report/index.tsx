@@ -16,7 +16,6 @@ import "flatpickr/dist/flatpickr.min.css";
 interface HistoryItem {
   clientUpdateTime: { seconds: number };
   weight: number;
-  bmi: number;
   date: string;
   bodyFat: number;
 }
@@ -40,13 +39,11 @@ const Report: React.FC = () => {
     protein: number;
     fat: number;
   } | null>(null);
-  const [latestBodyFat, setLatestBodyFat] = useState<number | null>(null);
-  const [latestBMI, setLatestBMI] = useState<number | null>(null);
   const [toggleMenu, setToggleMenu] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
-  ); // 單一日期選擇
+  );
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -79,7 +76,6 @@ const Report: React.FC = () => {
           .split("T")[0],
         weight: item.weight,
         bodyFat: item.bodyFat,
-        bmi: item.bmi,
       }));
     },
     { enabled: !!user && !!selectedDate }
@@ -92,13 +88,9 @@ const Report: React.FC = () => {
         weight: item.weight,
       }));
       const latestEntry = allHistory[allHistory.length - 1];
-      setLatestBodyFat(latestEntry.bodyFat);
-      setLatestBMI(latestEntry.bmi);
       setWeightChartData(weightData);
     } else {
       setWeightChartData([]);
-      setLatestBodyFat(null);
-      setLatestBMI(null);
     }
   }, [allHistory]);
 
@@ -167,18 +159,6 @@ const Report: React.FC = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Report</Title>
-        <BMIWrittenContainer>
-          <BMIText>{`BMI: ${
-            typeof latestBMI === "number" ? latestBMI.toFixed(2) : "0"
-          }`}</BMIText>
-        </BMIWrittenContainer>
-        <BodyFatWrittenContainer>
-          <BodyFatText>{`BodyFat: ${
-            typeof latestBodyFat === "number"
-              ? latestBodyFat.toFixed(2) + "%"
-              : "0"
-          }`}</BodyFatText>
-        </BodyFatWrittenContainer>
 
         <ChartContainer>
           <ChartHeaderContainer>
@@ -188,7 +168,11 @@ const Report: React.FC = () => {
                 value={selectedDate}
                 onChange={handleDateChange}
                 options={{ dateFormat: "Y-m-d" }}
-                style={{ fontFamily: "KG Second Chances", width: "100px" }}
+                style={{
+                  fontFamily: "KG Second Chances",
+                  width: "100px",
+                  borderRadius: "4px",
+                }}
               />
             </DatePickerContainer>
           </ChartHeaderContainer>
@@ -200,7 +184,7 @@ const Report: React.FC = () => {
           )}
         </ChartContainer>
         <ChartContainer>
-          <ChartTitle>Today total nutrients</ChartTitle>
+          <ChartTitle>Today total nutrients (%)</ChartTitle>
           {nutritionData ? (
             <CenteredChartContainer>
               <RoughPieChart
@@ -239,19 +223,11 @@ const Container = styled.div`
 const ChartHeaderContainer = styled.div`
   display: flex;
 `;
-const BMIWrittenContainer = styled.div`
-  width: 45%;
-`;
-const BMIText = styled.p`
-  color: #4ea34e;
-`;
 
 const BodyFatText = styled.p`
   color: #4ea34e;
 `;
-const BodyFatWrittenContainer = styled.div`
-  width: 60%;
-`;
+
 const ChartContainer = styled.div`
   margin: 24px 0;
   padding: 12px;
@@ -277,7 +253,7 @@ const DatePickerContainer = styled.div`
 `;
 const Title = styled.h1`
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
 `;
 
 export default Report;

@@ -121,7 +121,7 @@ const Food: React.FC = () => {
                   <ButtonWrapper>
                     <Button
                       strokeColor="black"
-                      label="加入菜單"
+                      label="Add"
                       onClick={() => handleAddFood(item)}
                     />
                   </ButtonWrapper>
@@ -184,15 +184,16 @@ const Container = styled.div`
   }
 `;
 const Title = styled.h1`
-  margin: 12px 0;
+  font-size: 40px;
+  margin: 0;
 `;
 
 const Input = styled.input`
   font-family: "KG Second Chances", sans-serif;
   width: 100%;
-  padding: 10px;
+  padding: 12px 12px 12px 20px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   border-radius: 4px;
 `;
 
@@ -205,7 +206,7 @@ const ErrorMessage = styled.p`
 const DataContainer = styled.div`
   max-height: 400px;
   overflow: auto;
-  border: 1px solid #ddd;
+  border: 2px solid #ccc;
   padding: 10px;
   border-radius: 4px;
 
@@ -221,7 +222,8 @@ const ResultItemContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+
   margin-bottom: 12px;
   &:hover {
     background-color: #f9f9f9;
@@ -232,6 +234,7 @@ const ResultItem = styled.div`
   padding: 10px;
   border-radius: 4px;
   background-color: "f0f0f0";
+
   cursor: pointer;
 `;
 
@@ -260,7 +263,10 @@ const NoDataMessage = styled.span`
   color: #555;
 `;
 
-const CreateLinkContainer = styled.h3``;
+const CreateLinkContainer = styled.h3`
+  padding-left: 8px;
+  color: gray;
+`;
 
 const CreateLink = styled.span`
   color: #007bff;
