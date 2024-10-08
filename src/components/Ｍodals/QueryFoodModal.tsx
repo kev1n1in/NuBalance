@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import CreateFoodModal from "./CreateFoodModal";
-import Modal from "../Modal";
+import Modal from "./Modal";
 
 type FoodItem = {
   id: string;
@@ -136,7 +136,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
       </ButtonContainer>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal title={"What did you eat?"} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}

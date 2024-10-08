@@ -187,7 +187,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
     <ModalWrapper>
       <AlertMessage />
       <Loader isLoading={isUploading} />
-      <Title>Create Custom Food Entry</Title>
+
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>
           Food Name
