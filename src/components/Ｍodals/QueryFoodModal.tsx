@@ -75,7 +75,6 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
 
   return (
     <Wrapper>
-      <Title>What did you eat?</Title>
       <InputContainer>
         <Input
           type="text"
@@ -106,7 +105,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             </ResultItem>
           ))
         ) : (
-          <p>There is no result</p>
+          <p>{foods.length === 0 ? "" : "There is no result"}</p>
         )}
 
         <NoItemsMessage>
@@ -136,7 +135,7 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
       </ButtonContainer>
 
       {isModalOpen && (
-        <Modal title={"What did you eat?"} onClose={closeModal}>
+        <Modal title={""} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}
@@ -152,10 +151,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 80vh;
-`;
-
-const Title = styled.h1`
-  text-align: center;
+  margin-top: 60px;
 `;
 
 const InputContainer = styled.div`
@@ -181,6 +177,7 @@ const FoodDataContainer = styled.div`
   height: 40vh;
   overflow: auto;
   border: 1px solid black;
+  border-radius: 4px;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -188,7 +185,9 @@ const FoodDataContainer = styled.div`
   scrollbar-width: none;
 `;
 
-const SelectedFoodContainer = styled.div``;
+const SelectedFoodContainer = styled.div`
+  height: auto;
+`;
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -198,8 +197,8 @@ const ButtonContainer = styled.div`
 const ResultItem = styled.div<{ isSelected: boolean }>`
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin: 0 8px;
+  border-bottom: 1px solid #ddd;
   background-color: ${({ isSelected }) => (isSelected ? "#f0f0f0" : "white")};
   cursor: pointer;
   &:hover {
@@ -218,10 +217,11 @@ const FoodInfo = styled.p`
 `;
 
 const SelectResult = styled.div`
-  height: 100px;
+  height: auto;
   margin: 20px 0;
   padding: 8px;
   border: 1px solid black;
+  border-radius: 4px;
 `;
 
 const NoItemsMessage = styled.p`

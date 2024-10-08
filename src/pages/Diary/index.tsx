@@ -7,15 +7,19 @@ import Sidebar from "../../components/Sidebar";
 import BGI from "../../asset/draft.png";
 import Button from "../../components/Button";
 import breakImg from "./mealsImg/breakfast.png";
+import breakSelectImg from "./mealsImg/breakfast_select.png";
 import lunchImg from "./mealsImg/lunch.png";
+import lunchSelectImg from "./mealsImg/lunch_select.png";
 import dinnerImg from "./mealsImg/dinner.png";
+import dinnerSelectImg from "./mealsImg/dinner_select.png";
 import snackImg from "./mealsImg/snack.png";
+import snackSelectImg from "./mealsImg/snack_select.png";
 import aweImg from "./moodsImg/Awe.png";
 import eatingHappyImg from "./moodsImg/Eating_Happy.png";
 import rageImg from "./moodsImg/Rage.png";
 import suspiciousImg from "./moodsImg/Suspicious.png";
 import girlImg from "./girl.png";
-import Modal from "../../components/Modal";
+import Modal from "../../components/Ｍodals/Modal";
 import QueryFoodModal from "../../components/Ｍodals/QueryFoodModal";
 import { useMutation } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
@@ -29,8 +33,8 @@ import tape from "./tape.png";
 import { annotate } from "rough-notation";
 import { useDropzone } from "react-dropzone";
 import polaroid from "./polaroid.png";
-import penImg from "./pen.png";
 import useAlert from "../../hooks/useAlertMessage";
+import delicious from "./moodsImg/delicious.png";
 
 type FoodItem = {
   id: string;
@@ -42,6 +46,7 @@ type MealItem = {
   id: string;
   name: string;
   imgSrc: string;
+  selectImgSrc: string;
 };
 
 type MoodItem = {
@@ -51,10 +56,20 @@ type MoodItem = {
 };
 
 const meals: MealItem[] = [
-  { id: "早餐", name: "breakfast", imgSrc: breakImg },
-  { id: "午餐", name: "lunch", imgSrc: lunchImg },
-  { id: "晚餐", name: "dinner", imgSrc: dinnerImg },
-  { id: "點心", name: "snack", imgSrc: snackImg },
+  {
+    id: "早餐",
+    name: "breakfast",
+    imgSrc: breakImg,
+    selectImgSrc: breakSelectImg,
+  },
+  { id: "午餐", name: "lunch", imgSrc: lunchImg, selectImgSrc: lunchSelectImg },
+  {
+    id: "晚餐",
+    name: "dinner",
+    imgSrc: dinnerImg,
+    selectImgSrc: dinnerSelectImg,
+  },
+  { id: "點心", name: "snack", imgSrc: snackImg, selectImgSrc: snackSelectImg },
 ];
 
 const moods: MoodItem[] = [
@@ -62,6 +77,7 @@ const moods: MoodItem[] = [
   { id: "happy", name: "happy", imgSrc: eatingHappyImg },
   { id: "rage", name: "rage", imgSrc: rageImg },
   { id: "suspicious", name: "suspicious", imgSrc: suspiciousImg },
+  { id: "delicious", name: "delicious", imgSrc: delicious },
 ];
 
 const Diary = () => {
@@ -74,8 +90,9 @@ const Diary = () => {
   const noteRef = useRef<HTMLInputElement>(null);
   const [annotations, setAnnotations] = useState<Array<any>>([]);
   const titleRefs = useRef<Array<HTMLHeadingElement | null>>([]);
-  const [imageFile, setImageFile] = useState<File | null>(null); // 用來存放選中的檔案
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const foodSelectorRef = useRef<HTMLDivElement | null>(null);
   const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -85,23 +102,34 @@ const Diary = () => {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      "image/*": [], // 改成物件型式
+      "image/*": [],
     },
     onDrop: (acceptedFiles) => {
-      const file = acceptedFiles[0]; // 只處理第一個文件
-      setImageFile(file); // 儲存 File 類型
+      const file = acceptedFiles[0];
+      setImageFile(file);
 
       const reader = new FileReader();
       reader.onload = () => {
         console.log("Reader result:", reader.result);
-        setImagePreview(reader.result as string); // Base64 預覽用
+        setImagePreview(reader.result as string);
       };
       if (file) {
-        reader.readAsDataURL(file); // 轉成 Base64 預覽
+        reader.readAsDataURL(file);
       }
     },
   });
-
+  useEffect(() => {
+    if (foodSelectorRef.current) {
+      const annotation = annotate(foodSelectorRef.current, {
+        type: "underline",
+        color: "#f9c74f",
+        strokeWidth: 2,
+        padding: 5,
+        iterations: 2,
+      });
+      annotation.show();
+    }
+  }, []);
   const handleMouseEnter = (index: number) => {
     if (titleRefs.current[index] && !annotations[index]) {
       const newAnnotation = annotate(titleRefs.current[index]!, {
@@ -146,7 +174,6 @@ const Diary = () => {
   };
 
   const mutation = useMutation(
-    //any 要改
     async (newDiaryEntry: any) => {
       if (!auth.currentUser) {
         throw new Error("請先登入");
@@ -224,7 +251,9 @@ const Diary = () => {
             <MealContainer key={meal.id} onClick={() => handleMealClick(meal)}>
               <Meal
                 isSelected={selectedMeal?.id === meal.id}
-                src={meal.imgSrc}
+                src={
+                  selectedMeal?.id === meal.id ? meal.selectImgSrc : meal.imgSrc
+                }
                 alt={meal.name}
               />
               <MealName isSelected={selectedMeal?.id === meal.id}>
@@ -240,25 +269,19 @@ const Diary = () => {
               ref={(el) => (titleRefs.current[0] = el)}
               onMouseEnter={() => handleMouseEnter(0)}
               onMouseLeave={() => handleMouseLeave(0)}
-            >
-              What did you eat?
-            </FoodSelectorTitle>
+            ></FoodSelectorTitle>
             <NutritionContainer>
-              <TapeImg src={tape} />
+              <TapeContainer>
+                {" "}
+                <TapeImg src={tape} />
+                <BoxShadowTape />
+              </TapeContainer>
+
               <Nutrition>
-                <FoodSelector onClick={openModal}>
+                <FoodSelector onClick={openModal} ref={foodSelectorRef}>
                   {selectedFood
                     ? selectedFood.food_name
                     : "Click me to pick a food."}
-                  <PenImg
-                    whileHover={{ scale: 1.2, rotate: 270 }}
-                    whileTap={{
-                      scale: 0.8,
-                      rotate: -90,
-                      borderRadius: "100%",
-                    }}
-                    src={penImg}
-                  />
                 </FoodSelector>
                 {selectedFood &&
                   selectedFood.food_info.map((info, index) => (
@@ -266,6 +289,8 @@ const Diary = () => {
                   ))}
                 <ImageUploadContainer>
                   <Polaroid src={polaroid} />
+                  <BoxShadowFront />
+                  <BoxShadowBack />
                   <UploadBox {...getRootProps()}>
                     <input {...getInputProps()} />
                     {imagePreview ? (
@@ -338,7 +363,7 @@ const Diary = () => {
           <Button label="Save" onClick={handleSubmit} />
         </ButtonContainer>
         {isModalOpen && (
-          <Modal onClose={closeModal}>
+          <Modal title={"What did you eat?"} onClose={closeModal}>
             <QueryFoodModal onAddFood={handleAddFood}></QueryFoodModal>
           </Modal>
         )}
@@ -433,7 +458,7 @@ const FoodSelectorTitle = styled.h2`
 `;
 
 const FoodSelector = styled.div`
-  width: 65%;
+  width: 60%;
   height: auto;
   display: flex;
   position: relative;
@@ -446,27 +471,35 @@ const FoodSelector = styled.div`
     margin: 12px 0;
   }
 `;
-const PenImg = styled(motion.img)`
-  display: flex;
-  width: 24px;
-  margin-left: 8px;
-  position: relative;
-  right: 0;
-`;
+
 const NutritionContainer = styled.div`
   display: flex;
   position: relative;
   width: 100%;
   height: 330px;
 `;
-const TapeImg = styled.img`
+const TapeContainer = styled.div`
   position: absolute;
   top: -20px;
   left: 50%;
+  width: 150px;
+  z-index: 1;
+`;
+const TapeImg = styled.img`
   transform: translateX(-50%);
   width: 150px;
   height: auto;
-  z-index: 1;
+`;
+const BoxShadowTape = styled.div`
+  display: flex;
+  position: absolute;
+  width: 120px;
+  height: 15px;
+  top: 22px;
+  right: 95px;
+  transform: rotate(0deg);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
+  z-index: -1;
 `;
 const Nutrition = styled.div`
   display: flex;
@@ -475,8 +508,8 @@ const Nutrition = styled.div`
   justify-content: left;
   width: 100%;
   padding: 36px 36px;
-  border: 1px solid #ccc;
-  background-color: #ffc;
+  border: 2px solid #ccc;
+  background-color: white;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
   font-size: 24px;
 `;
@@ -532,6 +565,28 @@ const Polaroid = styled.img`
   transform: rotate(-10deg);
   z-index: 2;
   pointer-events: none;
+`;
+const BoxShadowFront = styled.div`
+  display: flex;
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  top: 20px;
+  left: -8px;
+  transform: rotate(0deg);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
+  z-index: -1;
+`;
+const BoxShadowBack = styled.div`
+  display: flex;
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  top: 24px;
+  left: 12px;
+  transform: rotate(-11deg);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
+  z-index: -1;
 `;
 
 const UploadBox = styled.div`

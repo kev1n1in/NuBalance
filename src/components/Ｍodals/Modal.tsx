@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import CloseImg from "../../asset/close.png";
+import { c } from "vite/dist/node/types.d-aGj9QkWt";
 
 interface ModalProps {
   title: string;
@@ -13,8 +14,12 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
   return ReactDOM.createPortal(
     <Wrapper onClick={onClose}>
       <Content onClick={(e) => e.stopPropagation()}>
-        <Title>{title}</Title>
-        <CloseButton src={CloseImg} onClick={onClose} />
+        <Header>
+          <HeaderContainer>
+            <Title>{title}</Title>
+            <CloseButton src={CloseImg} onClick={onClose} />
+          </HeaderContainer>
+        </Header>
         {children} {/* 顯示傳入的內容 */}
       </Content>
     </Wrapper>,
@@ -49,16 +54,26 @@ const Content = styled.div`
     display: none;
   }
 `;
-const Header = styled.div``;
+const Header = styled.div`
+  position: fixed;
+  width: 728px;
+  padding: 0 20px;
+`;
+const HeaderContainer = styled.div`
+  position: relative;
+`;
 const Title = styled.h1`
   text-align: center;
 `;
 const CloseButton = styled.img`
+  display: flex;
   position: absolute;
   width: 24px;
   height: 24px;
-  top: 10px;
-  right: 10px;
+  top: 50%;
+  right: 40px;
+  z-index: 1001;
+  transform: translateY(-50%);
   cursor: pointer;
 `;
 

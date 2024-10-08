@@ -16,7 +16,7 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import trashImg from "./trash.png";
 import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
-import Modal from "../../components/Modal";
+import Modal from "../../components/Ｍodals/Modal";
 import BGI from "../../asset/draft.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
@@ -314,7 +314,7 @@ const UserInfo = () => {
           <MealSection title="Snack" entries={meals.snack} />
         </DiaryList>
         {isModalOpen && selectedEntryId && (
-          <Modal onClose={closeModal}>
+          <Modal title={"Today I ate"} onClose={closeModal}>
             <DiaryFoodModal onClose={closeModal} entryId={selectedEntryId} />
           </Modal>
         )}

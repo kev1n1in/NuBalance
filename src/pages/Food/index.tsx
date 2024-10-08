@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
-import Modal from "../../components/Modal";
+import Modal from "../../components/Ｍodals/Modal";
 import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
 import { useFoodStore } from "../../stores/foodStore";
 import { useNavigate } from "react-router-dom";
@@ -93,7 +93,6 @@ const Food: React.FC = () => {
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>Food Database</Title>
         <Input
           type="text"
           placeholder="Search for food..."
@@ -147,7 +146,7 @@ const Food: React.FC = () => {
       </Container>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal title={"Create Custom Food Entry"} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}

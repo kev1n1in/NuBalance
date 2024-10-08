@@ -9,6 +9,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Loader from "../Loader";
 import RequiredMark from "../RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
+import { useDropzone } from "react-dropzone"; // 新增這一行
 
 interface FormValues {
   foodInfo: string[];
@@ -52,6 +53,19 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
     },
   });
 
+  // 使用 dropzone 處理圖片上傳
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop: async (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setPreviewImage(URL.createObjectURL(file)); // 設置圖片預覽
+        const downloadUrl = await handleImageUpload(file); // 上傳圖片並獲取 URL
+        await processImageForText(downloadUrl); // 執行文字辨識
+      }
+    },
+  });
+
   const handleImageUpload = (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const storageRef = ref(storage, `foodImages/${file.name}`);
@@ -75,7 +89,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           getDownloadURL(uploadTask.snapshot.ref)
             .then((downloadURL) => {
               console.log("圖片上傳成功，圖片URL: ", downloadURL);
-              setImageUrl(downloadURL);
+              setImageUrl(downloadURL); // 設置圖片 URL
               setPreviewImage(URL.createObjectURL(file)); // 設置圖片預覽
               setIsUploading(false);
               resolve(downloadURL);
@@ -132,20 +146,8 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
     }
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-      const downloadUrl = await handleImageUpload(file);
-      await processImageForText(downloadUrl);
-    }
-  };
-
   const mutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      if (!imageUrl) {
-        throw new Error("圖片上傳尚未完成");
-      }
       return await addFoodItem(
         {
           food_name: data.foodName,
@@ -154,7 +156,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           carbohydrates: data.carbohydrates,
           protein: data.protein,
           fat: data.fat,
-          imageUrl,
+          imageUrl, // 如果有圖片URL，包含它
         },
         auth
       );
@@ -187,7 +189,6 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
     <ModalWrapper>
       <AlertMessage />
       <Loader isLoading={isUploading} />
-
       <Form onSubmit={handleSubmit(onSubmit)}>
         <InputTitle>
           Food Name
@@ -201,104 +202,126 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           <ErrorMessage>{errors.foodName.message}</ErrorMessage>
         )}
 
-        <InputTitle>
-          Calories
-          <RequiredMark />
-        </InputTitle>
-        <Input
-          type="number"
-          step="any"
-          {...register("calories", {
-            required: "熱量是必填的",
-            valueAsNumber: true,
-          })}
-        />
-        {errors.calories && (
-          <ErrorMessage>{errors.calories.message}</ErrorMessage>
-        )}
+        <NutrientsContainer>
+          <InputContainer>
+            <InputTitle>
+              Calories
+              <RequiredMark />
+            </InputTitle>
+            <Input
+              type="number"
+              step="any"
+              {...register("calories", {
+                required: "熱量是必填的",
+                valueAsNumber: true,
+              })}
+            />
+            {errors.calories && (
+              <ErrorMessage>{errors.calories.message}</ErrorMessage>
+            )}
+          </InputContainer>
+          <InputContainer>
+            <InputTitle>
+              Carbohydrates
+              <RequiredMark />
+            </InputTitle>
+            <Input
+              type="number"
+              step="any"
+              {...register("carbohydrates", {
+                required: "碳水是必填的",
+                valueAsNumber: true,
+              })}
+            />
+            {errors.carbohydrates && (
+              <ErrorMessage>{errors.carbohydrates.message}</ErrorMessage>
+            )}
+          </InputContainer>
+          <InputContainer>
+            <InputTitle>
+              Protein
+              <RequiredMark />
+            </InputTitle>
+            <Input
+              type="number"
+              step="any"
+              {...register("protein", {
+                required: "蛋白質是必填的",
+                valueAsNumber: true,
+              })}
+            />
+            {errors.protein && (
+              <ErrorMessage>{errors.protein.message}</ErrorMessage>
+            )}
+          </InputContainer>
+          <InputContainer>
+            <InputTitle>
+              Fat
+              <RequiredMark />
+            </InputTitle>
+            <Input
+              type="number"
+              step="any"
+              {...register("fat", {
+                required: "脂肪是必填的",
+                valueAsNumber: true,
+              })}
+            />
+            {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
+          </InputContainer>
+        </NutrientsContainer>
 
-        <InputTitle>
-          Carbohydrates
-          <RequiredMark />
-        </InputTitle>
-        <Input
-          type="number"
-          step="any"
-          {...register("carbohydrates", {
-            required: "碳水是必填的",
-            valueAsNumber: true,
-          })}
-        />
-        {errors.carbohydrates && (
-          <ErrorMessage>{errors.carbohydrates.message}</ErrorMessage>
-        )}
-
-        <InputTitle>
-          Protein
-          <RequiredMark />
-        </InputTitle>
-        <Input
-          type="number"
-          step="any"
-          {...register("protein", {
-            required: "蛋白質是必填的",
-            valueAsNumber: true,
-          })}
-        />
-        {errors.protein && (
-          <ErrorMessage>{errors.protein.message}</ErrorMessage>
-        )}
-
-        <InputTitle>
-          Fat
-          <RequiredMark />
-        </InputTitle>
-        <Input
-          type="number"
-          step="any"
-          {...register("fat", {
-            required: "脂肪是必填的",
-            valueAsNumber: true,
-          })}
-        />
-        {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
         <Split />
         <InputTitle>Or Scan Nutrition Label</InputTitle>
-        <Input type="file" onChange={handleImageChange} />
 
-        {previewImage && <img src={previewImage} alt="圖片預覽" width="200" />}
+        {/* Dropzone component */}
+        <DropzoneContainer {...getRootProps()}>
+          <input {...getInputProps()} />
+          {previewImage ? (
+            <PreviewImage
+              src={previewImage}
+              alt="圖片預覽"
+              height="155px"
+              width="155"
+            />
+          ) : (
+            <DropMessage>+</DropMessage>
+          )}
+        </DropzoneContainer>
+
         <ButtonContainer>
-          <Button
-            strokeColor="gray"
-            label="Save"
-            disabled={isUploading || !imageUrl}
-          />
+          <Button strokeColor="gray" label="Save" />
         </ButtonContainer>
       </Form>
     </ModalWrapper>
   );
 };
 
-const ModalWrapper = styled.div``;
-
-const Title = styled.h1`
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 24px;
+// Styled components
+const ModalWrapper = styled.div`
+  margin-top: 60px;
 `;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  margin-top: 24px;
+`;
+
+const NutrientsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 `;
 
 const InputTitle = styled.div`
+  margin-bottom: 12px;
   font-weight: 700;
 `;
-
+const InputContainer = styled.div``;
 const Input = styled.input`
   font-family: "KG Second Chances", sans-serif;
   margin: 6px 0;
+  width: 100%;
 `;
 
 const ErrorMessage = styled.p`
@@ -311,6 +334,7 @@ const ButtonContainer = styled.div`
   justify-content: end;
   margin-top: 12px;
 `;
+
 const Split = styled.div`
   width: 100%;
   height: 1px;
@@ -318,4 +342,25 @@ const Split = styled.div`
   margin: 24px auto;
 `;
 
+const DropzoneContainer = styled.div`
+  width: 155px;
+  height: 155px;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: #f9f9f9;
+`;
+
+const DropMessage = styled.p`
+  color: #777;
+`;
+
+const PreviewImage = styled.img`
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+`;
 export default CreateFoodModal;

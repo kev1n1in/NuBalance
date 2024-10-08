@@ -323,7 +323,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
         </NoteContainer>
 
         {isModalOpen && (
-          <Modal title={"Today I ate"} onClose={closeModal}>
+          <Modal title={""} onClose={closeModal}>
             <QueryFoodModal
               onAddFood={(food) => {
                 setSelectedFood(food);
