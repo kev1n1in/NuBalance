@@ -79,10 +79,10 @@ export const addFoodItem = async (
     const docRef = await addDoc(foodsCol, {
       food_name: food.food_name,
       food_info: [
-        `熱量 ${food.calories} 大卡`,
-        `碳水化合物 ${food.carbohydrates} 公克`,
-        `蛋白質 ${food.protein} 公克`,
-        `脂肪 ${food.fat} 公克`,
+        `Calories ${food.calories} Cal`,
+        `Carbohydrate ${food.carbohydrates} g`,
+        `Protein ${food.protein} g`,
+        `Fat ${food.fat} g`,
       ],
       uid: uid,
       createdAt: serverTimestamp(),
@@ -279,7 +279,7 @@ export const updateTDEEHistory = async (
 export const getUserHistory = async (
   user: User,
   returnLatest: boolean = false,
-  targetDate?: Date
+  targetDate?: Date // 保持第三個參數
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -301,27 +301,38 @@ export const getUserHistory = async (
 
   let filteredHistory = userData.history;
 
+  // 排序歷史紀錄
   const sortedHistory = filteredHistory.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
 
+  // 返回最新的歷史紀錄
   if (returnLatest) {
-    return sortedHistory.length > 0 ? [sortedHistory[0]] : [];
+    const latestEntry = sortedHistory.length > 0 ? sortedHistory[0] : null;
+
+    if (latestEntry && latestEntry.tdee) {
+      return {
+        tdee: latestEntry.tdee,
+        bmi: latestEntry.bmi,
+        bodyFat: latestEntry.bodyFat,
+      };
+    }
+    return { tdee: 1800, bmi: 0, bodyFat: 0 }; // 增加預設返回值
   }
 
+  // 根據指定日期篩選紀錄
   if (targetDate) {
-    // 創建新的日期對象並加1天
     const nextDay = new Date(targetDate);
-    nextDay.setDate(nextDay.getDate() + 1); // 將日期加1天
+    nextDay.setDate(nextDay.getDate() + 1);
 
     const targetTimestamp = nextDay.getTime() / 1000;
 
     filteredHistory = sortedHistory
       .filter((item: any) => {
         const updateTime = item.clientUpdateTime.seconds;
-        return updateTime <= targetTimestamp; // 使用加1天的時間戳
+        return updateTime <= targetTimestamp;
       })
-      .slice(0, 7); // 取前7筆紀錄
+      .slice(0, 7);
   }
 
   return filteredHistory.length > 0 ? filteredHistory : [];
