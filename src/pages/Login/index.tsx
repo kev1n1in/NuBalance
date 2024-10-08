@@ -2,7 +2,6 @@ import { useState, useEffect, MouseEvent } from "react";
 import {
   signInWithGoogle,
   signInWithEmail,
-  signOutUser,
   signUpWithEmail,
 } from "../../firebase/firebaseAuth";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -14,7 +13,6 @@ import styled from "styled-components";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import Button from "../../components/Button";
 import { updateUserProfile } from "../../firebase/firebaseServices";
-import WomenImg from "./womenSit.png";
 import BGI from "../../asset/draft.png";
 import emailIcon from "./email.png";
 import passwordIcon from "./password.png";
@@ -24,6 +22,7 @@ import Overlay from "../../components/Overlay";
 import Sidebar from "../../components/Sidebar";
 import RequiredMark from "../../components/RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
+import StickerWrapper from "../../components/LoginWrapper/Wrapper";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -76,7 +75,9 @@ const Login = () => {
         Cookies.set("isLoggedIn", "true", { expires: 7 });
         setIsLoggedIn(true);
         addAlert("登入成功！！");
-        navigate("/userInfo");
+        setTimeout(() => {
+          navigate("/userInfo");
+        }, 1000);
       } else {
         addAlert("User is not logged in. Please log in first.");
       }
@@ -91,33 +92,6 @@ const Login = () => {
       setter(e.target.value);
       removeMessage();
     };
-
-  const handleGoogleLogin = async (
-    event: Event,
-    response: CredentialResponse
-  ) => {
-    event.preventDefault();
-    if (response?.credential) {
-      try {
-        const userCredential = await signInWithGoogle(response.credential);
-
-        const googleUser = userCredential.user;
-
-        Cookies.set("username", googleUser.displayName || "Google User", {
-          expires: 7,
-        });
-        Cookies.set("isLoggedIn", "true", { expires: 7 });
-        setIsLoggedIn(true);
-
-        navigate("/userInfo");
-      } catch (error) {
-        addAlert("Google login failed.");
-        console.error("Firebase login failed:", error);
-      }
-    } else {
-      addAlert("Login Failed.");
-    }
-  };
 
   const handleSignUp = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -181,8 +155,8 @@ const Login = () => {
       )}
       <GoogleOAuthProvider clientId={clientId}>
         <Wrapper>
-          <Container>
-            <Img src={WomenImg} />
+          <StickerWrapper />
+          <LoginWrapper>
             {!isLoggedIn && (
               <LoginContainer>
                 <Form>
@@ -265,7 +239,7 @@ const Login = () => {
                 </Form>
               </LoginContainer>
             )}
-          </Container>
+          </LoginWrapper>
         </Wrapper>
       </GoogleOAuthProvider>
     </>
@@ -275,10 +249,10 @@ const Login = () => {
 const Wrapper = styled.div`
   display: flex;
   background-image: url(${BGI});
-  justify-content: end;
-  align-items: center;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  position: relative; // 確保父容器是相對定位
+  overflow: hidden;
 `;
 const Title = styled.h1`
   position: absolute;
@@ -287,25 +261,17 @@ const Title = styled.h1`
   font-size: 64px;
 `;
 
-const Container = styled.div`
+const LoginWrapper = styled.div`
   display: flex;
+  right: 0;
   height: 100vh;
-  width: 650px;
+  width: 670px;
+
   overflow: hidden;
 
   @media (max-width: 768px) {
     margin-top: 47px;
   }
-`;
-const Img = styled.img`
-  position: absolute;
-  left: 64px;
-  top: 0px;
-  height: 40%;
-  /* @media (max-width: 768px) {
-    top: 100px;
-    height: 300px;
-  } */
 `;
 
 const LoginContainer = styled.div`
@@ -328,7 +294,7 @@ const UsernameContainer = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 150px;
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
-  width: 380px;
+  width: 362px;
 `;
 const Input = styled.input`
   margin-bottom: 10px;
@@ -350,12 +316,7 @@ const Input = styled.input`
   }
 `;
 const InputTitle = styled.div``;
-const RequiredStar = styled.span`
-  position: relative;
-  bottom: 4px;
-  color: red;
-  margin-left: 4px;
-`;
+
 const InputContainer = styled.div`
   position: relative;
   margin: 12px 0;
@@ -368,7 +329,7 @@ const InputIcon = styled.img`
 const EmailLoginContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 80%;
   height: 100%;
   margin: 0 auto;
 `;

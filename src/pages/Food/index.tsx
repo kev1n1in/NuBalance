@@ -93,6 +93,7 @@ const Food: React.FC = () => {
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
+        <Title>Food Data Base </Title>
         <Input
           type="text"
           placeholder="Search for food..."

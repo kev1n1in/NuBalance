@@ -9,6 +9,8 @@ interface ButtonProps {
   disabled?: boolean;
   color?: string;
   backgroundColor?: string;
+  strokeColor?: string;
+  justifyContent?: "flex-start" | "center" | "flex-end";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -17,7 +19,9 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   margin,
   color = "black",
+  strokeColor = "white",
   backgroundColor = "#fff",
+  justifyContent = "center",
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -36,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
 
       rc.rectangle(5, 5, canvas.width - 10, canvas.height - 10, {
         roughness: 2,
-        stroke: "white",
+        stroke: strokeColor,
         strokeWidth: 2,
         bowing: 1.5,
       });
@@ -50,6 +54,7 @@ const Button: React.FC<ButtonProps> = ({
         disabled={disabled}
         onClick={onClick}
         backgroundColor={backgroundColor}
+        justifyContent={justifyContent}
       >
         <canvas ref={canvasRef}></canvas>
         <Label color={color}>{label}</Label>
@@ -64,7 +69,10 @@ const ButtonWrapper = styled.div<{ margin?: string }>`
   margin: ${(props) => props.margin || "0"};
 `;
 
-const StyledButton = styled.button<{ backgroundColor?: string }>`
+const StyledButton = styled.button<{
+  backgroundColor?: string;
+  justifyContent?: string;
+}>`
   position: relative;
   background: ${(props) => props.backgroundColor};
   border: none;
@@ -72,17 +80,13 @@ const StyledButton = styled.button<{ backgroundColor?: string }>`
   cursor: pointer;
   outline: none;
   display: flex;
-  justify-content: center;
+  justify-content: ${(props) => props.justifyContent};
   align-items: center;
   width: 100%;
   height: 60px;
   font-size: 16px;
   text-align: center;
   transition: background-color 0.3s ease;
-
-  &:hover canvas {
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
-  }
 
   canvas {
     position: absolute;
@@ -100,6 +104,10 @@ const Label = styled.span<{ color?: string }>`
   font-size: 16px;
   font-weight: bold;
   color: ${(props) => props.color};
+  transition: 0.3s;
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 
 export default Button;

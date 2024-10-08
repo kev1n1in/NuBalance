@@ -114,15 +114,15 @@ const CardsContainer = styled.div`
 const TextWrapper = styled.div`
   position: relative;
   text-align: center;
+  margin-top: 200px;
   z-index: -1;
 `;
 
 const Title = styled.div`
-  font-size: 200px;
-  height: 200px;
+  font-size: 250px;
+  height: 250px;
   line-height: 200px;
   margin: auto;
-  font-family: "Georgia", serif;
   color: rgba(0, 0, 0, 0.1);
 `;
 
@@ -144,6 +144,7 @@ const Card = styled.div`
   transform: rotateY(180deg); // 初始狀態為翻轉過去的
 `;
 const CardContainer = styled.div`
+  cursor: pointer;
   perspective: 1000px; // 添加視角，讓 3D 效果更明顯
   &:hover ${Card} {
     transform: rotateY(0deg); // hover 到外部容器時觸發卡片翻轉

@@ -147,6 +147,7 @@ const NavBar = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 36px;
   @media (max-width: 1000px) {
     margin-top: 48px;
   }
@@ -155,11 +156,13 @@ const ItemContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 120px;
 `;
 const Item = styled.div`
   cursor: pointer;
   padding: 8px 16px;
   color: white;
+  font-size: 20px;
   margin-top: 24px;
 `;
 

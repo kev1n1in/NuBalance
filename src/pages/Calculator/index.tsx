@@ -20,6 +20,7 @@ import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
 import pointer from "./pointer.png";
+import { log } from "console";
 
 const Calculator = () => {
   const [userData, setUserData] = useState({
@@ -83,6 +84,7 @@ const Calculator = () => {
         throw new Error("用戶未登入");
       }
       const latestHistory = await getUserHistory(currentUser, true);
+      console.log("最新歷史物件", latestHistory);
       return latestHistory;
     },
     {
@@ -130,7 +132,7 @@ const Calculator = () => {
     },
     {
       onSuccess: () => {
-        addAlert("保存成功");
+        addAlert("Saved successfully");
 
         setTimeout(() => {
           if (location.state?.fromSidebar) {

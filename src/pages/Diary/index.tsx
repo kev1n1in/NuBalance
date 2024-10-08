@@ -14,11 +14,13 @@ import dinnerImg from "./mealsImg/dinner.png";
 import dinnerSelectImg from "./mealsImg/dinner_select.png";
 import snackImg from "./mealsImg/snack.png";
 import snackSelectImg from "./mealsImg/snack_select.png";
-import aweImg from "./moodsImg/Awe.png";
-import eatingHappyImg from "./moodsImg/Eating_Happy.png";
-import rageImg from "./moodsImg/Rage.png";
-import suspiciousImg from "./moodsImg/Suspicious.png";
-import girlImg from "./girl.png";
+import aweImg from "../../asset/moodsImg/Awe.png";
+import eatingHappyImg from "../../asset/moodsImg/Eating_Happy.png";
+import rageImg from "../../asset/moodsImg/Rage.png";
+import suspiciousImg from "../../asset/moodsImg/Suspicious.png";
+import fearImg from "../../asset/moodsImg/angry.png";
+import lovingImg from "../../asset/moodsImg/loving.png";
+import angryImg from "../../asset/moodsImg/angry.png";
 import Modal from "../../components/Ｍodals/Modal";
 import QueryFoodModal from "../../components/Ｍodals/QueryFoodModal";
 import { useMutation } from "react-query";
@@ -34,7 +36,6 @@ import { annotate } from "rough-notation";
 import { useDropzone } from "react-dropzone";
 import polaroid from "./polaroid.png";
 import useAlert from "../../hooks/useAlertMessage";
-import delicious from "./moodsImg/delicious.png";
 
 type FoodItem = {
   id: string;
@@ -73,11 +74,13 @@ const meals: MealItem[] = [
 ];
 
 const moods: MoodItem[] = [
-  { id: "awe", name: "awe", imgSrc: aweImg },
-  { id: "happy", name: "happy", imgSrc: eatingHappyImg },
-  { id: "rage", name: "rage", imgSrc: rageImg },
-  { id: "suspicious", name: "suspicious", imgSrc: suspiciousImg },
-  { id: "delicious", name: "delicious", imgSrc: delicious },
+  { id: "awe", name: "驚訝", imgSrc: aweImg },
+  { id: "happy", name: "開心", imgSrc: eatingHappyImg },
+  { id: "rage", name: "憤怒", imgSrc: rageImg },
+  { id: "suspicious", name: "懷疑", imgSrc: suspiciousImg },
+  { id: "fear", name: "恐懼", imgSrc: fearImg },
+  { id: "love", name: "好愛", imgSrc: lovingImg },
+  { id: "angry", name: "生氣", imgSrc: angryImg },
 ];
 
 const Diary = () => {
@@ -93,6 +96,8 @@ const Diary = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [inputValue, setInputValue] = useState<string>("");
   const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -130,6 +135,14 @@ const Diary = () => {
       annotation.show();
     }
   }, []);
+
+  useEffect(() => {
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      // 根據 scrollWidth 動態設置 input 的寬度
+      inputElement.style.width = `${inputElement.scrollWidth}px`;
+    }
+  }, [inputValue]); // 當 inputValue 改變時重新計算寬度
   const handleMouseEnter = (index: number) => {
     if (titleRefs.current[index] && !annotations[index]) {
       const newAnnotation = annotate(titleRefs.current[index]!, {
@@ -269,24 +282,27 @@ const Diary = () => {
               ref={(el) => (titleRefs.current[0] = el)}
               onMouseEnter={() => handleMouseEnter(0)}
               onMouseLeave={() => handleMouseLeave(0)}
-            ></FoodSelectorTitle>
+            >
+              Food Selector
+            </FoodSelectorTitle>
             <NutritionContainer>
               <TapeContainer>
-                {" "}
                 <TapeImg src={tape} />
                 <BoxShadowTape />
               </TapeContainer>
 
               <Nutrition>
-                <FoodSelector onClick={openModal} ref={foodSelectorRef}>
-                  {selectedFood
-                    ? selectedFood.food_name
-                    : "Click me to pick a food."}
-                </FoodSelector>
-                {selectedFood &&
-                  selectedFood.food_info.map((info, index) => (
-                    <div key={index}>{info}</div>
-                  ))}
+                <FoodSelectorContainer>
+                  <FoodSelector onClick={openModal} ref={foodSelectorRef}>
+                    {selectedFood
+                      ? selectedFood.food_name
+                      : "Click me to pick a food."}
+                  </FoodSelector>
+                  {selectedFood &&
+                    selectedFood.food_info.map((info, index) => (
+                      <div key={index}>{info}</div>
+                    ))}
+                </FoodSelectorContainer>
                 <ImageUploadContainer>
                   <Polaroid src={polaroid} />
                   <BoxShadowFront />
@@ -353,14 +369,13 @@ const Diary = () => {
               onMouseEnter={() => handleMouseEnter(3)}
               onMouseLeave={() => handleMouseLeave(3)}
             >
-              Note{" "}
+              Note
             </NoteTitle>
-            <NoteImg src={girlImg}></NoteImg>
             <NoteInput ref={noteRef} />
           </NoteContainer>
         </NoteAndMoodContainer>
         <ButtonContainer>
-          <Button label="Save" onClick={handleSubmit} />
+          <Button strokeColor="gray" label="Save" onClick={handleSubmit} />
         </ButtonContainer>
         {isModalOpen && (
           <Modal title={"What did you eat?"} onClose={closeModal}>
@@ -451,14 +466,18 @@ const FoodPickerContainer = styled.div`
 
   margin-right: 48px;
 `;
-
+const FoodSelectorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+`;
 const FoodSelectorTitle = styled.h2`
   width: 250px;
   margin: 24px 0;
 `;
 
 const FoodSelector = styled.div`
-  width: 60%;
+  width: auto;
   height: auto;
   display: flex;
   position: relative;
@@ -645,7 +664,7 @@ const Mood = styled.img`
 `;
 const NoteContainer = styled.div`
   width: 50%;
-  margin: 24px 10px 0 10px;
+  margin: 24px 10px 0 20px;
 `;
 const NoteTitle = styled.h2`
   width: 80px;
@@ -667,7 +686,8 @@ const NoteInput = styled.input`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: end;
+  width: 90%;
+  margin: 0 auto;
 `;
 
 const PreviewImage = styled.img`

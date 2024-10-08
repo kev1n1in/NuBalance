@@ -160,7 +160,10 @@ const Report: React.FC = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Report</Title>
+
+        {/* 體重圖表 */}
         <BarChartContainer
+          isActive={activeTab === "Weight"}
           style={{ display: activeTab === "Weight" ? "block" : "none" }}
         >
           <ChartHeaderContainer>
@@ -188,7 +191,10 @@ const Report: React.FC = () => {
             <p>沒有體重變化的歷史資料</p>
           )}
         </BarChartContainer>
+
+        {/* 營養素圖表 */}
         <PieChartContainer
+          isActive={activeTab === "Weight"}
           style={{ display: activeTab === "Nutrients" ? "block" : "none" }}
         >
           <PieFolderTab onClick={() => setActiveTab("Weight")}>
@@ -220,6 +226,7 @@ const Report: React.FC = () => {
 const Wrapper = styled.div`
   display: flex;
   background-color: #f0f0f0;
+  height: 100vh;
   margin: 0 0 0 150px;
   @media (max-width: 1000px) {
     margin: 0;
@@ -230,7 +237,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 80%;
-
   margin: 0 auto;
   z-index: 0;
 `;
@@ -238,11 +244,10 @@ const ChartHeaderContainer = styled.div`
   display: flex;
 `;
 
-const BarChartContainer = styled.div`
+const BarChartContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   margin: 24px 0;
   padding: 12px;
-
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 4px;
@@ -250,50 +255,52 @@ const BarChartContainer = styled.div`
   &:after {
     content: "";
     position: absolute;
-    top: -5px; /* 偽元素的位置 */
-    left: 16px; /* 距離左邊的距離 */
-    width: 200px; /* 標籤的寬度 */
-    height: 20px; /* 標籤的高度 */
-    background-color: #fff; /* 標籤的顏色 */
+    top: -5px;
+    left: 16px;
+    width: 200px;
+    height: 20px;
+    background-color: #fff;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    z-index: 1; /* 確保偽元素在容器上方 */
+    z-index: 1;
   }
   &:before {
     content: "Weight";
     position: absolute;
-    top: -40px; /* 偽元素的位置 */
-    left: 16px; /* 距離左邊的距離 */
-    width: 200px; /* 標籤的寬度 */
-    height: 60px; /* 標籤的高度 */
+    top: -40px;
+    left: 16px;
+    width: 200px;
+    height: 60px;
     font-size: 24px;
     text-align: center;
     padding-right: 4px;
-    background-color: #fff; /* 標籤的顏色 */
+    background-color: #fff;
     border: 1px solid black;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    z-index: -1; /* 確保偽元素在容器上方 */
+    z-index: -1;
+    color: ${({ isActive }) => (isActive ? "#a23419" : "gray")};
   }
 `;
 const BarFolderTab = styled.div`
   display: flex;
   position: absolute;
-  top: -40px; /* 偽元素的位置 */
-  left: 220px; /* 距離左邊的距離 */
-  width: 200px; /* 標籤的寬度 */
-  height: 60px; /* 標籤的高度 */
+  top: -40px;
+  left: 220px;
+  width: 200px;
+  height: 60px;
   font-size: 24px;
   justify-content: center;
   padding-right: 4px;
-  background-color: #fff; /* 標籤的顏色 */
+  background-color: #fff;
   border: 1px solid black;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  z-index: -2; /* 確保偽元素在容器上方 */
+  z-index: -2;
   cursor: pointer;
 `;
-const PieChartContainer = styled.div`
+
+const PieChartContainer = styled.div<{ isActive: boolean }>`
   position: relative;
   margin: 24px 0;
   padding: 12px;
@@ -304,49 +311,52 @@ const PieChartContainer = styled.div`
   &:after {
     content: "";
     position: absolute;
-    top: -5px; /* 偽元素的位置 */
-    left: 220px; /* 距離左邊的距離 */
-    width: 200px; /* 標籤的寬度 */
-    height: 20px; /* 標籤的高度 */
-    background-color: #fff; /* 標籤的顏色 */
+    top: -5px;
+    left: 220px;
+    width: 200px;
+    height: 20px;
+    background-color: #fff;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    z-index: 1; /* 確保偽元素在容器上方 */
+    z-index: 1;
   }
   &:before {
     content: "Nutrients";
     position: absolute;
-    top: -40px; /* 偽元素的位置 */
-    left: 220px; /* 距離左邊的距離 */
-    width: 200px; /* 標籤的寬度 */
-    height: 60px; /* 標籤的高度 */
+    top: -40px;
+    left: 220px;
+    width: 200px;
+    height: 60px;
     font-size: 24px;
     text-align: center;
     padding-right: 4px;
-    background-color: #fff; /* 標籤的顏色 */
+    background-color: #fff;
     border: 1px solid black;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    z-index: -1; /* 確保偽元素在容器上方 */
+    z-index: -1;
+    color: ${({ isActive }) => (isActive ? "gray" : "#a23419")};
   }
 `;
+
 const PieFolderTab = styled.div`
   display: flex;
   position: absolute;
-  top: -40px; /* 偽元素的位置 */
-  left: 16px; /* 距離左邊的距離 */
-  width: 200px; /* 標籤的寬度 */
-  height: 60px; /* 標籤的高度 */
+  top: -40px;
+  left: 16px;
+  width: 200px;
+  height: 60px;
   font-size: 24px;
   justify-content: center;
   padding-right: 4px;
-  background-color: #fff; /* 標籤的顏色 */
+  background-color: #fff;
   border: 1px solid black;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  z-index: -2; /* 確保偽元素在容器上方 */
+  z-index: -2;
   cursor: pointer;
 `;
+
 const CenteredChartContainer = styled.div`
   display: flex;
   justify-content: center;

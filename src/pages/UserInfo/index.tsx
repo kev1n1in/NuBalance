@@ -1,7 +1,6 @@
 import Sidebar from "../../components/Sidebar";
 import styled from "styled-components";
 import Button from "../../components/Button";
-import { Line } from "rc-progress";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
@@ -26,6 +25,8 @@ import createImg from "./create.png";
 import searchImg from "./search.png";
 import report from "./report.png";
 import useConfirmDialog from "../../hooks/useConfirmDialog";
+import HandDrawnProgress from "../../components/HandDrawnProgress";
+import triangleIndicator from "./triangleIndicator.png";
 
 interface DiaryEntry {
   id: string;
@@ -59,19 +60,13 @@ const UserInfo = () => {
     if (!currentUser) {
       throw new Error("用戶未登入");
     }
-
-    // 獲取完整的歷史紀錄物件
     const latestHistory = await getUserHistory(currentUser, true);
+    const tdee = latestHistory?.tdee || 1800;
+    const bmi = latestHistory?.bmi || 0;
+    const bodyFat = latestHistory?.bodyFat || 0;
 
-    // 從 latestHistory 中提取所需的數據
-    const tdee = latestHistory?.tdee || 1800; // 預設值 1800
-    const bmi = latestHistory?.bmi || 0; // 預設值 0
-    const bodyFat = latestHistory?.bodyFat || 0; // 預設值 0
-
-    // 打印出來檢查
     console.log("最新歷史紀錄:", latestHistory);
 
-    // 返回提取的數據
     return { tdee, bmi, bodyFat };
   });
 
@@ -143,6 +138,7 @@ const UserInfo = () => {
     <MealSectionContainer>
       <Loader isLoading={isLoadingTDEE || isLoadingDiary} />
       <DiaryTitle>{title}</DiaryTitle>
+
       {entries.length > 0 ? (
         entries.map((entry) => (
           <DiaryItem key={entry.id} onClick={() => handleEdit(entry.id)}>
@@ -264,14 +260,7 @@ const UserInfo = () => {
                 <TodayTargetWrapper>
                   <TodayTargetContainer>
                     <TargetProgressContainer>
-                      <Line
-                        percent={Math.max(0, Math.min(percentage, 100))}
-                        strokeWidth={4}
-                        strokeColor={todayNutrition > 0 ? "green" : "gray"}
-                        trailWidth={10}
-                        trailColor="#d3d3d3"
-                        strokeLinecap="butt"
-                      />
+                      <HandDrawnProgress percentage={percentage} />
                       <IndicatorWrapper
                         style={{
                           left: `${Math.max(0, Math.min(percentage, 100))}%`,
@@ -280,7 +269,7 @@ const UserInfo = () => {
                         <Progress>
                           {todayNutrition ? todayNutrition.toFixed(0) : 0} Cal
                         </Progress>
-                        <TriangleIndicator />
+                        <TriangleIndicator src={triangleIndicator} />
                       </IndicatorWrapper>
                       <ProgressNumbers>
                         <span>0</span>
@@ -507,7 +496,7 @@ const RemainCalories = styled.div`
 const TodayTargetContainer = styled.div`
   position: relative;
   display: flex;
-  width: auto;
+  width: 100%;
   align-items: center;
   @media (max-width: 1000px) {
     padding: 0 12px;
@@ -571,7 +560,7 @@ const DeleteButton = styled.img`
 const TargetProgressContainer = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 100px;
+  margin-top: 80px;
 `;
 
 const IndicatorWrapper = styled.div`
@@ -583,12 +572,12 @@ const IndicatorWrapper = styled.div`
   transform: translateX(-50%);
 `;
 
-const TriangleIndicator = styled.div`
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 15px solid green;
+const TriangleIndicator = styled.img`
+  position: relative;
+  left: 6px;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
 `;
 
 const Progress = styled.span`

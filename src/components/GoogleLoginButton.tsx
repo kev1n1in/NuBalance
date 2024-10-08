@@ -3,9 +3,11 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { updateUserProfile } from "../firebase/firebaseServices";
 import { signInWithGoogle } from "../firebase/firebaseAuth";
 import styled from "styled-components";
-import { UserCredential } from "firebase/auth"; // 引入 UserCredential
+import { UserCredential } from "firebase/auth";
+import useAlert from "../hooks/useAlertMessage";
 
 const GoogleLogin = () => {
+  const { addAlert, AlertMessage } = useAlert();
   const navigate = useNavigate();
 
   const handleGoogleLoginClick = (
@@ -27,13 +29,14 @@ const GoogleLogin = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
-        const accessToken = response.access_token; // 獲取 access_token
+        const accessToken = response.access_token;
         const userCredential: UserCredential = await signInWithGoogle(
           accessToken
-        ); // 使用 signInWithGoogle 登錄，獲取 UserCredential
-        const user = userCredential.user; // 從 UserCredential 中提取 user
-        await updateUserProfile(user); // 更新用戶資料
-        navigate("/userInfo"); // 導航到用戶信息頁面
+        );
+        const user = userCredential.user;
+        await updateUserProfile(user);
+        addAlert("Login successful");
+        navigate("/userInfo");
       } catch (error) {
         console.error("Authentication with Firebase failed:", error);
       }
@@ -45,6 +48,7 @@ const GoogleLogin = () => {
 
   return (
     <>
+      <AlertMessage />
       <GoogleButton onClick={handleGoogleLoginClick}>
         {googleLetters.map(({ letter, color }, index) => (
           <ColoredLetter key={index} color={color}>

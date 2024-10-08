@@ -272,7 +272,9 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
         </NutrientsContainer>
 
         <Split />
-        <InputTitle>Or Scan Nutrition Label</InputTitle>
+        <InputTitle>
+          Or <span style={{ color: "#a23419" }}>Scan</span> Nutrition Label
+        </InputTitle>
 
         {/* Dropzone component */}
         <DropzoneContainer {...getRootProps()}>
@@ -314,7 +316,7 @@ const NutrientsContainer = styled.div`
 `;
 
 const InputTitle = styled.div`
-  margin-bottom: 12px;
+  margin: 6px 0;
   font-weight: 700;
 `;
 const InputContainer = styled.div``;
@@ -353,8 +355,9 @@ const DropzoneContainer = styled.div`
   background-color: #f9f9f9;
 `;
 
-const DropMessage = styled.p`
+const DropMessage = styled.div`
   color: #777;
+  font-size: 100px;
 `;
 
 const PreviewImage = styled.img`

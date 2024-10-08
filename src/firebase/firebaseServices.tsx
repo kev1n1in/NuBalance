@@ -59,7 +59,7 @@ interface FoodItem {
   carbohydrates: number;
   protein: number;
   fat: number;
-  imageUrl: string;
+  imageUrl: string | null;
 }
 
 export const addFoodItem = async (

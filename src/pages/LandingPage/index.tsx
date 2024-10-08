@@ -135,7 +135,7 @@ const Title = styled.p<{ isTitleInHeader: boolean }>`
 
 const LoginButton = styled.div`
   position: absolute;
-  right: 8px;
+  right: 20px;
   top: 24px;
   font-size: 24px;
   cursor: pointer;

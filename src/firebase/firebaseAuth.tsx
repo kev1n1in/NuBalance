@@ -3,19 +3,20 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  GoogleAuthProvider,
+  UserCredential,
 } from "firebase/auth";
-import { GoogleAuthProvider } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import { updateUserProfile } from "./firebaseServices";
 
-export const signInWithGoogle = async (idToken: string) => {
+export const signInWithGoogle = async (
+  accessToken: string
+): Promise<UserCredential> => {
   try {
-    const credential = GoogleAuthProvider.credential(idToken);
-    const result = await signInWithCredential(auth, credential);
-    console.log("登入成功:", result.user);
-    await updateUserProfile(result.user);
-
-    return result.user;
+    const credential = GoogleAuthProvider.credential(null, accessToken); // 使用 accessToken
+    const userCredential = await signInWithCredential(auth, credential);
+    console.log("登入成功:", userCredential.user);
+    return userCredential; // 返回 UserCredential
   } catch (error) {
     console.error("登入失敗", error);
     throw error;

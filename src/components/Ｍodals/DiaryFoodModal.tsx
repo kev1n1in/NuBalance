@@ -10,10 +10,13 @@ import { auth } from "../../firebase/firebaseConfig";
 import Modal from "./Modal";
 import QueryFoodModal from "./QueryFoodModal";
 import { useFoodStore } from "../../stores/foodStore";
-import aweImg from "./moodsImg/Awe.png";
-import eatingHappyImg from "./moodsImg/Eating_Happy.png";
-import rageImg from "./moodsImg/Rage.png";
-import suspiciousImg from "./moodsImg/Suspicious.png";
+import aweImg from "../../asset/moodsImg/Awe.png";
+import eatingHappyImg from "../../asset/moodsImg/Eating_Happy.png";
+import rageImg from "../../asset/moodsImg/Rage.png";
+import suspiciousImg from "../../asset/moodsImg/Suspicious.png";
+import fearImg from "../../asset/moodsImg/angry.png";
+import lovingImg from "../../asset/moodsImg/loving.png";
+import angryImg from "../../asset/moodsImg/angry.png";
 import { motion } from "framer-motion";
 import breakImg from "./mealsImg/breakfast.png";
 import breakSelectImg from "./mealsImg/breakfast_select.png";
@@ -27,6 +30,8 @@ import useAlert from "../../hooks/useAlertMessage";
 import tape from "./tape.png";
 import polaroid from "./polaroid.png";
 import { useDropzone } from "react-dropzone";
+import { annotate } from "rough-notation";
+import AlertMessage from "../AlertMessage";
 
 interface FoodItem {
   id: string;
@@ -83,6 +88,9 @@ const moods: MoodItem[] = [
   { id: "happy", name: "開心", imgSrc: eatingHappyImg },
   { id: "rage", name: "憤怒", imgSrc: rageImg },
   { id: "suspicious", name: "懷疑", imgSrc: suspiciousImg },
+  { id: "fear", name: "恐懼", imgSrc: fearImg },
+  { id: "love", name: "好愛", imgSrc: lovingImg },
+  { id: "angry", name: "生氣", imgSrc: angryImg },
 ];
 
 const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
@@ -101,6 +109,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
+  const annotationRef = useRef<any>(null);
   const currentUser = auth.currentUser;
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -127,6 +136,25 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       console.log("圖片已成功加載並預覽:", imagePreview); // 這裡應該能正確打印預覽的圖片 URL
     }
   }, [imagePreview]);
+  useEffect(() => {
+    if (foodSelectorRef.current) {
+      const element = foodSelectorRef.current;
+
+      // 如果有已存在的 annotation，移除舊的
+      if (annotationRef.current) {
+        annotationRef.current.remove();
+      }
+
+      // 創建新的 rough-notation 注解並展示
+      annotationRef.current = annotate(element, {
+        type: "underline",
+        color: "#f9c74f",
+        strokeWidth: 2,
+        iterations: 2,
+      });
+      annotationRef.current.show();
+    }
+  }, [currentFood]);
   // Fetch diary entry and set initial state values
   const {
     data: diaryEntry,
@@ -214,7 +242,9 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       console.log("日記條目已更新");
 
       addAlert("編輯成功");
-      onClose();
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     } catch (error) {
       console.error("更新日記條目失敗:", error);
     }
@@ -241,8 +271,6 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
     <Wrapper>
       <AlertMessage />
       <Container>
-        <Title>Today I ate</Title>
-
         <FoodSelectorWrapper>
           <MealSelectorContainer>
             {meals.map((meal) => (
@@ -271,7 +299,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
                 <TapeImg src={tape} />
                 <BoxShadowTape />
               </TapeContainer>
-              <FoodSelector onClick={openModal}>
+              <FoodSelector ref={foodSelectorRef} onClick={openModal}>
                 {currentFood ? currentFood.food_name : "選擇食物"}
               </FoodSelector>
               <Nutrition>
@@ -315,7 +343,6 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
         </MoodSelectorContainer>
 
         <NoteContainer>
-          <NoteTitle>Note：</NoteTitle>
           <NoteTextarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -345,6 +372,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 const Wrapper = styled.div`
   width: 100%;
   height: 80vh;
+  margin-top: 48px;
 `;
 const Container = styled.div`
   display: flex;
@@ -352,9 +380,7 @@ const Container = styled.div`
   width: 80%;
   margin: 0 auto;
 `;
-const Title = styled.h1`
-  text-align: center;
-`;
+
 const MealSelectorContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -449,6 +475,7 @@ const FoodSelector = styled.div`
   height: 40px;
   font-size: 24px;
   font-weight: 700;
+  margin: 24px 0;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -516,16 +543,10 @@ const NoteContainer = styled.div`
   margin-top: 20px;
   text-align: center;
 `;
-const NoteTitle = styled.span`
-  text-align: start;
-  font-weight: bold;
-  margin-right: 10px;
-`;
 
 const NoteTextarea = styled.textarea`
-  color: #fff;
-  border: 2px solid gray;
-
+  color: #000;
+  font-size: 20px;
   background-color: #dedede;
   border: 3px dashed gray;
 `;
@@ -540,6 +561,7 @@ const ButtonContainer = styled.div`
 const MoodSelectorContainer = styled.div`
   display: flex;
   justify-content: center;
+  margin: 12px 0;
 `;
 
 const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
@@ -557,7 +579,7 @@ const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
 `;
 
 const Mood = styled.img`
-  width: 50px;
+  width: 64px;
   height: auto;
 `;
 
