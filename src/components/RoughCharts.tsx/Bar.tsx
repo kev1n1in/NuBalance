@@ -18,7 +18,7 @@ const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
       labels.forEach((label) => {
         const svgLabel = label as SVGTextElement;
         const transform = label.getAttribute("transform");
-        const fontSize = Math.max(containerWidth * 0.03, 12);
+        const fontSize = Math.max(containerWidth * 0.03, 16);
 
         svgLabel.style.fontSize = `${fontSize}px`;
 
@@ -91,8 +91,7 @@ const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
 const ChartContainer = styled.div`
   width: 100%;
   max-width: 1200px;
-  height: 0;
-  padding-bottom: 70%;
+  padding-bottom: 55%;
   position: relative;
 `;
 

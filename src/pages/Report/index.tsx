@@ -9,12 +9,13 @@ import RoughPieChart from "../../components/RoughCharts.tsx/Pie";
 import Overlay from "../../components/Overlay";
 import HamburgerIcon from "../../components/MenuButton";
 import { onAuthStateChanged, User } from "firebase/auth";
-import HandwrittenText from "../../components/HandWrittenText";
+import Loader from "../../components/Loader";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 interface HistoryItem {
   clientUpdateTime: { seconds: number };
   weight: number;
-  bmi: number;
   date: string;
   bodyFat: number;
 }
@@ -38,10 +39,12 @@ const Report: React.FC = () => {
     protein: number;
     fat: number;
   } | null>(null);
-  const [latestBodyFat, setLatestBodyFat] = useState<number | null>(null);
-  const [latestBMI, setLatestBMI] = useState<number | null>(null);
   const [toggleMenu, setToggleMenu] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
+  const [activeTab, setActiveTab] = useState<string>("Weight");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -60,22 +63,23 @@ const Report: React.FC = () => {
     isLoading: isLoadingTDEE,
     error: errorTDEE,
   } = useQuery(
-    ["userHistory", user],
+    ["userHistory", user, selectedDate],
     async () => {
       if (!user) {
         throw new Error("用戶未登入");
       }
-      const allHistory = await getUserHistory(user);
+
+      const allHistory = await getUserHistory(user, false, selectedDate);
+
       return allHistory.map((item: HistoryItem) => ({
         date: new Date(item.clientUpdateTime.seconds * 1000)
           .toISOString()
           .split("T")[0],
         weight: item.weight,
         bodyFat: item.bodyFat,
-        bmi: item.bmi,
       }));
     },
-    { enabled: !!user }
+    { enabled: !!user && !!selectedDate }
   );
 
   useEffect(() => {
@@ -85,9 +89,9 @@ const Report: React.FC = () => {
         weight: item.weight,
       }));
       const latestEntry = allHistory[allHistory.length - 1];
-      setLatestBodyFat(latestEntry.bodyFat);
-      setLatestBMI(latestEntry.bmi);
       setWeightChartData(weightData);
+    } else {
+      setWeightChartData([]);
     }
   }, [allHistory]);
 
@@ -134,10 +138,6 @@ const Report: React.FC = () => {
     fetchNutritionData();
   }, [user]);
 
-  if (isLoadingTDEE) {
-    return <div>Loading...</div>;
-  }
-
   if (errorTDEE) {
     const errorMessage = (errorTDEE as Error).message;
     return <div>Error: {errorMessage}</div>;
@@ -147,48 +147,60 @@ const Report: React.FC = () => {
     labels: weightChartData.map((item) => item.date),
     values: weightChartData.map((item) => item.weight),
   };
+  const handleDateChange = (selectedDates: Date[]) => {
+    const newDate = selectedDates[0];
+    setSelectedDate(newDate);
+  };
 
   return (
     <Wrapper>
+      <Loader isLoading={isLoadingTDEE} />
       {toggleMenu && <Overlay onClick={() => setToggleMenu(false)} />}
       <HamburgerIcon onClick={() => setToggleMenu(!toggleMenu)} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>分析報告</Title>
-        <BMIWrittenContainer>
-          <HandwrittenText
-            text={`BMI: ${
-              typeof latestBMI === "number" ? latestBMI.toFixed(2) : "0"
-            }`}
-            roughness={0}
-            color="black"
-            fill="green"
-            fontSize={75}
-          />
-        </BMIWrittenContainer>
-        <BodyFatWrittenContainer>
-          <HandwrittenText
-            text={`BodyFat: ${
-              typeof latestBodyFat === "number"
-                ? latestBodyFat.toFixed(2) + "%"
-                : "0"
-            }`}
-            roughness={0}
-            color="black"
-            fill="green"
-            fontSize={75}
-          />
-        </BodyFatWrittenContainer>
-        <ChartContainer>
-          <ChartTitle>體重變化</ChartTitle>
+        <Title>Report</Title>
+
+        {/* 體重圖表 */}
+        <BarChartContainer
+          isActive={activeTab === "Weight"}
+          style={{ display: activeTab === "Weight" ? "block" : "none" }}
+        >
+          <ChartHeaderContainer>
+            <BarFolderTab onClick={() => setActiveTab("Nutrients")}>
+              Nutrients
+            </BarFolderTab>
+            <ChartTitle>Weight change for the 7 days before</ChartTitle>
+            <DatePickerContainer>
+              <Flatpickr
+                value={selectedDate}
+                onChange={handleDateChange}
+                options={{ dateFormat: "Y-m-d" }}
+                style={{
+                  fontFamily: "KG Second Chances",
+                  width: "100px",
+                  borderRadius: "4px",
+                }}
+              />
+            </DatePickerContainer>
+          </ChartHeaderContainer>
+
           {weightChartData.length > 0 ? (
             <RoughBarChart data={roughData} />
           ) : (
             <p>沒有體重變化的歷史資料</p>
           )}
-        </ChartContainer>
-        <ChartContainer>
-          <ChartTitle>營養素總和</ChartTitle>
+        </BarChartContainer>
+
+        {/* 營養素圖表 */}
+        <PieChartContainer
+          isActive={activeTab === "Weight"}
+          style={{ display: activeTab === "Nutrients" ? "block" : "none" }}
+        >
+          <PieFolderTab onClick={() => setActiveTab("Weight")}>
+            Weight
+          </PieFolderTab>
+          <ChartTitle>Today total nutrients (%)</ChartTitle>
           {nutritionData ? (
             <CenteredChartContainer>
               <RoughPieChart
@@ -203,9 +215,9 @@ const Report: React.FC = () => {
               />
             </CenteredChartContainer>
           ) : (
-            <p>今天沒有營養素記錄</p>
+            <p>No nutrient records for today.</p>
           )}
-        </ChartContainer>
+        </PieChartContainer>
       </Container>
     </Wrapper>
   );
@@ -214,6 +226,7 @@ const Report: React.FC = () => {
 const Wrapper = styled.div`
   display: flex;
   background-color: #f0f0f0;
+  height: 110vh;
   margin: 0 0 0 150px;
   @media (max-width: 1000px) {
     margin: 0;
@@ -221,23 +234,127 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 80%;
   margin: 0 auto;
+  z-index: 0;
+`;
+const ChartHeaderContainer = styled.div`
+  display: flex;
 `;
 
-const BMIWrittenContainer = styled.div`
-  width: 45%;
-`;
-const BodyFatWrittenContainer = styled.div`
-  width: 60%;
-`;
-const ChartContainer = styled.div`
+const BarChartContainer = styled.div<{ isActive: boolean }>`
+  position: relative;
   margin: 24px 0;
   padding: 12px;
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 4px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  &:after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 16px;
+    width: 200px;
+    height: 20px;
+    background-color: #fff;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    z-index: 1;
+  }
+  &:before {
+    content: "Weight";
+    position: absolute;
+    top: -40px;
+    left: 16px;
+    width: 200px;
+    height: 60px;
+    font-size: 24px;
+    text-align: center;
+    padding-right: 4px;
+    background-color: #fff;
+    border: 1px solid black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: -1;
+    color: ${({ isActive }) => (isActive ? "#a23419" : "gray")};
+  }
+`;
+const BarFolderTab = styled.div`
+  display: flex;
+  position: absolute;
+  top: -40px;
+  left: 220px;
+  width: 200px;
+  height: 60px;
+  font-size: 24px;
+  justify-content: center;
+  padding-right: 4px;
+  background-color: #fff;
+  border: 1px solid black;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  z-index: -2;
+  cursor: pointer;
+`;
+
+const PieChartContainer = styled.div<{ isActive: boolean }>`
+  position: relative;
+  margin: 24px 0;
+  padding: 12px;
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  &:after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 220px;
+    width: 200px;
+    height: 20px;
+    background-color: #fff;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    z-index: 1;
+  }
+  &:before {
+    content: "Nutrients";
+    position: absolute;
+    top: -40px;
+    left: 220px;
+    width: 200px;
+    height: 60px;
+    font-size: 24px;
+    text-align: center;
+    padding-right: 4px;
+    background-color: #fff;
+    border: 1px solid black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: -1;
+    color: ${({ isActive }) => (isActive ? "gray" : "#a23419")};
+  }
+`;
+
+const PieFolderTab = styled.div`
+  display: flex;
+  position: absolute;
+  top: -40px;
+  left: 16px;
+  width: 200px;
+  height: 60px;
+  font-size: 24px;
+  justify-content: center;
+  padding-right: 4px;
+  background-color: #fff;
+  border: 1px solid black;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  z-index: -2;
+  cursor: pointer;
 `;
 
 const CenteredChartContainer = styled.div`
@@ -248,11 +365,16 @@ const CenteredChartContainer = styled.div`
   overflow: hidden;
 `;
 
-const ChartTitle = styled.h2``;
-
+const ChartTitle = styled.h2`
+  margin-right: 12px;
+`;
+const DatePickerContainer = styled.div`
+  margin-top: 4px;
+`;
 const Title = styled.h1`
   text-align: center;
-  font-size: 30px;
+  font-size: 40px;
+  margin: 24px 0;
 `;
 
 export default Report;

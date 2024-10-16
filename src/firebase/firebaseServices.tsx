@@ -18,8 +18,19 @@ import { db } from "../firebase/firebaseConfig";
 import { User, Auth } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+let isUserProfileUpdated = false;
+
 export const updateUserProfile = async (user: User, userName?: string) => {
   try {
+    if (isUserProfileUpdated) {
+      console.log("User profile already updated.");
+      return; // 防止重複執行
+    }
+
+    if (!user || !user.uid) {
+      throw new Error("User 或 UID 未定義，無法更新資料");
+    }
+
     const userRef = doc(db, "users", user.uid);
     await setDoc(
       userRef,
@@ -27,19 +38,32 @@ export const updateUserProfile = async (user: User, userName?: string) => {
         uid: user.uid,
         email: user.email,
         username: userName || user.displayName || "Unknown",
-        createdAt: user.metadata.creationTime,
+        createdAt: user.metadata.creationTime, // 確保時間格式正確
         lastLoged: serverTimestamp(),
       },
       { merge: true }
     );
 
     console.log("用戶資料已更新到 Firestore");
+    isUserProfileUpdated = true; // 設置為已更新
   } catch (error) {
     console.error("更新用戶資料失敗:", error);
     throw error;
   }
 };
-
+export const fetchUserName = async (user: User): Promise<string> => {
+  if (!user) {
+    throw new Error("尚未登入");
+  }
+  const userRef = doc(db, "users", user.uid);
+  const userSnapshot = await getDoc(userRef);
+  if (userSnapshot.exists()) {
+    const userData = userSnapshot.data();
+    return userData.username || "未知用户名";
+  } else {
+    throw new Error("資料發生錯誤");
+  }
+};
 interface FoodItem {
   food_name: string;
   food_info: string[];
@@ -47,7 +71,7 @@ interface FoodItem {
   carbohydrates: number;
   protein: number;
   fat: number;
-  imageUrl: string;
+  imageUrl: string | null;
 }
 
 export const addFoodItem = async (
@@ -67,10 +91,10 @@ export const addFoodItem = async (
     const docRef = await addDoc(foodsCol, {
       food_name: food.food_name,
       food_info: [
-        `熱量 ${food.calories} 大卡`,
-        `碳水化合物 ${food.carbohydrates} 公克`,
-        `蛋白質 ${food.protein} 公克`,
-        `脂肪 ${food.fat} 公克`,
+        `Calories ${food.calories} Cal`,
+        `Carbohydrate ${food.carbohydrates} g`,
+        `Protein ${food.protein} g`,
+        `Fat ${food.fat} g`,
       ],
       uid: uid,
       createdAt: serverTimestamp(),
@@ -191,7 +215,8 @@ export const updateTDEEHistory = async (
   gender: string,
   activityLevel: string,
   bodyFat?: number,
-  bmi?: number
+  bmi?: number,
+  clientUpdateTime?: Timestamp
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -213,27 +238,33 @@ export const updateTDEEHistory = async (
   });
 
   if (existingRecordIndex !== -1) {
-    const updatedHistory = history[existingRecordIndex];
-    updatedHistory.tdee = tdee;
-    updatedHistory.age = age;
-    updatedHistory.weight = weight;
-    updatedHistory.height = height;
-    updatedHistory.gender = gender;
-    updatedHistory.activityLevel = activityLevel;
-    updatedHistory.bodyFat = bodyFat;
-    updatedHistory.bmi = bmi;
-    updatedHistory.clientUpdateTime = Timestamp.fromDate(new Date());
+    // 找到同一天的紀錄，更新該紀錄
+    const updatedHistory = {
+      ...history[existingRecordIndex],
+      tdee,
+      age,
+      weight,
+      height,
+      gender,
+      activityLevel,
+      bodyFat,
+      bmi,
+      clientUpdateTime: clientUpdateTime || Timestamp.fromDate(new Date()),
+    };
 
+    // 使用 arrayRemove 移除舊的紀錄
     await updateDoc(userRef, {
       history: arrayRemove(history[existingRecordIndex]),
     });
 
+    // 使用 arrayUnion 添加更新後的紀錄
     await updateDoc(userRef, {
       history: arrayUnion(updatedHistory),
     });
 
     console.log("當天的 TDEE 記錄已更新");
   } else {
+    // 當天沒有紀錄，新增一筆
     await updateDoc(userRef, {
       history: arrayUnion({
         tdee,
@@ -251,6 +282,7 @@ export const updateTDEEHistory = async (
     console.log("TDEE 記錄已新增");
   }
 
+  // 更新最後更新的時間
   await updateDoc(userRef, {
     lastUpdated: serverTimestamp(),
   });
@@ -258,7 +290,8 @@ export const updateTDEEHistory = async (
 
 export const getUserHistory = async (
   user: User,
-  returnLatest: boolean = false
+  returnLatest: boolean = false,
+  targetDate?: Date // 保持第三個參數
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -278,11 +311,33 @@ export const getUserHistory = async (
     return [];
   }
 
-  const sortedHistory = userData.history.sort(
+  let filteredHistory = userData.history;
+
+  // 排序歷史紀錄
+  const sortedHistory = filteredHistory.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
+  if (returnLatest) {
+    const latestEntry = sortedHistory.length > 0 ? sortedHistory[0] : null;
+    return latestEntry; // 直接返回整個最新的歷史條目
+  }
 
-  return returnLatest ? sortedHistory[0] : sortedHistory;
+  // 根據指定日期篩選紀錄
+  if (targetDate) {
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const targetTimestamp = nextDay.getTime() / 1000;
+
+    filteredHistory = sortedHistory
+      .filter((item: any) => {
+        const updateTime = item.clientUpdateTime.seconds;
+        return updateTime <= targetTimestamp;
+      })
+      .slice(0, 7);
+  }
+
+  return filteredHistory.length > 0 ? filteredHistory : [];
 };
 
 export const getDiaryEntry = async (user: User, date: string) => {

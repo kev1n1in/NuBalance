@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import Sidebar from "../../components/Sidebar";
-import Modal from "../../components/Modal";
+import Modal from "../../components/Ｍodals/Modal";
 import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
 import { useFoodStore } from "../../stores/foodStore";
 import { useNavigate } from "react-router-dom";
@@ -93,10 +93,10 @@ const Food: React.FC = () => {
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <Title>食品資料庫</Title>
+        <Title>Food Data Base </Title>
         <Input
           type="text"
-          placeholder="搜尋食品..."
+          placeholder="Search for food..."
           value={searchTerm}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
@@ -120,7 +120,8 @@ const Food: React.FC = () => {
                   </ResultItem>
                   <ButtonWrapper>
                     <Button
-                      label="加入菜單"
+                      strokeColor="black"
+                      label="Add"
                       onClick={() => handleAddFood(item)}
                     />
                   </ButtonWrapper>
@@ -129,22 +130,24 @@ const Food: React.FC = () => {
             : triggerSearch && <NoItemsMessage>查無結果</NoItemsMessage>}
 
           <CreateLinkContainer>
-            找不到嗎？試試
-            <CreateLink onClick={openModal}>新增</CreateLink>
+            Can't find it? Try
+            <CreateLink onClick={openModal}> adding </CreateLink>
+            it.
           </CreateLinkContainer>
         </DataContainer>
 
         {!triggerSearch && !searchTerm.trim() && (
           <NoDataMessageContainer>
             <NoDataMessage>
-              目前沒有食品資料，請輸入關鍵字進行查詢
+              There is currently no food data available. Please enter a keyword
+              to search.
             </NoDataMessage>
           </NoDataMessageContainer>
         )}
       </Container>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal title={"Create Food"} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}
@@ -181,14 +184,16 @@ const Container = styled.div`
   }
 `;
 const Title = styled.h1`
-  margin: 12px 0;
+  font-size: 40px;
+  margin: 0;
 `;
 
 const Input = styled.input`
+  font-family: "KG Second Chances", sans-serif;
   width: 100%;
-  padding: 10px;
+  padding: 12px 12px 12px 20px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   border-radius: 4px;
 `;
 
@@ -201,7 +206,7 @@ const ErrorMessage = styled.p`
 const DataContainer = styled.div`
   max-height: 400px;
   overflow: auto;
-  border: 1px solid #ddd;
+  border: 2px solid #ccc;
   padding: 10px;
   border-radius: 4px;
 
@@ -217,18 +222,19 @@ const ResultItemContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+
+  margin-bottom: 12px;
   &:hover {
     background-color: #f9f9f9;
   }
 `;
 const ResultItem = styled.div`
   width: 100%;
-  margin-bottom: 10px;
   padding: 10px;
-
   border-radius: 4px;
   background-color: "f0f0f0";
+
   cursor: pointer;
 `;
 
@@ -258,7 +264,8 @@ const NoDataMessage = styled.span`
 `;
 
 const CreateLinkContainer = styled.h3`
-  margin-top: 20px;
+  padding-left: 8px;
+  color: gray;
 `;
 
 const CreateLink = styled.span`

@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import CreateFoodModal from "./CreateFoodModal";
-import Modal from "../Modal";
+import Modal from "./Modal";
 
 type FoodItem = {
   id: string;
@@ -75,14 +75,13 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
 
   return (
     <Wrapper>
-      <Title>吃了啥？</Title>
       <InputContainer>
         <Input
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="請輸入食物關鍵字"
+          placeholder="Please Enter Food Keyword"
         />
         <SearchImg />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -106,11 +105,13 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             </ResultItem>
           ))
         ) : (
-          <p>目前沒有相關結果</p>
+          <p>{foods.length === 0 ? "" : "There is no result"}</p>
         )}
 
         <NoItemsMessage>
-          找不到嗎？試試<CreateLink onClick={openModal}>新增</CreateLink>
+          Can't find it? Try
+          <CreateLink onClick={openModal}> adding </CreateLink>
+          it.
         </NoItemsMessage>
       </FoodDataContainer>
 
@@ -121,16 +122,20 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
             <FoodInfo>{selectedItem.food_info.join("｜")}</FoodInfo>
           </SelectResult>
         ) : (
-          <SelectResult>尚未選擇任何食物</SelectResult>
+          <SelectResult>Search Result</SelectResult>
         )}
       </SelectedFoodContainer>
 
       <ButtonContainer>
-        <Button label="加入" onClick={handleAddClick}></Button>
+        <Button
+          strokeColor="gary"
+          label="Save"
+          onClick={handleAddClick}
+        ></Button>
       </ButtonContainer>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
+        <Modal title={""} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}
@@ -146,10 +151,11 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 80vh;
-`;
-
-const Title = styled.h1`
-  text-align: center;
+  margin-top: 110px;
+  padding: 0 20px;
+  @media (max-width: 480px) {
+    margin-top: 80px;
+  }
 `;
 
 const InputContainer = styled.div`
@@ -158,6 +164,7 @@ const InputContainer = styled.div`
 `;
 
 const Input = styled.input`
+  font-family: "KG Second Chances", sans-serif;
   padding: 8px;
   font-size: 16px;
 `;
@@ -174,6 +181,7 @@ const FoodDataContainer = styled.div`
   height: 40vh;
   overflow: auto;
   border: 1px solid black;
+  border-radius: 4px;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -181,7 +189,9 @@ const FoodDataContainer = styled.div`
   scrollbar-width: none;
 `;
 
-const SelectedFoodContainer = styled.div``;
+const SelectedFoodContainer = styled.div`
+  height: auto;
+`;
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -191,8 +201,8 @@ const ButtonContainer = styled.div`
 const ResultItem = styled.div<{ isSelected: boolean }>`
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin: 0 8px;
+  border-bottom: 1px solid #ddd;
   background-color: ${({ isSelected }) => (isSelected ? "#f0f0f0" : "white")};
   cursor: pointer;
   &:hover {
@@ -211,10 +221,11 @@ const FoodInfo = styled.p`
 `;
 
 const SelectResult = styled.div`
-  height: 100px;
+  height: auto;
   margin: 20px 0;
   padding: 8px;
   border: 1px solid black;
+  border-radius: 4px;
 `;
 
 const NoItemsMessage = styled.p`

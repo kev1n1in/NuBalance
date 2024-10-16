@@ -1,54 +1,92 @@
-// src/components/GoogleLoginButton.tsx
-import React from "react";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import { updateUserProfile } from "../firebase/firebaseServices";
+import { signInWithGoogle } from "../firebase/firebaseAuth";
 import styled from "styled-components";
+import { UserCredential } from "firebase/auth";
+import useAlert from "../hooks/useAlertMessage";
 
-interface GoogleLoginButtonProps {
-  onSuccess: (response: CredentialResponse) => void;
-  onError: () => void;
-}
+const GoogleLogin = () => {
+  const { addAlert, AlertMessage } = useAlert();
+  const navigate = useNavigate();
 
-const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
-  onSuccess,
-  onError,
-}) => {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const handleGoogleLoginClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+    googleLogin(); // 調用 googleLogin 函數
+  };
+
+  const googleLetters = [
+    { letter: "G", color: "#4285F4" },
+    { letter: "o", color: "#EA4335" },
+    { letter: "o", color: "#FBBC05" },
+    { letter: "g", color: "#4285F4" },
+    { letter: "l", color: "#34A853" },
+    { letter: "e", color: "#EA4335" },
+  ];
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        const accessToken = response.access_token;
+        const userCredential: UserCredential = await signInWithGoogle(
+          accessToken
+        );
+        const user = userCredential.user;
+        await updateUserProfile(user);
+        addAlert("Login successful");
+        navigate("/userInfo");
+      } catch (error) {
+        console.error("Authentication with Firebase failed:", error);
+      }
+    },
+    onError: (error) => {
+      console.log("Login Failed", error);
+    },
+  });
 
   return (
-    <StyledButtonContainer>
-      <GoogleLogin
-        onSuccess={(response: CredentialResponse) => {
-          onSuccess(response);
-        }}
-        onError={onError}
-      />
-    </StyledButtonContainer>
+    <>
+      <AlertMessage />
+      <GoogleButton onClick={handleGoogleLoginClick}>
+        {googleLetters.map(({ letter, color }, index) => (
+          <ColoredLetter key={index} color={color}>
+            {letter}
+          </ColoredLetter>
+        ))}
+      </GoogleButton>
+    </>
   );
 };
 
-const StyledButtonContainer = styled.div`
-  button {
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+// 樣式化的 Google 登錄按鈕
+const GoogleButton = styled.button`
+  display: flex;
+  position: relative;
+  align-items: center;
+  border-radius: 24px;
+  padding: 10px 50px;
+  border: 1px solid #fefefe;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: none;
+  width: auto;
+  max-width: 300px;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 
-    &:hover {
-      background-color: #357ae8;
-    }
-
-    img {
-      width: 20px;
-      height: 20px;
-    }
+  &:hover {
+    transform: scale(1.2);
   }
 `;
 
-export default GoogleLoginButton;
+const ColoredLetter = styled.span<{ color: string }>`
+  color: ${(prop) => prop.color};
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+export default GoogleLogin;

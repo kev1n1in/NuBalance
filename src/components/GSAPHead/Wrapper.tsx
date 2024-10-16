@@ -11,10 +11,12 @@ import tomato from "./tomato.png";
 import pear from "./pear.png";
 import pineapple from "./pineapple.png";
 import redCarrot from "./redCarrot.png";
+import arrow from "./arrow.png";
 
 const GSAPHEAD: React.FC = () => {
   const wordRefs = useRef<(HTMLDivElement | null)[]>([]);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const arrowRef = useRef<HTMLImageElement | null>(null);
   const isCentered = useRef(false);
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
@@ -32,7 +34,7 @@ const GSAPHEAD: React.FC = () => {
     { letter: "T", zIndex: 0 },
     { letter: "I", zIndex: -1 },
     { letter: "O", zIndex: 10 },
-    { letter: "N", zIndex: 10 },
+    { letter: "N", zIndex: -1 },
   ];
 
   const balanceWords = [
@@ -209,6 +211,15 @@ const GSAPHEAD: React.FC = () => {
 
   useEffect(() => {
     // 設定文字初始位置
+    if (arrowRef.current) {
+      gsap.to(arrowRef.current, {
+        y: -20, // 向上移動20px
+        duration: 1, // 動畫持續時間
+        repeat: -1, // 無限次重複
+        yoyo: true, // 動畫完成後反向
+        ease: "power1.inOut", // 緩動效果
+      });
+    }
     wordRefs.current.forEach((word, index) => {
       gsap.set(word, {
         x: positions[index].x,
@@ -276,18 +287,15 @@ const GSAPHEAD: React.FC = () => {
             },
           });
         });
-        gsap.to(imageRefs.current[10], {
-          duration: 2,
-          delay: 2,
-          x: images.garlic.final.x,
-          y: images.garlic.final.y,
-          ease: "bounce.out",
-          onComplete: () => {
-            isAnimating.current = false;
-            setScrollLocked(false);
-          },
-        });
-
+        const garlicIndex = Object.keys(images).indexOf("garlic");
+        if (garlicIndex !== -1) {
+          gsap.to(imageRefs.current[garlicIndex], {
+            y: images.garlic.final.y, // 設置彈跳高度
+            duration: 1.5, // 動畫持續時間
+            delay: 2,
+            ease: "bounce.out", // 使用 bounce 效果
+          });
+        }
         isCentered.current = true;
         setScrollLocked(false);
       }
@@ -382,6 +390,11 @@ const GSAPHEAD: React.FC = () => {
           );
         })}
       </ImageContainer>
+      <ArrowImage
+        ref={arrowRef} // 連結箭頭的引用
+        src={arrow}
+        alt="Scroll down"
+      />
     </Wrapper>
   );
 };
@@ -392,6 +405,9 @@ const Wrapper = styled.div`
   width: 100%;
   position: relative;
   overflow: hidden;
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 const WordsContainer = styled.div`
@@ -429,6 +445,13 @@ const Image = styled.img`
 
 const BalanceContainer = styled.div`
   margin-left: 10rem;
+`;
+const ArrowImage = styled.img`
+  position: absolute;
+  bottom: 20px; /* 離底部20px */
+  right: 40px; /* 離右邊20px */
+  width: 75px; /* 設置箭頭寬度 */
+  height: auto;
 `;
 
 export default GSAPHEAD;

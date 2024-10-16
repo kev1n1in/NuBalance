@@ -32,3 +32,5 @@ declare module "opentype.js" {
   export default content;
 }
 declare module "rough-viz";
+
+declare module "lodash.debounce";
