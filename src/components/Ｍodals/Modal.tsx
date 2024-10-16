@@ -7,7 +7,7 @@ import { c } from "vite/dist/node/types.d-aGj9QkWt";
 interface ModalProps {
   title: string;
   onClose: () => void;
-  children: React.ReactNode; // 確保這裡定義了 children
+  children: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
@@ -44,7 +44,7 @@ const Wrapper = styled.div`
 const Content = styled.div`
   position: relative;
   background: #fff;
-  padding: 20px;
+  padding-bottom: 20px;
   border-radius: 8px;
   height: 90vh;
   overflow-y: auto;
@@ -53,17 +53,29 @@ const Content = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
-`;
-const Header = styled.div`
-  position: fixed;
-  width: 728px;
-  padding: 0 20px;
+  @media (max-width: 768px) {
+    width: 95%;
+  }
 `;
 const HeaderContainer = styled.div`
   position: relative;
 `;
+const Header = styled.div`
+  position: fixed;
+  width: 768px;
+  padding: 20px 0;
+  background-color: #fff;
+  z-index: 2;
+  @media (max-width: 768px) {
+    width: 95%;
+  }
+`;
+
 const Title = styled.h1`
   text-align: center;
+  @media (max-width: 480px) {
+    font-size: 24px;
+  }
 `;
 const CloseButton = styled.img`
   display: flex;

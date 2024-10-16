@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
     if (item) {
       const annotation = annotate(item, {
         type: "underline",
-        color: "blue",
+        color: "white",
         padding: 5,
         animationDuration: 200,
       });
@@ -72,10 +72,11 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
       }
     }
   }, [location]);
+  const isRootPath = location.pathname === "/";
 
   return (
-    <Wrapper toggleMenu={toggleMenu}>
-      <NavBar>
+    <Wrapper toggleMenu={toggleMenu} isRoot={isRootPath}>
+      <NavBar isRoot={isRootPath}>
         <Logo onClick={() => handleNavigation("/")}>NuBalance</Logo>
         <ItemContainer>
           {" "}
@@ -123,31 +124,34 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
   );
 };
 
-const Wrapper = styled.div<{ toggleMenu: boolean }>`
+const Wrapper = styled.div<{ toggleMenu: boolean; isRoot: boolean }>`
   position: fixed;
   top: 0;
-  left: 0;
   width: 170px;
   height: 100%;
   background-color: #363636;
   justify-content: center;
   align-items: center;
-  transition: right 0.3s ease;
+  transition: left 0.3s ease, right 0.3s ease;
 
+  left: ${({ toggleMenu, isRoot }) => (isRoot && !toggleMenu ? "-200px" : "0")};
+  right: ${({ toggleMenu }) => (!toggleMenu ? "-200px" : "0")};
+
+  z-index: 10;
   @media (max-width: 1000px) {
-    right: ${({ toggleMenu }) => (toggleMenu ? "0" : "-150px")};
+    right: ${({ toggleMenu }) => (toggleMenu ? "0" : "-200px")};
     left: auto;
-    z-index: 10;
   }
 `;
 
-const NavBar = styled.div`
+const NavBar = styled.div<{ isRoot: boolean }>`
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 36px;
+  margin-top: ${({ isRoot }) => (isRoot ? "40px" : "0")};
   @media (max-width: 1000px) {
     margin-top: 48px;
   }

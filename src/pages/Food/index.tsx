@@ -147,7 +147,7 @@ const Food: React.FC = () => {
       </Container>
 
       {isModalOpen && (
-        <Modal title={"Create Custom Food Entry"} onClose={closeModal}>
+        <Modal title={"Create Food"} onClose={closeModal}>
           <CreateFoodModal
             onClose={closeModal}
             onFoodCreated={handleFoodCreated}

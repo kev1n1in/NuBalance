@@ -1,5 +1,10 @@
 import { GlobalStyle } from "./GlobalStyle";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Login from "./pages/Login";
 import Calculator from "./pages/Calculator";
@@ -36,6 +41,7 @@ function App() {
               path="/userInfo"
               element={<PrivateRoute element={<UserInfo />} />}
             />
+            <Route path="*" element={<Navigate to="/userInfo" replace />} />
             <Route path="/food" element={<PrivateRoute element={<Food />} />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>

@@ -118,7 +118,8 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
       );
 
       if (!response.ok) {
-        throw new Error("文字辨識失敗" as string);
+        const errorResponse = await response.text();
+        throw new Error(errorResponse || "文字辨識失敗,請換一張圖片");
       }
 
       const data = await response.json();
@@ -142,7 +143,14 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
 
       return data.text;
     } catch (error) {
+      setIsUploading(false);
       console.error("Cloud Function 呼叫失敗:", error);
+      if (error instanceof Error) {
+        // 確保錯誤是 Error 類型
+        addAlert(error.message);
+      } else {
+        addAlert("Scanning Failed"); // 如果不是 Error 實例，則使用通用消息
+      }
     }
   };
 
@@ -196,7 +204,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
         </InputTitle>
         <Input
           placeholder=""
-          {...register("foodName", { required: "食品名稱是必填的" })}
+          {...register("foodName", { required: "Food name is required." })}
         />
         {errors.foodName && (
           <ErrorMessage>{errors.foodName.message}</ErrorMessage>
@@ -212,8 +220,12 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
               type="number"
               step="any"
               {...register("calories", {
-                required: "熱量是必填的",
+                required: "Calories are required",
                 valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: "Calories cannot be less than 0",
+                },
               })}
             />
             {errors.calories && (
@@ -229,8 +241,12 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
               type="number"
               step="any"
               {...register("carbohydrates", {
-                required: "碳水是必填的",
+                required: "Carbohydrates are required",
                 valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: "Carbohydrates cannot be less than 0",
+                },
               })}
             />
             {errors.carbohydrates && (
@@ -246,8 +262,12 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
               type="number"
               step="any"
               {...register("protein", {
-                required: "蛋白質是必填的",
+                required: "Protein is required",
                 valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: "Protein cannot be less than 0",
+                },
               })}
             />
             {errors.protein && (
@@ -263,8 +283,12 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
               type="number"
               step="any"
               {...register("fat", {
-                required: "脂肪是必填的",
+                required: "Fat is required",
                 valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: "Fat cannot be less than 0",
+                },
               })}
             />
             {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
@@ -301,12 +325,12 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
 
 // Styled components
 const ModalWrapper = styled.div`
-  margin-top: 60px;
+  margin-top: 100px;
 `;
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  margin-top: 24px;
+  margin: 24px 20px 0 20px;
 `;
 
 const NutrientsContainer = styled.div`

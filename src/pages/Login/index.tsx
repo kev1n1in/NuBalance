@@ -109,6 +109,10 @@ const Login = () => {
       addAlert(`請填寫以下欄位: ${missingFields.join(", ")}`);
       return;
     }
+    if (inputUser.length > 8) {
+      addAlert("用戶名不能超過8個字元");
+      return;
+    }
 
     try {
       const newUser = await signUpWithEmail(

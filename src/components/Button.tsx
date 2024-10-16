@@ -3,6 +3,7 @@ import styled from "styled-components";
 import rough from "roughjs/bin/rough";
 
 interface ButtonProps {
+  id?: string;
   label: string;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   margin?: string;
@@ -11,9 +12,11 @@ interface ButtonProps {
   backgroundColor?: string;
   strokeColor?: string;
   justifyContent?: "flex-start" | "center" | "flex-end";
+  icon?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
+  id,
   label,
   onClick,
   disabled,
@@ -22,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
   strokeColor = "white",
   backgroundColor = "#fff",
   justifyContent = "center",
+  icon,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -57,16 +61,36 @@ const Button: React.FC<ButtonProps> = ({
         justifyContent={justifyContent}
       >
         <canvas ref={canvasRef}></canvas>
-        <Label color={color}>{label}</Label>
+        <ContentWrapper>
+          {icon && <Icon src={icon} />}
+          <Label color={color}>{label}</Label>
+        </ContentWrapper>
       </StyledButton>
     </ButtonWrapper>
   );
 };
 
+// Styled components
 const ButtonWrapper = styled.div<{ margin?: string }>`
   display: inline-block;
   width: 100%;
   margin: ${(props) => props.margin || "0"};
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  z-index: 2; /* Ensure it's above the canvas */
+  transition: 0.3s;
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
 `;
 
 const StyledButton = styled.button<{
@@ -99,15 +123,9 @@ const StyledButton = styled.button<{
 `;
 
 const Label = styled.span<{ color?: string }>`
-  position: absolute;
-  z-index: 2;
   font-size: 16px;
   font-weight: bold;
   color: ${(props) => props.color};
-  transition: 0.3s;
-  &:hover {
-    transform: scale(1.1);
-  }
 `;
 
 export default Button;

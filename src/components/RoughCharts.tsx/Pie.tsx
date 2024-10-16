@@ -23,45 +23,70 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
         const width = chartRef.current.clientWidth;
         const height = chartRef.current.clientHeight;
 
-        let bottomMargin, translateX, translateY, viewBoxX, viewBoxY;
+        let bottomMargin,
+          translateX,
+          translateY,
+          viewBoxX,
+          viewBoxY,
+          legendTranslateX,
+          legendTranslateY,
+          legendScale;
 
         // 設置不同寬度下的邊距和位移
         if (window.innerWidth < 360) {
           bottomMargin = 0;
           translateX = -50; // 左右調整
           translateY = 0;
-          viewBoxX = -100; // 增加 viewBox 寬度以給 tooltip 空間
-          viewBoxY = 10;
+          viewBoxX = -100;
+          viewBoxY = -100;
+          legendTranslateX = -1000;
+          legendTranslateY = -30;
+          legendScale = 1;
         } else if (window.innerWidth < 480) {
           bottomMargin = 0;
           translateX = -50; // 左右調整
           translateY = 0;
           viewBoxX = -100;
-          viewBoxY = 200;
+          viewBoxY = -100;
+          legendTranslateX = 100;
+          legendTranslateY = -30;
+          legendScale = 1;
         } else if (window.innerWidth < 768) {
           bottomMargin = 20;
           translateX = -50; // 左右調整
           translateY = 0;
           viewBoxX = -100;
-          viewBoxY = 10;
+          viewBoxY = -100;
+          legendTranslateX = 100;
+          legendTranslateY = -30;
+          legendScale = 1;
         } else if (window.innerWidth < 1000) {
           bottomMargin = 120;
           translateX = -100; // 左右調整
           translateY = -50;
-          viewBoxX = -150;
-          viewBoxY = -50;
+          viewBoxX = -100;
+          viewBoxY = -100;
+          legendTranslateX = -400;
+          legendTranslateY = -30;
+          legendScale = 1.5;
         } else if (window.innerWidth < 1280) {
           bottomMargin = 0;
-          translateX = -100; // 左右調整
+          translateX = -1000; // 左右調整
           translateY = 0;
           viewBoxX = -100;
-          viewBoxY = 50;
+          viewBoxY = -100;
+          legendTranslateX = -800;
+          legendTranslateY = -30;
+          legendScale = 2;
         } else {
           bottomMargin = 0;
           translateX = -100; // 左右調整
           translateY = 0;
           viewBoxX = -100;
           viewBoxY = -100;
+          legendTranslateX = -1100;
+          legendTranslateY = -30;
+          legendScale = 2;
         }
 
         // 計算百分比後的資料
@@ -104,7 +129,7 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
                 // 對 legend 進行縮放
                 legend.setAttribute(
                   "transform",
-                  "translate(-1000,-30) scale(2)"
+                  `translate(${legendTranslateX}, ${legendTranslateY}) scale(${legendScale})`
                 ); // 調整 scale 值可以改變圖例大小
               }
             }

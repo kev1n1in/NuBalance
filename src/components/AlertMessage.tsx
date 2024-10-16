@@ -46,5 +46,5 @@ const AlertContainer = styled.div`
   z-index: 1000;
   font-size: 16px;
   font-weight: bold;
-  animation: ${slideIn} 0.5s ease-out, ${slideOut} 0.5s ease-in 1.5s forwards;
+  animation: ${slideIn} 0.5s ease-out, ${slideOut} 0.5s ease-in 0.75s forwards;
 `;

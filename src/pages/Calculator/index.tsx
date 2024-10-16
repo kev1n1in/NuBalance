@@ -20,7 +20,6 @@ import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
 import pointer from "./pointer.png";
-import { log } from "console";
 
 const Calculator = () => {
   const [userData, setUserData] = useState({
@@ -181,27 +180,29 @@ const Calculator = () => {
         <TdeeContainer>
           <Form>
             <HeadFormItem>
-              <GenderContainer>
+              <GenderWrapper>
                 <FormTitle>
                   Gender
                   <RequiredMark />
                 </FormTitle>
-
-                <GenderText
-                  isSelected={userData.gender === "male"}
-                  isMale={true}
-                  onClick={() => handleInputChange("gender", "male")}
-                >
-                  Male
-                </GenderText>
-                <GenderText
-                  isSelected={userData.gender === "female"}
-                  isMale={false}
-                  onClick={() => handleInputChange("gender", "female")}
-                >
-                  Female
-                </GenderText>
-              </GenderContainer>
+                <GenderContainer>
+                  {" "}
+                  <GenderText
+                    isSelected={userData.gender === "male"}
+                    isMale={true}
+                    onClick={() => handleInputChange("gender", "male")}
+                  >
+                    Male
+                  </GenderText>
+                  <GenderText
+                    isSelected={userData.gender === "female"}
+                    isMale={false}
+                    onClick={() => handleInputChange("gender", "female")}
+                  >
+                    Female
+                  </GenderText>
+                </GenderContainer>
+              </GenderWrapper>
 
               <ActiveContainer>
                 <FormTitle>
@@ -426,21 +427,19 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @media (max-width: 1000px) {
+    height: 100vh;
     margin: 50px 100px 72px 50px;
   }
   @media (max-width: 768px) {
-    height: 1200px;
+    height: 1350px;
   }
 `;
 
 const Title = styled.h1`
   font-size: 40px;
-  @media (max-width: 1000px) {
-    text-align: center;
-  }
-  @media (max-width: 360px) {
-    width: 120px;
-    margin: 0 auto;
+
+  @media (max-width: 480px) {
+    font-size: 32px;
   }
 `;
 const TdeeContainer = styled.div`
@@ -463,12 +462,20 @@ const HeadFormItem = styled.div`
   margin: 12px 0;
   width: 100%;
   gap: 24px;
+  @media (max-width: 1280px) {
+    flex-direction: column;
+    align-items: start;
+  }
 `;
-const GenderContainer = styled.div`
+const GenderWrapper = styled.div`
   display: flex;
   width: 50%;
   gap: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
+const GenderContainer = styled.div``;
 
 const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
   font-size: 30px;
@@ -483,6 +490,9 @@ const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
     color: ${({ isSelected, isMale }) =>
       isSelected ? (isMale ? "#92bde2" : "#FFB6C1") : "#BDBDBD"};
   }
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
 `;
 
 const ActiveContainer = styled.div`
@@ -490,6 +500,13 @@ const ActiveContainer = styled.div`
   justify-content: end;
   align-items: end;
   width: 50%;
+  @media (max-width: 1280px) {
+    justify-content: start;
+  }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: start;
+  }
 `;
 const FormItem = styled.div`
   display: flex;
@@ -516,6 +533,9 @@ const FormTitle = styled.span`
   margin-right: 24px;
   width: 170px;
   color: black;
+  @media (max-width: 480px) {
+    font-size: 24px;
+  }
 `;
 
 const Input = styled.input`
@@ -531,21 +551,8 @@ const Input = styled.input`
 const CaloriesContainer = styled.div`
   display: flex;
   position: relative;
-
-  @media (max-width: 1000px) {
+  @media (max-width: 1280px) {
     flex-direction: column;
-    right: -36px;
-  }
-  @media (max-width: 768px) {
-    top: -36px;
-  }
-  @media (max-width: 480px) {
-    top: -30px;
-    left: 8px;
-  }
-  @media (max-width: 360px) {
-    top: -30px;
-    left: 4px;
   }
 `;
 const TotalCaloriesContainer = styled.div`
@@ -568,37 +575,23 @@ const CaloriesText = styled.div`
   bottom: 12px;
   font-size: 20px;
   font-weight: 700;
-  @media (max-width: 1000px) {
-    top: 0px;
-    left: 120px;
-  }
-  @media (max-width: 768px) {
-    top: -24px;
-  }
-  @media (max-width: 480px) {
-    top: -16px;
-    left: 60px;
-  }
-  @media (max-width: 360px) {
-    top: -16px;
-    left: 12px;
-  }
 `;
 
 const ButtonContainer = styled.div`
   position: relative;
   margin-top: 24px;
   width: 150px;
-  @media (max-width: 1000px) {
-    width: 100%;
-  }
-  @media (max-width: 768px) {
-    top: -24px;
-  }
 `;
 const SelectContainer = styled.div`
   position: relative;
   width: 50%;
+  @media (max-width: 1280px) {
+    min-width: 200px;
+    margin-left: 24px;
+  }
+  @media (max-width: 768px) {
+    margin: 24px 0 0 0;
+  }
 `;
 const Pointer = styled.img`
   position: absolute;

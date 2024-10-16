@@ -28,7 +28,7 @@ const useConfirmDialog = () => {
 
     setTimeout(() => {
       closeDialog();
-    }, 1000);
+    }, 100);
   };
 
   return {
@@ -41,10 +41,13 @@ const useConfirmDialog = () => {
         contentText={
           <>
             Are you sure you want to delete
-            <span style={{ color: "#df522f", fontWeight: "bold" }}>
+            <span
+              style={{ margin: "0 8px", color: "#df522f", fontWeight: "bold" }}
+            >
               {dialogData}
             </span>
-            ? This action cannot be undone.
+            ? <br />
+            This action cannot be undone.
           </>
         }
         confirmButtonText="Delete"

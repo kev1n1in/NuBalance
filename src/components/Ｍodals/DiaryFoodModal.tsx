@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Button from "../Button";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import {
   fetchDiaryEntryById,
   updateDiaryEntry,
@@ -93,10 +93,11 @@ const moods: MoodItem[] = [
   { id: "angry", name: "生氣", imgSrc: angryImg },
 ];
 
-const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
-  onClose,
-  entryId,
-}) => {
+const DiaryFoodModal: React.FC<{
+  onClose: () => void;
+  entryId: string;
+  selectedDate: Date;
+}> = ({ onClose, entryId, selectedDate }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { selectedFood, setSelectedFood } = useFoodStore();
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
@@ -109,7 +110,11 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
+  const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
+
   const annotationRef = useRef<any>(null);
+  const queryClient = useQueryClient();
   const currentUser = auth.currentUser;
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -212,10 +217,48 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
   };
 
   const handleMoodClick = (mood: MoodItem) => {
-    setSelectedMood((prevSelected) =>
-      prevSelected?.id === mood.id ? null : mood
+    // 簡單地更新或清除選中的心情
+    setSelectedMood((prevMood) =>
+      prevMood && prevMood.id === mood.id ? null : mood
     );
   };
+
+  useEffect(() => {
+    // 清除所有心情的標記
+    moodAnnotations.forEach((annotation) => {
+      if (annotation) {
+        annotation.hide();
+      }
+    });
+    setMoodAnnotations(new Array(moods.length).fill(null));
+
+    // 如果有選中的心情，則添加標記
+    if (selectedMood) {
+      const index = moods.findIndex((mood) => mood.id === selectedMood.id);
+      if (index !== -1) {
+        const annotation = annotate(moodRefs.current[index] as HTMLElement, {
+          type: "circle",
+          color: "#709a46", // 選擇你喜歡的顏色
+          padding: 8,
+        });
+        annotation.show();
+        const newAnnotations = [...moodAnnotations];
+        newAnnotations[index] = annotation;
+        setMoodAnnotations(newAnnotations);
+      }
+    }
+  }, [selectedMood]); // 監聽 selectedMood 的變化
+
+  useEffect(() => {
+    // 清理標記
+    return () => {
+      moodAnnotations.forEach((annotation) => {
+        if (annotation) {
+          annotation.remove();
+        }
+      });
+    };
+  }, []);
 
   const handleSave = async () => {
     if (!currentUser) {
@@ -242,6 +285,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
       console.log("日記條目已更新");
 
       addAlert("編輯成功");
+      queryClient.invalidateQueries(["diaryEntries", selectedDate]);
       setTimeout(() => {
         onClose();
       }, 1000);
@@ -331,11 +375,12 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
         </FoodSelectorWrapper>
 
         <MoodSelectorContainer>
-          {moods.map((mood) => (
+          {moods.map((mood, index) => (
             <MoodContainer
               key={mood.id}
               onClick={() => handleMoodClick(mood)}
               isSelected={selectedMood?.id === mood.id}
+              ref={(el) => (moodRefs.current[index] = el)}
             >
               <Mood src={mood.imgSrc} alt={mood.name} />
             </MoodContainer>
@@ -372,7 +417,7 @@ const DiaryFoodModal: React.FC<{ onClose: () => void; entryId: string }> = ({
 const Wrapper = styled.div`
   width: 100%;
   height: 80vh;
-  margin-top: 48px;
+  margin-top: 100px;
 `;
 const Container = styled.div`
   display: flex;
@@ -387,6 +432,10 @@ const MealSelectorContainer = styled.div`
   height: 150px;
   width: 100%;
   align-items: center;
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const MealContainer = styled.div`
@@ -406,6 +455,9 @@ const Meal = styled(motion.img).attrs<{ isSelected: boolean }>(
 )<{ isSelected: boolean }>`
   width: 140px;
   height: auto;
+  @media (max-width: 768px) {
+    width: 100px;
+  }
 `;
 
 const MealName = styled.span<{ isSelected: boolean }>`
@@ -446,6 +498,13 @@ const FoodSelectorContainer = styled.div`
   width: 100%;
   padding: 24px;
   margin-top: 24px;
+  @media (max-width: 768px) {
+    margin-top: 100px;
+  }
+  @media (max-width: 480px) {
+    height: 450px;
+    justify-content: start;
+  }
 `;
 const TapeContainer = styled.div`
   position: absolute;
@@ -490,8 +549,15 @@ const ImageUploadContainer = styled.div`
   position: absolute;
   top: 4px;
   right: 48px;
-
   transform: rotate(10deg);
+  @media (max-width: 768px) {
+    right: -9px;
+    transform: rotate(56deg);
+  }
+  @media (max-width: 480px) {
+    top: auto;
+    bottom: 40px;
+  }
 `;
 const Polaroid = styled.img`
   position: absolute;
@@ -562,12 +628,16 @@ const MoodSelectorContainer = styled.div`
   display: flex;
   justify-content: center;
   margin: 12px 0;
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    justify-content: start;
+  }
 `;
 
 const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
   ({ isSelected }) => ({
     initial: { scale: 1 },
-    animate: { scale: isSelected ? 1.3 : 1 },
+    animate: { scale: isSelected ? 1.5 : 1 },
     transition: { type: "spring", stiffness: 300 },
   })
 )<{ isSelected: boolean }>`
@@ -581,6 +651,9 @@ const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
 const Mood = styled.img`
   width: 64px;
   height: auto;
+  @media (max-width: 480px) {
+    width: 40px;
+  }
 `;
 
 export default DiaryFoodModal;

@@ -9,7 +9,7 @@ const Loader = ({ isLoading }: LoadingProps) =>
   isLoading ? (
     <LoaderOverlay>
       <PacmanLoader color="black" size={50} />
-      <LoadingMessage>加載中...</LoadingMessage>
+      <LoadingMessage>Loading...</LoadingMessage>
     </LoaderOverlay>
   ) : null;
 const LoaderOverlay = styled.div`
@@ -29,7 +29,7 @@ const LoaderOverlay = styled.div`
 const LoadingMessage = styled.span`
   margin-top: 20px;
   font-size: 18px;
-  color: white;
+  color: black;
 `;
 
 export default Loader;

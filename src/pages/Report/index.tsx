@@ -226,7 +226,7 @@ const Report: React.FC = () => {
 const Wrapper = styled.div`
   display: flex;
   background-color: #f0f0f0;
-  height: 100vh;
+  height: 110vh;
   margin: 0 0 0 150px;
   @media (max-width: 1000px) {
     margin: 0;

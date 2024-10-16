@@ -18,7 +18,7 @@ import aweImg from "../../asset/moodsImg/Awe.png";
 import eatingHappyImg from "../../asset/moodsImg/Eating_Happy.png";
 import rageImg from "../../asset/moodsImg/Rage.png";
 import suspiciousImg from "../../asset/moodsImg/Suspicious.png";
-import fearImg from "../../asset/moodsImg/angry.png";
+import fearImg from "../../asset/moodsImg/fear.png";
 import lovingImg from "../../asset/moodsImg/loving.png";
 import angryImg from "../../asset/moodsImg/angry.png";
 import Modal from "../../components/Ｍodals/Modal";
@@ -36,6 +36,8 @@ import { annotate } from "rough-notation";
 import { useDropzone } from "react-dropzone";
 import polaroid from "./polaroid.png";
 import useAlert from "../../hooks/useAlertMessage";
+import debounce from "lodash.debounce";
+import RequiredMark from "../../components/RequiredMark";
 
 type FoodItem = {
   id: string;
@@ -98,6 +100,10 @@ const Diary = () => {
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState<string>("");
+  const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [isInline, setIsInline] = useState(true);
+  const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
+
   const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -134,6 +140,21 @@ const Diary = () => {
       });
       annotation.show();
     }
+  }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsInline(false);
+      } else {
+        setIsInline(true);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -175,11 +196,38 @@ const Diary = () => {
     );
   };
 
-  const handleMoodClick = (mood: MoodItem) => {
-    setSelectedMood((prevSelected) =>
-      prevSelected?.id === mood.id ? null : mood
-    );
+  const handleMoodClick = (mood: MoodItem, index: number) => {
+    setSelectedMood((prevSelected) => {
+      const isSelected = prevSelected?.id === mood.id;
+
+      moodAnnotations.forEach((annotation, idx) => {
+        if (annotation) {
+          annotation.hide();
+          moodAnnotations[idx] = null;
+        }
+      });
+
+      if (!isSelected) {
+        const annotation = annotate(moodRefs.current[index] as HTMLElement, {
+          type: "circle",
+          color: "#709a46",
+          padding: 8,
+        });
+        annotation.show();
+        moodAnnotations[index] = annotation;
+      }
+
+      return isSelected ? null : mood;
+    });
   };
+
+  useEffect(() => {
+    return () => {
+      moodAnnotations.forEach((annotation) => {
+        if (annotation) annotation.hide();
+      });
+    };
+  }, []);
 
   const handleAddFood = (food: FoodItem) => {
     setSelectedFood(food);
@@ -201,13 +249,15 @@ const Diary = () => {
           setSelectedFood(null);
           setSelectedMood(null);
           setSelectedTime(new Date());
+          setImageFile(null);
+          setImagePreview(null);
 
           if (noteRef.current) noteRef.current.value = "";
 
           if (state?.fromUserInfo) {
             navigate("../userInfo");
           }
-        }, 1000);
+        }, 500);
       },
       onError: (error) => {
         console.error("日記條目保存失敗:", error);
@@ -248,6 +298,7 @@ const Diary = () => {
 
     mutation.mutate(newDiaryEntry);
   };
+  const debouncedSubmit = debounce(handleSubmit, 1000);
   const handleMenuToggle = () => {
     setToggleMenu((prev) => !prev);
   };
@@ -259,31 +310,60 @@ const Diary = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Diary</Title>
-        <MealSelectorContainer>
-          {meals.map((meal) => (
-            <MealContainer key={meal.id} onClick={() => handleMealClick(meal)}>
-              <Meal
-                isSelected={selectedMeal?.id === meal.id}
-                src={
-                  selectedMeal?.id === meal.id ? meal.selectImgSrc : meal.imgSrc
-                }
-                alt={meal.name}
-              />
-              <MealName isSelected={selectedMeal?.id === meal.id}>
-                {meal.name}
-              </MealName>
-            </MealContainer>
-          ))}
-        </MealSelectorContainer>
+        <MobileImageUploadContainer>
+          <Polaroid src={polaroid} />
+          <BoxShadowFront />
+          <BoxShadowBack />
+          <UploadBox {...getRootProps()}>
+            <input {...getInputProps()} />
+            {imagePreview ? (
+              <PreviewImage src={imagePreview} alt="Uploaded" />
+            ) : (
+              <PlusIcon>+</PlusIcon>
+            )}
+          </UploadBox>
+        </MobileImageUploadContainer>
+        <MealSelectorWrapper>
+          {" "}
+          <MealSelectorTitle
+            ref={(el) => (titleRefs.current[0] = el)}
+            onMouseEnter={() => handleMouseEnter(0)}
+            onMouseLeave={() => handleMouseLeave(0)}
+          >
+            Meal Selector <RequiredMark />
+          </MealSelectorTitle>
+          <MealSelectorContainer>
+            {meals.map((meal) => (
+              <MealContainer
+                key={meal.id}
+                onClick={() => handleMealClick(meal)}
+              >
+                <Meal
+                  isSelected={selectedMeal?.id === meal.id}
+                  src={
+                    selectedMeal?.id === meal.id
+                      ? meal.selectImgSrc
+                      : meal.imgSrc
+                  }
+                  alt={meal.name}
+                />
+                <MealName isSelected={selectedMeal?.id === meal.id}>
+                  {meal.name}
+                </MealName>
+              </MealContainer>
+            ))}
+          </MealSelectorContainer>
+        </MealSelectorWrapper>
 
         <FoodAndTimePickerWrapper>
           <FoodPickerContainer>
             <FoodSelectorTitle
-              ref={(el) => (titleRefs.current[0] = el)}
-              onMouseEnter={() => handleMouseEnter(0)}
-              onMouseLeave={() => handleMouseLeave(0)}
+              ref={(el) => (titleRefs.current[1] = el)}
+              onMouseEnter={() => handleMouseEnter(1)}
+              onMouseLeave={() => handleMouseLeave(1)}
             >
               Food Selector
+              <RequiredMark />
             </FoodSelectorTitle>
             <NutritionContainer>
               <TapeContainer>
@@ -323,17 +403,18 @@ const Diary = () => {
           <TimePickerWrapper>
             <TimePickerContainer>
               <TimePickerTitle
-                ref={(el) => (titleRefs.current[1] = el)}
-                onMouseEnter={() => handleMouseEnter(1)}
-                onMouseLeave={() => handleMouseLeave(1)}
+                ref={(el) => (titleRefs.current[2] = el)}
+                onMouseEnter={() => handleMouseEnter(2)}
+                onMouseLeave={() => handleMouseLeave(2)}
               >
                 Time
+                <RequiredMark />
               </TimePickerTitle>
               <StyledFlatpickr
                 value={selectedTime}
                 onChange={(date: Date[]) => setSelectedTime(date[0])}
                 options={{
-                  inline: true,
+                  inline: isInline,
                   enableTime: true,
                   dateFormat: "Y-m-d H:i",
                 }}
@@ -345,18 +426,19 @@ const Diary = () => {
         <NoteAndMoodContainer>
           <MoodSelectorWrapper>
             <MoodSelectorTitle
-              ref={(el) => (titleRefs.current[2] = el)}
-              onMouseEnter={() => handleMouseEnter(2)}
-              onMouseLeave={() => handleMouseLeave(2)}
+              ref={(el) => (titleRefs.current[3] = el)}
+              onMouseEnter={() => handleMouseEnter(3)}
+              onMouseLeave={() => handleMouseLeave(3)}
             >
               Mood
             </MoodSelectorTitle>
             <MoodSelectorContainer>
-              {moods.map((mood) => (
+              {moods.map((mood, index) => (
                 <MoodContainer
                   key={mood.id}
-                  onClick={() => handleMoodClick(mood)}
+                  onClick={() => handleMoodClick(mood, index)}
                   isSelected={selectedMood?.id === mood.id}
+                  ref={(el) => (moodRefs.current[index] = el)}
                 >
                   <Mood src={mood.imgSrc} alt={mood.name} />
                 </MoodContainer>
@@ -365,9 +447,9 @@ const Diary = () => {
           </MoodSelectorWrapper>
           <NoteContainer>
             <NoteTitle
-              ref={(el) => (titleRefs.current[3] = el)}
-              onMouseEnter={() => handleMouseEnter(3)}
-              onMouseLeave={() => handleMouseLeave(3)}
+              ref={(el) => (titleRefs.current[4] = el)}
+              onMouseEnter={() => handleMouseEnter(4)}
+              onMouseLeave={() => handleMouseLeave(4)}
             >
               Note
             </NoteTitle>
@@ -375,7 +457,7 @@ const Diary = () => {
           </NoteContainer>
         </NoteAndMoodContainer>
         <ButtonContainer>
-          <Button strokeColor="gray" label="Save" onClick={handleSubmit} />
+          <Button strokeColor="gray" label="Save" onClick={debouncedSubmit} />
         </ButtonContainer>
         {isModalOpen && (
           <Modal title={"What did you eat?"} onClose={closeModal}>
@@ -399,6 +481,7 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 90%;
   margin: 50px auto 72px auto;
@@ -407,22 +490,47 @@ const Container = styled.div`
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-  @media (max-width: 1000px) {
+  @media (max-width: 1280px) {
     margin: 50px 100px 72px 50px;
+  }
+  @media (max-width: 768px) {
+    margin: 50px 50px 72px 50px;
+  }
+  @media (max-width: 480px) {
+    margin: 12px auto;
   }
 `;
 
 const Title = styled.h1`
   text-align: center;
   font-size: 48px;
+  @media (max-width: 1280px) {
+    text-align: start;
+  }
+  @media (max-width: 360px) {
+    font-size: 36px;
+  }
 `;
-
+const MealSelectorWrapper = styled.div`
+  width: auto;
+  margin: 0 72px;
+  @media (max-width: 1280px) {
+    margin: 48px 36px;
+  }
+  @media (max-width: 480px) {
+    margin: 8px;
+  }
+`;
+const MealSelectorTitle = styled.h2`
+  width: 230px;
+`;
 const MealSelectorContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
   height: 200px;
   align-items: center;
   @media (max-width: 768px) {
+    display: grid;
     grid-template-columns: 2fr 2fr;
   }
 `;
@@ -433,6 +541,12 @@ const MealContainer = styled.div`
   align-items: center;
   margin: 0 10px;
   cursor: pointer;
+  @media (max-width: 480px) {
+    margin: 0;
+  }
+  @media (max-width: 360px) {
+    margin-top: 12px;
+  }
 `;
 
 const Meal = styled(motion.img).attrs<{ isSelected: boolean }>(
@@ -444,6 +558,9 @@ const Meal = styled(motion.img).attrs<{ isSelected: boolean }>(
 )<{ isSelected: boolean }>`
   width: 140px;
   height: auto;
+  @media (max-width: 360px) {
+    width: 80px;
+  }
 `;
 
 const MealName = styled.span<{ isSelected: boolean }>`
@@ -451,25 +568,44 @@ const MealName = styled.span<{ isSelected: boolean }>`
   font-size: 24px;
   text-align: center;
   color: ${({ isSelected }) => (isSelected ? "#a23419" : "black")};
+  @media (max-width: 360px) {
+    font-size: 20px;
+  }
 `;
 
 const FoodAndTimePickerWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
+  width: 90%;
   margin: 0 72px;
-
+  @media (max-width: 1280px) {
+    margin: 0 36px;
+  }
   @media (max-width: 768px) {
+    flex-direction: column;
     margin-top: 48px;
+  }
+  @media (max-width: 480px) {
+    margin: 60px 8px 8px 8px;
+  }
+  @media (max-width: 360px) {
+    margin: 20px 8px 8px 8px;
   }
 `;
 const FoodPickerContainer = styled.div`
   width: 65%;
-
   margin-right: 48px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 const FoodSelectorContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 60%;
+  @media (max-width: 1280px) {
+    width: 100%;
+  }
 `;
 const FoodSelectorTitle = styled.h2`
   width: 250px;
@@ -531,11 +667,21 @@ const Nutrition = styled.div`
   background-color: white;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
   font-size: 24px;
+  @media (max-width: 768px) {
+    height: 450px;
+  }
+  @media (max-width: 480px) {
+    padding: 24px 8px;
+  }
 `;
 
 const TimePickerWrapper = styled.div`
   display: flex;
   margin-top: 24px;
+  @media (max-width: 768px) {
+    margin-top: 140px;
+    width: 100%;
+  }
 `;
 const TimePickerContainer = styled.div`
   display: flex;
@@ -549,8 +695,27 @@ const TimePickerContainer = styled.div`
   @media (max-width: 768px) {
     margin: 24px 0;
   }
+  @media (max-width: 480px) {
+    .flatpickr-calendar.inline {
+      right: 30px;
+      transform: scale(0.8);
+    }
+  }
   @media (max-width: 360px) {
-    margin: 48px 0;
+    margin: 48px 0 0 0;
+    .flatpickr-calendar.inline {
+      top: 24px !important;
+      right: 46px;
+      transform: scale(0.7);
+    }
+  }
+  @media (max-width: 300px) {
+    margin: 48px 0 0 0;
+    .flatpickr-calendar.inline {
+      top: 12px !important;
+      right: 62px;
+      transform: scale(0.6);
+    }
   }
 `;
 
@@ -565,6 +730,13 @@ const StyledFlatpickr = styled(Flatpickr)`
   top: -8px;
   height: 50px;
   width: 150px;
+  @media (max-width: 480px) {
+    left: 90px;
+  }
+  @media (max-width: 360px) {
+    top: 48px;
+    left: 0;
+  }
 `;
 
 const ImageUploadContainer = styled.div`
@@ -572,10 +744,39 @@ const ImageUploadContainer = styled.div`
   position: absolute;
   top: 4px;
   right: 48px;
-
   transform: rotate(10deg);
+  @media (max-width: 1280px) {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    display: flex;
+    top: 220px;
+    right: -20px;
+    transform: rotate(40deg);
+  }
+  @media (max-width: 480px) {
+    top: auto;
+    right: 8px;
+    bottom: 8px;
+    transform: rotate(0deg);
+  }
 `;
-
+const MobileImageUploadContainer = styled.div`
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 48px;
+  transform: rotate(10deg);
+  @media (max-width: 1280px) {
+    display: flex;
+    top: 0px;
+    right: 80px;
+    transform: rotate(20deg);
+  }
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 const Polaroid = styled.img`
   position: absolute;
   width: 250px;
@@ -584,28 +785,37 @@ const Polaroid = styled.img`
   transform: rotate(-10deg);
   z-index: 2;
   pointer-events: none;
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 const BoxShadowFront = styled.div`
   display: flex;
   position: absolute;
   width: 160px;
   height: 160px;
-  top: 20px;
+  top: 18px;
   left: -8px;
   transform: rotate(0deg);
   box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
   z-index: -1;
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 const BoxShadowBack = styled.div`
   display: flex;
   position: absolute;
   width: 160px;
   height: 160px;
-  top: 24px;
+  top: 20px;
   left: 12px;
   transform: rotate(-11deg);
   box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
   z-index: -1;
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 
 const UploadBox = styled.div`
@@ -617,6 +827,14 @@ const UploadBox = styled.div`
   align-items: center;
   cursor: pointer;
   background-color: #f9f9f9;
+  @media (max-width: 480px) {
+    width: 120px;
+    height: 120px;
+  }
+  @media (max-width: 360px) {
+    width: 100px;
+    height: 100px;
+  }
 `;
 
 const PlusIcon = styled.div`
@@ -626,18 +844,35 @@ const PlusIcon = styled.div`
 
 const NoteAndMoodContainer = styled.div`
   display: flex;
+  width: 90%;
+  justify-content: space-between;
   margin: 24px 72px;
+  @media (max-width: 1280px) {
+    flex-direction: column;
+    margin: 0 36px;
+  }
+  @media (max-width: 480px) {
+    margin: 8px;
+  }
 `;
 const MoodSelectorWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 50%;
   margin-top: 24px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const MoodSelectorContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: start;
+  }
 `;
 
 const MoodSelectorTitle = styled.h2`
@@ -661,19 +896,23 @@ const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
 const Mood = styled.img`
   width: 50px;
   height: auto;
+  @media (max-width: 480px) {
+    width: 46px;
+  }
+  @media (max-width: 360px) {
+    width: 42px;
+  }
 `;
 const NoteContainer = styled.div`
   width: 50%;
   margin: 24px 10px 0 20px;
+  @media (max-width: 1280px) {
+    width: 100%;
+    margin: 24px 0;
+  }
 `;
 const NoteTitle = styled.h2`
   width: 80px;
-`;
-
-const NoteImg = styled.img`
-  display: none;
-  position: absolute;
-  height: 100px;
 `;
 
 const NoteInput = styled.input`

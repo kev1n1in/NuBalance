@@ -51,7 +51,19 @@ export const updateUserProfile = async (user: User, userName?: string) => {
     throw error;
   }
 };
-
+export const fetchUserName = async (user: User): Promise<string> => {
+  if (!user) {
+    throw new Error("尚未登入");
+  }
+  const userRef = doc(db, "users", user.uid);
+  const userSnapshot = await getDoc(userRef);
+  if (userSnapshot.exists()) {
+    const userData = userSnapshot.data();
+    return userData.username || "未知用户名";
+  } else {
+    throw new Error("資料發生錯誤");
+  }
+};
 interface FoodItem {
   food_name: string;
   food_info: string[];
@@ -305,19 +317,9 @@ export const getUserHistory = async (
   const sortedHistory = filteredHistory.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
-
-  // 返回最新的歷史紀錄
   if (returnLatest) {
     const latestEntry = sortedHistory.length > 0 ? sortedHistory[0] : null;
-
-    if (latestEntry && latestEntry.tdee) {
-      return {
-        tdee: latestEntry.tdee,
-        bmi: latestEntry.bmi,
-        bodyFat: latestEntry.bodyFat,
-      };
-    }
-    return { tdee: 1800, bmi: 0, bodyFat: 0 }; // 增加預設返回值
+    return latestEntry; // 直接返回整個最新的歷史條目
   }
 
   // 根據指定日期篩選紀錄

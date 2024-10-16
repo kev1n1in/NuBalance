@@ -151,7 +151,11 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 80vh;
-  margin-top: 60px;
+  margin-top: 110px;
+  padding: 0 20px;
+  @media (max-width: 480px) {
+    margin-top: 80px;
+  }
 `;
 
 const InputContainer = styled.div`
