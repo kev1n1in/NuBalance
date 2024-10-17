@@ -11,8 +11,7 @@ import { auth } from "../../firebase/firebaseConfig";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import Loader from "../../components/Loader";
-import Slider from "../../components/Slider";
-import { Select, MenuItem } from "@mui/material";
+import { Select, MenuItem, Menu } from "@mui/material";
 import BGI from "../../asset/draft.png";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
@@ -20,9 +19,21 @@ import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
 import pointer from "./pointer.png";
+import FormItem from "../../components/CalculatorInput/FormItem";
+
+interface userDataProps {
+  age: number;
+  gender: string;
+  weight: number;
+  height: number;
+  activityLevel: string;
+  bodyFat: number;
+  totalCalories: number;
+  [key: string]: string | number;
+}
 
 const Calculator = () => {
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<userDataProps>({
     age: 34,
     gender: "male",
     weight: 60,
@@ -31,14 +42,34 @@ const Calculator = () => {
     bodyFat: 17,
     totalCalories: 2141,
   });
-
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const navigate = useNavigate();
   const location = useLocation();
-  const [reloadFlag, setReloadFlag] = useState(false);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const { addAlert, AlertMessage } = useAlert();
 
+  const activityLevels = [
+    "Sedentary",
+    "Light",
+    "Moderate",
+    "Active",
+    "Very Active",
+  ];
+  const formItems = [
+    { title: "Age", field: "age", min: 0, max: 150, required: true },
+    { title: "Weight", field: "weight", min: 0, max: 200, required: true },
+    { title: "Height", field: "height", min: 100, max: 250, required: true },
+    { title: "Body Fat", field: "bodyFat", min: 0, max: 150, required: false },
+  ];
+  const getUserDataProps = (userData: userDataProps) => {
+    return {
+      weight: userData.weight,
+      height: userData.height,
+      age: userData.age,
+      gender: userData.gender,
+      activityLevel: userData.activityLevel,
+    };
+  };
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -51,12 +82,14 @@ const Calculator = () => {
   }, []);
 
   const updateCalculation = () => {
+    const { weight, height, age, gender, activityLevel } =
+      getUserDataProps(userData);
     const newTDEE = TDEECalculator.calculateTDEE(
-      userData.weight,
-      userData.height,
-      userData.age,
-      userData.gender,
-      userData.activityLevel
+      height,
+      weight,
+      age,
+      gender,
+      activityLevel
     );
     setUserData((prevState) => ({
       ...prevState,
@@ -64,7 +97,6 @@ const Calculator = () => {
     }));
   };
 
-  // 自動更新 TDEE 計算
   useEffect(() => {
     updateCalculation();
   }, [
@@ -75,8 +107,7 @@ const Calculator = () => {
     userData.activityLevel,
   ]);
 
-  // 從 Firebase 中獲取最新的 TDEE 數據
-  const { data: latestTDEE, isLoading } = useQuery(
+  const { isLoading } = useQuery(
     "latestTDEE",
     async () => {
       if (!currentUser) {
@@ -104,16 +135,12 @@ const Calculator = () => {
       },
     }
   );
-
   const mutation = useMutation(
     async () => {
       if (!currentUser) {
         throw new Error("請先登入");
       }
       const bmi = TDEECalculator.calculateBMI(userData.weight, userData.height);
-      console.log("正在計算的 BMI:", bmi);
-
-      // 獲取當前的時間戳
       const clientUpdateTime = Timestamp.fromDate(new Date());
 
       await updateTDEEHistory(
@@ -135,10 +162,7 @@ const Calculator = () => {
 
         setTimeout(() => {
           if (location.state?.fromSidebar) {
-            setReloadFlag(true);
-            setTimeout(() => {
-              setReloadFlag(false);
-            }, 500);
+            setTimeout(() => {}, 500);
           } else {
             navigate("/userinfo");
           }
@@ -158,7 +182,10 @@ const Calculator = () => {
     mutation.mutate();
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (
+    field: keyof userDataProps,
+    value: number | string
+  ) => {
     setUserData((prevState) => ({
       ...prevState,
       [field]: value,
@@ -171,6 +198,7 @@ const Calculator = () => {
 
   return (
     <Wrapper>
+      <Loader isLoading={isLoading} />
       <AlertMessage />
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
@@ -186,7 +214,6 @@ const Calculator = () => {
                   <RequiredMark />
                 </FormTitle>
                 <GenderContainer>
-                  {" "}
                   <GenderText
                     isSelected={userData.gender === "male"}
                     isMale={true}
@@ -240,146 +267,32 @@ const Calculator = () => {
                     style={{ width: "100%" }}
                     IconComponent={() => null}
                   >
-                    <MenuItem
-                      sx={{ fontFamily: "KG Second Chances" }}
-                      value="Sedentary"
-                    >
-                      Sedentary
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ fontFamily: "KG Second Chances" }}
-                      value="Light"
-                    >
-                      Light
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ fontFamily: "KG Second Chances" }}
-                      value="Moderate"
-                    >
-                      Moderate
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ fontFamily: "KG Second Chances" }}
-                      value="Active"
-                    >
-                      Active
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ fontFamily: "KG Second Chances" }}
-                      value="Very Active"
-                    >
-                      Very Active
-                    </MenuItem>
+                    {activityLevels.map((level) => (
+                      <MenuItem
+                        key={level}
+                        value={level}
+                        sx={{ fontFamily: "KG Second Chances" }}
+                      >
+                        {level}
+                      </MenuItem>
+                    ))}
                   </Select>
                   <Pointer src={pointer} />
                 </SelectContainer>
               </ActiveContainer>
             </HeadFormItem>
 
-            <FormItem>
-              <FormTitle>
-                Age
-                <RequiredMark />
-              </FormTitle>
-              <SliderWrapper>
-                <Slider
-                  value={userData.age}
-                  min={0}
-                  max={100}
-                  onChange={(e) =>
-                    handleInputChange("age", Number(e.target.value))
-                  }
-                />
-              </SliderWrapper>
-              <Input
-                type="text"
-                value={userData.age}
-                onChange={(e) =>
-                  handleInputChange(
-                    "age",
-                    Number(e.target.value.replace(/[^0-9]/g, ""))
-                  )
-                }
-              />
-            </FormItem>
-
-            <FormItem>
-              <FormTitle>
-                Weight
-                <RequiredMark />
-              </FormTitle>
-              <SliderWrapper>
-                <Slider
-                  value={userData.weight}
-                  min={0}
-                  max={200}
-                  onChange={(e) =>
-                    handleInputChange("weight", Number(e.target.value))
-                  }
-                />
-              </SliderWrapper>
-              <Input
-                type="text"
-                value={userData.weight}
-                onChange={(e) =>
-                  handleInputChange(
-                    "weight",
-                    Number(e.target.value.replace(/[^0-9]/g, ""))
-                  )
-                }
-              />
-            </FormItem>
-
-            <FormItem>
-              <FormTitle>
-                Height
-                <RequiredMark />
-              </FormTitle>
-              <SliderWrapper>
-                <Slider
-                  value={userData.height}
-                  min={100}
-                  max={250}
-                  onChange={(e) =>
-                    handleInputChange("height", Number(e.target.value))
-                  }
-                />
-              </SliderWrapper>
-              <Input
-                type="text"
-                value={userData.height}
-                onChange={(e) =>
-                  handleInputChange(
-                    "height",
-                    Number(e.target.value.replace(/[^0-9]/g, ""))
-                  )
-                }
-              />
-            </FormItem>
-
-            <FormItem>
-              <FormTitle>Body Fat</FormTitle>
-              <SliderWrapper>
-                <Slider
-                  value={userData.bodyFat}
-                  min={0}
-                  max={50}
-                  onChange={(e) =>
-                    handleInputChange("bodyFat", Number(e.target.value))
-                  }
-                />
-              </SliderWrapper>
-              <Input
-                type="text"
-                value={userData.bodyFat}
-                onChange={(e) =>
-                  handleInputChange(
-                    "bodyFat",
-                    Number(e.target.value.replace(/[^0-9]/g, ""))
-                  )
-                }
-              />
-            </FormItem>
+            {formItems.map((item) => (
+              <FormItem
+                key={item.field}
+                title={item.title}
+                value={userData[item.field] as number}
+                min={item.min}
+                max={item.max}
+                onChange={(value) => handleInputChange(item.field, value)}
+                required={item.required}
+              ></FormItem>
+            ))}
           </Form>
           <CaloriesContainer>
             <TotalCaloriesContainer>
@@ -401,7 +314,6 @@ const Calculator = () => {
           </CaloriesContainer>
         </TdeeContainer>
       </Container>
-      <Loader isLoading={isLoading} />
     </Wrapper>
   );
 };
@@ -508,25 +420,6 @@ const ActiveContainer = styled.div`
     align-items: start;
   }
 `;
-const FormItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 12px 0;
-  width: 100%;
-  gap: 24px;
-  @media (max-width: 768px) {
-    align-items: start;
-    flex-direction: column;
-  }
-`;
-
-const SliderWrapper = styled.div`
-  flex-grow: 1;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
 
 const FormTitle = styled.span`
   font-size: 36px;
@@ -536,16 +429,6 @@ const FormTitle = styled.span`
   @media (max-width: 480px) {
     font-size: 24px;
   }
-`;
-
-const Input = styled.input`
-  width: 100px;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: center;
-  font-family: "KG Second Chances";
 `;
 
 const CaloriesContainer = styled.div`
