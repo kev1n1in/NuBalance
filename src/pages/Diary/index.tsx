@@ -620,44 +620,10 @@ const MoodSelectorWrapper = styled.div`
   }
 `;
 
-const MoodSelectorContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  @media (max-width: 768px) {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: start;
-  }
-`;
-
 const MoodSelectorTitle = styled.h2`
   width: 80px;
 `;
 
-const MoodContainer = styled(motion.div).attrs<{ isSelected: boolean }>(
-  ({ isSelected }) => ({
-    initial: { scale: 1 },
-    animate: { scale: isSelected ? 1.3 : 1 },
-    transition: { type: "spring", stiffness: 300 },
-  })
-)<{ isSelected: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 12px 10px 0 10px;
-  cursor: pointer;
-`;
-
-const Mood = styled.img`
-  width: 50px;
-  height: auto;
-  @media (max-width: 480px) {
-    width: 46px;
-  }
-  @media (max-width: 360px) {
-    width: 42px;
-  }
-`;
 const NoteContainer = styled.div`
   width: 50%;
   margin: 24px 10px 0 20px;
