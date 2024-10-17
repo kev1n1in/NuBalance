@@ -3,8 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import tape from "./tape.png";
 import polaroid from "./polaroid.png";
 import { useDropzone } from "react-dropzone";
-import QueryFoodModal from "../Ｍodals/QueryFoodModal";
-import Modal from "../Ｍodals/Modal";
 import { annotate } from "rough-notation";
 
 interface FoodItem {
@@ -14,13 +12,10 @@ interface FoodItem {
 
 interface NutrientSelectorProps {
   selectedFood: FoodItem | null;
-  openModal: () => void;
+  onClick: () => void;
 }
 
-const NutrientSelector = ({
-  selectedFood,
-  openModal,
-}: NutrientSelectorProps) => {
+const NutrientSelector = ({ selectedFood, onClick }: NutrientSelectorProps) => {
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -56,19 +51,15 @@ const NutrientSelector = ({
     setIsModalOpen(false);
   };
 
-  const handleAddFood = (food: FoodItem) => {
-    setIsModalOpen(false);
-  };
   return (
-    <NutritionContainer>
+    <NutritionContainer onClick={onClick}>
       <TapeContainer>
         <TapeImg src={tape} />
         <BoxShadowTape />
       </TapeContainer>
-
       <Nutrition>
         <FoodSelectorContainer>
-          <FoodSelector onClick={openModal} ref={foodSelectorRef}>
+          <FoodSelector ref={foodSelectorRef}>
             {selectedFood ? selectedFood.food_name : "Click me to pick a food."}
           </FoodSelector>
           {selectedFood &&
@@ -90,11 +81,6 @@ const NutrientSelector = ({
           </UploadBox>
         </ImageUploadContainer>
       </Nutrition>
-      {isModalOpen && (
-        <Modal title={"What did you eat?"} onClose={closeModal}>
-          <QueryFoodModal onAddFood={handleAddFood}></QueryFoodModal>
-        </Modal>
-      )}
     </NutritionContainer>
   );
 };

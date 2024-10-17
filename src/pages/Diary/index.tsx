@@ -344,7 +344,7 @@ const Diary = () => {
             </FoodSelectorTitle>
             <NutrientSelector
               selectedFood={selectedFood}
-              openModal={openModal}
+              onClick={() => setIsModalOpen(true)}
             />
           </FoodPickerContainer>
 
