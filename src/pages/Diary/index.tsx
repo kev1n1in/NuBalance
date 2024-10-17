@@ -40,6 +40,7 @@ import RequiredMark from "../../components/RequiredMark";
 import MealSelector from "../../components/MealSelector";
 import { MealItem } from "../../types/mealTypes";
 import NutrientSelector from "../../components/FoodSelector/FoodSelector";
+import MoodSelector from "../../components/ＭoodSelector";
 
 type FoodItem = {
   id: string;
@@ -93,17 +94,11 @@ const Diary = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [inputValue, setInputValue] = useState<string>("");
-  const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [isInline, setIsInline] = useState(true);
-  const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
 
   const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
   const navigate = useNavigate();
-
-  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -152,12 +147,6 @@ const Diary = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    const inputElement = inputRef.current;
-    if (inputElement) {
-      inputElement.style.width = `${inputElement.scrollWidth}px`;
-    }
-  }, [inputValue]);
   const handleMouseEnter = (index: number) => {
     if (titleRefs.current[index] && !annotations[index]) {
       const newAnnotation = annotate(titleRefs.current[index]!, {
@@ -189,39 +178,6 @@ const Diary = () => {
       prevSelected?.id === meal.id ? null : meal
     );
   };
-
-  const handleMoodClick = (mood: MoodItem, index: number) => {
-    setSelectedMood((prevSelected) => {
-      const isSelected = prevSelected?.id === mood.id;
-
-      moodAnnotations.forEach((annotation, idx) => {
-        if (annotation) {
-          annotation.hide();
-          moodAnnotations[idx] = null;
-        }
-      });
-
-      if (!isSelected) {
-        const annotation = annotate(moodRefs.current[index] as HTMLElement, {
-          type: "circle",
-          color: "#709a46",
-          padding: 8,
-        });
-        annotation.show();
-        moodAnnotations[index] = annotation;
-      }
-
-      return isSelected ? null : mood;
-    });
-  };
-
-  useEffect(() => {
-    return () => {
-      moodAnnotations.forEach((annotation) => {
-        if (annotation) annotation.hide();
-      });
-    };
-  }, []);
 
   const handleAddFood = (food: FoodItem) => {
     setSelectedFood(food);
@@ -331,7 +287,6 @@ const Diary = () => {
             handleMealClick={handleMealClick}
           ></MealSelector>
         </MealSelectorWrapper>
-
         <FoodAndTimePickerWrapper>
           <FoodPickerContainer>
             <FoodSelectorTitle
@@ -347,7 +302,6 @@ const Diary = () => {
               onClick={() => setIsModalOpen(true)}
             />
           </FoodPickerContainer>
-
           <TimePickerWrapper>
             <TimePickerContainer>
               <TimePickerTitle
@@ -380,18 +334,11 @@ const Diary = () => {
             >
               Mood
             </MoodSelectorTitle>
-            <MoodSelectorContainer>
-              {moods.map((mood, index) => (
-                <MoodContainer
-                  key={mood.id}
-                  onClick={() => handleMoodClick(mood, index)}
-                  isSelected={selectedMood?.id === mood.id}
-                  ref={(el) => (moodRefs.current[index] = el)}
-                >
-                  <Mood src={mood.imgSrc} alt={mood.name} />
-                </MoodContainer>
-              ))}
-            </MoodSelectorContainer>
+            <MoodSelector
+              moods={moods}
+              selectedMood={selectedMood}
+              setSelectedMoodClick={setSelectedMood}
+            />
           </MoodSelectorWrapper>
           <NoteContainer>
             <NoteTitle
