@@ -31,7 +31,6 @@ import { useFoodStore } from "../../stores/foodStore";
 import { useLocation, useNavigate } from "react-router-dom";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
-import tape from "./tape.png";
 import { annotate } from "rough-notation";
 import { useDropzone } from "react-dropzone";
 import polaroid from "./polaroid.png";
@@ -40,6 +39,7 @@ import debounce from "lodash.debounce";
 import RequiredMark from "../../components/RequiredMark";
 import MealSelector from "../../components/MealSelector";
 import { MealItem } from "../../types/mealTypes";
+import NutrientSelector from "../../components/FoodSelector/FoodSelector";
 
 type FoodItem = {
   id: string;
@@ -342,39 +342,10 @@ const Diary = () => {
               Food Selector
               <RequiredMark />
             </FoodSelectorTitle>
-            <NutritionContainer>
-              <TapeContainer>
-                <TapeImg src={tape} />
-                <BoxShadowTape />
-              </TapeContainer>
-
-              <Nutrition>
-                <FoodSelectorContainer>
-                  <FoodSelector onClick={openModal} ref={foodSelectorRef}>
-                    {selectedFood
-                      ? selectedFood.food_name
-                      : "Click me to pick a food."}
-                  </FoodSelector>
-                  {selectedFood &&
-                    selectedFood.food_info.map((info, index) => (
-                      <div key={index}>{info}</div>
-                    ))}
-                </FoodSelectorContainer>
-                <ImageUploadContainer>
-                  <Polaroid src={polaroid} />
-                  <BoxShadowFront />
-                  <BoxShadowBack />
-                  <UploadBox {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    {imagePreview ? (
-                      <PreviewImage src={imagePreview} alt="Uploaded" />
-                    ) : (
-                      <PlusIcon>+</PlusIcon>
-                    )}
-                  </UploadBox>
-                </ImageUploadContainer>
-              </Nutrition>
-            </NutritionContainer>
+            <NutrientSelector
+              selectedFood={selectedFood}
+              openModal={openModal}
+            />
           </FoodPickerContainer>
 
           <TimePickerWrapper>
@@ -528,80 +499,10 @@ const FoodPickerContainer = styled.div`
     width: 100%;
   }
 `;
-const FoodSelectorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 60%;
-  @media (max-width: 1280px) {
-    width: 100%;
-  }
-`;
+
 const FoodSelectorTitle = styled.h2`
   width: 250px;
   margin: 24px 0;
-`;
-
-const FoodSelector = styled.div`
-  width: auto;
-  height: auto;
-  display: flex;
-  position: relative;
-  align-items: center;
-  justify-content: left;
-  font-size: 24px;
-  margin-bottom: 30px;
-  cursor: pointer;
-  @media (max-width: 768px) {
-    margin: 12px 0;
-  }
-`;
-
-const NutritionContainer = styled.div`
-  display: flex;
-  position: relative;
-  width: 100%;
-  height: 330px;
-`;
-const TapeContainer = styled.div`
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  width: 150px;
-  z-index: 1;
-`;
-const TapeImg = styled.img`
-  transform: translateX(-50%);
-  width: 150px;
-  height: auto;
-`;
-const BoxShadowTape = styled.div`
-  display: flex;
-  position: absolute;
-  width: 120px;
-  height: 15px;
-  top: 22px;
-  right: 95px;
-  transform: rotate(0deg);
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.16), 3px 3px 6px rgba(0, 0, 0, 0.23);
-  z-index: -1;
-`;
-const Nutrition = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  justify-content: left;
-  width: 100%;
-  padding: 36px 36px;
-  border: 2px solid #ccc;
-  background-color: white;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-  font-size: 24px;
-  @media (max-width: 768px) {
-    height: 450px;
-  }
-  @media (max-width: 480px) {
-    padding: 24px 8px;
-  }
 `;
 
 const TimePickerWrapper = styled.div`
@@ -668,28 +569,6 @@ const StyledFlatpickr = styled(Flatpickr)`
   }
 `;
 
-const ImageUploadContainer = styled.div`
-  display: flex;
-  position: absolute;
-  top: 4px;
-  right: 48px;
-  transform: rotate(10deg);
-  @media (max-width: 1280px) {
-    display: none;
-  }
-  @media (max-width: 768px) {
-    display: flex;
-    top: 220px;
-    right: -20px;
-    transform: rotate(40deg);
-  }
-  @media (max-width: 480px) {
-    top: auto;
-    right: 8px;
-    bottom: 8px;
-    transform: rotate(0deg);
-  }
-`;
 const MobileImageUploadContainer = styled.div`
   display: none;
   position: absolute;

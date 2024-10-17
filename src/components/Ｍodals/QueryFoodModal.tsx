@@ -88,10 +88,8 @@ const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
       </InputContainer>
 
       <FoodDataContainer>
-        {isLoading && <p>加載中...</p>}
-        {error && error instanceof Error ? (
-          <p>發生錯誤: {error.message}</p>
-        ) : null}
+        {isLoading && <p>Loading...</p>}
+        {error && error instanceof Error ? <p>Error: {error.message}</p> : null}
 
         {foods.length > 0 ? (
           foods.map((item) => (
