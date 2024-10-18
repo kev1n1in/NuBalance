@@ -1,7 +1,7 @@
 import Sidebar from "../../components/Sidebar";
 import styled from "styled-components";
 import Button from "../../components/Button";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
 import {
@@ -28,8 +28,7 @@ import report from "./report.png";
 import useConfirmDialog from "../../hooks/useConfirmDialog";
 import HandDrawnProgress from "../../components/ProgressBar/HandDrawnProgress";
 import useAlert from "../../hooks/useAlertMessage";
-import mobileUserImg from "./userImg-mobile.png";
-import ReactJoyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import Joyride from "../../components/Joyride";
 
 interface DiaryEntry {
   id: string;
@@ -53,51 +52,11 @@ const UserInfo = () => {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const [run, setRun] = useState(false);
-  const [steps, setSteps] = useState<Step[]>([]);
-  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { ConfirmDialogComponent, openDialog } = useConfirmDialog();
   const { addAlert, AlertMessage } = useAlert();
-
-  const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status } = data as { status: "finished" | "skipped" | "error" };
-    if (["finished", "skipped"].includes(status)) {
-      setRun(false);
-    }
-  };
-
-  useEffect(() => {
-    setSteps([
-      {
-        target: ".calculate-tdee-button",
-        content:
-          "Click here to calculate your Total Daily Energy Expenditure (TDEE).",
-        placement: "top",
-        spotlightPadding: 10,
-      },
-      {
-        target: ".search-food-button",
-        content: "Click here to search for food nutrients and calories.",
-        placement: "top",
-        spotlightPadding: 10,
-      },
-      {
-        target: ".create-diary-button",
-        content: "Click here to create a new diary entry.",
-        placement: "top",
-        spotlightPadding: 10,
-      },
-      {
-        target: ".check-report-button",
-        content: "Click here to check your detailed progress report.",
-        placement: "top",
-        spotlightPadding: 10,
-      },
-    ]);
-    setRun(false);
-  }, []);
-
   const {
     data: latestTDEE = { tdee: 2141, bmi: 0, bodyFat: 0 },
     isLoading: isLoadingTDEE,
@@ -275,26 +234,7 @@ const UserInfo = () => {
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
-        <ReactJoyride
-          continuous={true}
-          run={run}
-          steps={steps}
-          callback={handleJoyrideCallback}
-          showSkipButton={true}
-          showProgress={true}
-          styles={{
-            options: {
-              zIndex: 10000,
-              arrowColor: "#eee",
-              backgroundColor: "#fff",
-              overlayColor: "rgba(54, 54, 54, 0.4)",
-              primaryColor: "#ff0000",
-              textColor: "#333",
-              spotlightShadow: "0 0 15px rgba(255, 0, 0, 0.8)",
-            },
-          }}
-        />
-
+        <Joyride run={run} setRun={setRun}></Joyride>
         <JoyrideButton onClick={() => setRun(true)}>Start Tour</JoyrideButton>
         <MobileJoyrideButton onClick={() => setRun(true)}>
           ?
@@ -307,7 +247,7 @@ const UserInfo = () => {
           <InfoContainer>
             <UserInfoCotainer>
               <UserContainer>
-                <UserImage src={mobileUserImg} />
+                <UserImage src={userImg} />
                 <UserName>{displayName}</UserName>
                 <MobileUserName>Hello!{displayName}</MobileUserName>
               </UserContainer>
