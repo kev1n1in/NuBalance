@@ -1,9 +1,5 @@
 import { useState, useEffect, MouseEvent } from "react";
-import {
-  signInWithGoogle,
-  signInWithEmail,
-  signUpWithEmail,
-} from "../../firebase/firebaseAuth";
+import { signInWithEmail, signUpWithEmail } from "../../firebase/firebaseAuth";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -50,11 +46,9 @@ const Login = () => {
       if (currentUser) {
         setUser(currentUser);
         Cookies.set("isLoggedIn", "true", { expires: 7 });
-        console.log("Logged in as:", currentUser.email);
       } else {
         setUser(null);
         Cookies.remove("isLoggedIn");
-        console.log("User logged out");
       }
     });
 
@@ -66,8 +60,6 @@ const Login = () => {
 
     try {
       const user: User = await signInWithEmail(inputEmail, inputPassword);
-      console.log("Login Success:", user);
-
       if (user) {
         await updateUserProfile(user, inputEmail);
 
@@ -81,9 +73,9 @@ const Login = () => {
       } else {
         addAlert("User is not logged in. Please log in first.");
       }
-    } catch (error: any) {
+    } catch (error) {
       addAlert("Login failed. Please try again.");
-      console.error("Login failed:", error);
+      throw error;
     }
   };
   const handleInputChange =
@@ -120,27 +112,24 @@ const Login = () => {
         inputPassword,
         inputUser
       );
-      console.log("Sign Up Success:", newUser);
       addAlert("註冊成功！請使用您的帳號登入。");
-
       setIsSignUp(false);
-    } catch (error: any) {
-      addAlert(`註冊失敗: ${error.message}`);
-      console.error("Sign Up failed:", error);
+    } catch (error) {
+      throw error;
     }
   };
 
   const removeMessage = () => {
-    setMessages((prevMessages) => prevMessages.slice(1)); // 每次移除 array 中的第一個訊息
+    setMessages((prevMessages) => prevMessages.slice(1));
   };
 
   useEffect(() => {
     if (messages.length > 0) {
       const timer = setTimeout(() => {
-        removeMessage(); // 自動移除訊息
+        removeMessage();
       }, 10);
 
-      return () => clearTimeout(timer); // 清除計時器避免 memory leak
+      return () => clearTimeout(timer);
     }
   }, [messages]);
 
@@ -255,7 +244,7 @@ const Wrapper = styled.div`
   background-image: url(${BGI});
   width: 100%;
   height: 100%;
-  position: relative; // 確保父容器是相對定位
+  position: relative;
   overflow: hidden;
 `;
 const Title = styled.h1`

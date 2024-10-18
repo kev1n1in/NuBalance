@@ -13,12 +13,10 @@ export const signInWithGoogle = async (
   accessToken: string
 ): Promise<UserCredential> => {
   try {
-    const credential = GoogleAuthProvider.credential(null, accessToken); // 使用 accessToken
+    const credential = GoogleAuthProvider.credential(null, accessToken);
     const userCredential = await signInWithCredential(auth, credential);
-    console.log("登入成功:", userCredential.user);
-    return userCredential; // 返回 UserCredential
+    return userCredential;
   } catch (error) {
-    console.error("登入失敗", error);
     throw error;
   }
 };
@@ -29,27 +27,15 @@ export const signInWithEmail = async (email: string, password: string) => {
       email,
       password
     );
-    console.log("登入成功", userCredential);
     await updateUserProfile(userCredential.user);
     return userCredential.user;
-  } catch (error: any) {
-    console.error("登入失敗:", error.code, error.message);
-    if (error.code === "auth/network-request-failed") {
-      console.log("網絡請求失敗，可能是 CORS 問題或網絡環境問題。");
-    }
+  } catch (error) {
     throw error;
   }
 };
 
-export const signOutUser = async () => {
-  try {
-    await signOut(auth);
-    console.log("成功登出");
-  } catch (error) {
-    console.error("登出失敗", error);
-    throw error;
-  }
-};
+export const signOutUser = () => signOut(auth);
+
 export const signUpWithEmail = async (
   email: string,
   password: string,
@@ -62,20 +48,10 @@ export const signUpWithEmail = async (
       password
     );
     const user = userCredential.user;
-    console.log("註冊成功:", user);
-
     await updateUserProfile(user, username);
 
     return user;
-  } catch (error: any) {
-    console.error("註冊失敗:", error.code, error.message);
-    if (error.code === "auth/email-already-in-use") {
-      console.log("該電子郵件地址已被註冊。");
-    } else if (error.code === "auth/invalid-email") {
-      console.log("電子郵件格式無效。");
-    } else if (error.code === "auth/weak-password") {
-      console.log("密碼強度不足。");
-    }
+  } catch (error) {
     throw error;
   }
 };

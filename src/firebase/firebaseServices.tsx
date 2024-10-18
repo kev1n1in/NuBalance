@@ -23,12 +23,10 @@ let isUserProfileUpdated = false;
 export const updateUserProfile = async (user: User, userName?: string) => {
   try {
     if (isUserProfileUpdated) {
-      console.log("User profile already updated.");
-      return; // 防止重複執行
+      return;
     }
-
     if (!user || !user.uid) {
-      throw new Error("User 或 UID 未定義，無法更新資料");
+      throw new Error("User can not defined.");
     }
 
     const userRef = doc(db, "users", user.uid);
@@ -38,16 +36,14 @@ export const updateUserProfile = async (user: User, userName?: string) => {
         uid: user.uid,
         email: user.email,
         username: userName || user.displayName || "Unknown",
-        createdAt: user.metadata.creationTime, // 確保時間格式正確
+        createdAt: user.metadata.creationTime,
         lastLoged: serverTimestamp(),
       },
       { merge: true }
     );
 
-    console.log("用戶資料已更新到 Firestore");
-    isUserProfileUpdated = true; // 設置為已更新
+    isUserProfileUpdated = true;
   } catch (error) {
-    console.error("更新用戶資料失敗:", error);
     throw error;
   }
 };
@@ -80,13 +76,11 @@ export const addFoodItem = async (
 ): Promise<string> => {
   try {
     const user = auth.currentUser;
-    console.log(user);
     if (!user) {
       throw new Error("用戶未登錄");
     }
 
     const uid = user.uid;
-
     const foodsCol = collection(db, "foods");
     const docRef = await addDoc(foodsCol, {
       food_name: food.food_name,
@@ -100,11 +94,8 @@ export const addFoodItem = async (
       createdAt: serverTimestamp(),
     });
 
-    console.log("食品資料已新增到 Firestore，文件 ID:", docRef.id);
-
     return docRef.id;
   } catch (error) {
-    console.error("新增食品資料失敗:", error);
     throw error;
   }
 };
@@ -171,7 +162,6 @@ export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
     createdAt: serverTimestamp(),
     nutrition: entry.nutrition,
   });
-  console.log("已新增,Id:", docRef.id);
   return docRef.id;
 };
 
@@ -179,15 +169,10 @@ export const uploadImageToStorage = async (file: File): Promise<string> => {
   try {
     const storage = getStorage();
     const storageRef = ref(storage, `images/${file.name}`);
-
     const snapshot = await uploadBytes(storageRef, file);
-
     const downloadURL = await getDownloadURL(snapshot.ref);
-    console.log("圖片已上傳，下載 URL:", downloadURL);
-
     return downloadURL;
   } catch (error) {
-    console.error("圖片上傳失敗:", error);
     throw new Error("圖片上傳失敗");
   }
 };
@@ -238,7 +223,6 @@ export const updateTDEEHistory = async (
   });
 
   if (existingRecordIndex !== -1) {
-    // 找到同一天的紀錄，更新該紀錄
     const updatedHistory = {
       ...history[existingRecordIndex],
       tdee,
@@ -251,20 +235,13 @@ export const updateTDEEHistory = async (
       bmi,
       clientUpdateTime: clientUpdateTime || Timestamp.fromDate(new Date()),
     };
-
-    // 使用 arrayRemove 移除舊的紀錄
     await updateDoc(userRef, {
       history: arrayRemove(history[existingRecordIndex]),
     });
-
-    // 使用 arrayUnion 添加更新後的紀錄
     await updateDoc(userRef, {
       history: arrayUnion(updatedHistory),
     });
-
-    console.log("當天的 TDEE 記錄已更新");
   } else {
-    // 當天沒有紀錄，新增一筆
     await updateDoc(userRef, {
       history: arrayUnion({
         tdee,
@@ -278,11 +255,8 @@ export const updateTDEEHistory = async (
         clientUpdateTime: Timestamp.fromDate(new Date()),
       }),
     });
-
-    console.log("TDEE 記錄已新增");
   }
 
-  // 更新最後更新的時間
   await updateDoc(userRef, {
     lastUpdated: serverTimestamp(),
   });
@@ -291,7 +265,7 @@ export const updateTDEEHistory = async (
 export const getUserHistory = async (
   user: User,
   returnLatest: boolean = false,
-  targetDate?: Date // 保持第三個參數
+  targetDate?: Date
 ) => {
   if (!user) {
     throw new Error("請先登入");
@@ -303,22 +277,19 @@ export const getUserHistory = async (
   const userData = userSnapshot.data();
 
   if (!userData || !userData.history || userData.history.length === 0) {
-    console.log("沒有歷史紀錄");
     return [];
   }
 
   let filteredHistory = userData.history;
 
-  // 排序歷史紀錄
   const sortedHistory = filteredHistory.sort(
     (a: any, b: any) => b.clientUpdateTime.seconds - a.clientUpdateTime.seconds
   );
   if (returnLatest) {
     const latestEntry = sortedHistory.length > 0 ? sortedHistory[0] : null;
-    return latestEntry; // 直接返回整個最新的歷史條目
+    return latestEntry;
   }
 
-  // 根據指定日期篩選紀錄
   if (targetDate) {
     const nextDay = new Date(targetDate);
     nextDay.setDate(nextDay.getDate() + 1);
@@ -376,9 +347,7 @@ export const deleteDiaryEntry = async (user: User, diaryId: string) => {
   try {
     const diaryRef = doc(db, "users", user.uid, "diarys", diaryId);
     await deleteDoc(diaryRef);
-    console.log(`日記 ${diaryId}已成功刪除`);
   } catch (error) {
-    console.error(`刪除日記條目失敗: ${error}`);
     throw error;
   }
 };
@@ -417,6 +386,4 @@ export const updateDiaryEntry = async (
     ...updatedData,
     lastUpdated: serverTimestamp(),
   });
-
-  console.log(`日記條目 ${diaryId} 已成功更新`);
 };

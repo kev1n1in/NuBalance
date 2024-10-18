@@ -128,8 +128,6 @@ const DiaryFoodModal: React.FC<{
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result as string);
-
-        console.log(`我是圖片預覽：`, imageFile);
       };
       if (file) {
         reader.readAsDataURL(file);
@@ -137,20 +135,13 @@ const DiaryFoodModal: React.FC<{
     },
   });
   useEffect(() => {
-    if (imagePreview) {
-      console.log("圖片已成功加載並預覽:", imagePreview); // 這裡應該能正確打印預覽的圖片 URL
-    }
-  }, [imagePreview]);
-  useEffect(() => {
     if (foodSelectorRef.current) {
       const element = foodSelectorRef.current;
 
-      // 如果有已存在的 annotation，移除舊的
       if (annotationRef.current) {
         annotationRef.current.remove();
       }
 
-      // 創建新的 rough-notation 注解並展示
       annotationRef.current = annotate(element, {
         type: "underline",
         color: "#f9c74f",
@@ -160,7 +151,7 @@ const DiaryFoodModal: React.FC<{
       annotationRef.current.show();
     }
   }, [currentFood]);
-  // Fetch diary entry and set initial state values
+
   const {
     data: diaryEntry,
     isLoading,
@@ -176,7 +167,6 @@ const DiaryFoodModal: React.FC<{
     },
     {
       onSuccess: (data) => {
-        console.log(data);
         if (!isModalOpen) {
           setSelectedMeal(meals.find((meal) => meal.id === data.meal) || null);
           setCurrentFood({
@@ -198,11 +188,8 @@ const DiaryFoodModal: React.FC<{
           }
 
           setNote(data.note || "");
-
-          // Set imageUrl and imagePreview for displaying the image
           setImageUrl(data.imageUrl || "");
           if (!isImageUploaded) {
-            // 如果用戶還沒有上傳新圖片，顯示原來的圖片
             setImagePreview(data.imageUrl || "");
           }
         }
@@ -217,14 +204,12 @@ const DiaryFoodModal: React.FC<{
   };
 
   const handleMoodClick = (mood: MoodItem) => {
-    // 簡單地更新或清除選中的心情
     setSelectedMood((prevMood) =>
       prevMood && prevMood.id === mood.id ? null : mood
     );
   };
 
   useEffect(() => {
-    // 清除所有心情的標記
     moodAnnotations.forEach((annotation) => {
       if (annotation) {
         annotation.hide();
@@ -232,13 +217,12 @@ const DiaryFoodModal: React.FC<{
     });
     setMoodAnnotations(new Array(moods.length).fill(null));
 
-    // 如果有選中的心情，則添加標記
     if (selectedMood) {
       const index = moods.findIndex((mood) => mood.id === selectedMood.id);
       if (index !== -1) {
         const annotation = annotate(moodRefs.current[index] as HTMLElement, {
           type: "circle",
-          color: "#709a46", // 選擇你喜歡的顏色
+          color: "#709a46",
           padding: 8,
         });
         annotation.show();
@@ -247,10 +231,9 @@ const DiaryFoodModal: React.FC<{
         setMoodAnnotations(newAnnotations);
       }
     }
-  }, [selectedMood]); // 監聽 selectedMood 的變化
+  }, [selectedMood]);
 
   useEffect(() => {
-    // 清理標記
     return () => {
       moodAnnotations.forEach((annotation) => {
         if (annotation) {
@@ -282,8 +265,6 @@ const DiaryFoodModal: React.FC<{
 
     try {
       await updateDiaryEntry(currentUser, entryId, updatedData);
-      console.log("日記條目已更新");
-
       addAlert("編輯成功");
       queryClient.invalidateQueries(["diaryEntries", selectedDate]);
       setTimeout(() => {

@@ -38,7 +38,7 @@ const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
     if (chartRef.current) {
       const containerWidth = chartRef.current.clientWidth;
       const containerHeight = chartRef.current.clientHeight;
-      chartRef.current.innerHTML = ""; // 清除舊的圖表
+      chartRef.current.innerHTML = "";
       const processedData = {
         labels: data.labels.slice().reverse(),
         values: data.values.map((value) => Math.max(0, value)).reverse(),

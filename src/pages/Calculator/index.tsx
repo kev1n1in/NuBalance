@@ -114,7 +114,6 @@ const Calculator = () => {
         throw new Error("用戶未登入");
       }
       const latestHistory = await getUserHistory(currentUser, true);
-      console.log("最新歷史物件", latestHistory);
       return latestHistory;
     },
     {

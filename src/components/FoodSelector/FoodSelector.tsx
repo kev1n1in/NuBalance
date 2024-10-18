@@ -17,7 +17,6 @@ interface NutrientSelectorProps {
 
 const NutrientSelector = ({ selectedFood, onClick }: NutrientSelectorProps) => {
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
@@ -46,10 +45,6 @@ const NutrientSelector = ({ selectedFood, onClick }: NutrientSelectorProps) => {
       annotation.show();
     }
   }, []);
-  const closeModal = () => {
-    console.log("Closing modal...");
-    setIsModalOpen(false);
-  };
 
   return (
     <NutritionContainer onClick={onClick}>

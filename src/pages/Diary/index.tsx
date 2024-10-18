@@ -108,7 +108,6 @@ const Diary = () => {
 
       const reader = new FileReader();
       reader.onload = () => {
-        console.log("Reader result:", reader.result);
         setImagePreview(reader.result as string);
       };
       if (file) {

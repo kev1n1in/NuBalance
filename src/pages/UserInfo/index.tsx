@@ -3,11 +3,8 @@ import styled from "styled-components";
 import Button from "../../components/Button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "react-query";
-import {
-  deleteDiaryEntry,
-  fetchUserName,
-} from "../../firebase/firebaseServices";
+import { useQueryClient } from "react-query";
+import { deleteDiaryEntry } from "../../firebase/firebaseServices";
 import { auth } from "../../firebase/firebaseConfig";
 import userImg from "./userImg.png";
 import Flatpickr from "react-flatpickr";
@@ -28,6 +25,7 @@ import Joyride from "../../components/Joyride";
 import DiaryCard from "../../components/DiaryCard/DiaryCard";
 import { useUserTDEE } from "../../hooks/useUserTDEE";
 import { useDiaryEntries } from "../../hooks/useUserDiary";
+import { useUserName } from "../../hooks/useUserName";
 
 interface RemainCaloriesProps {
   isExceeded: boolean;
@@ -84,28 +82,22 @@ const UserInfo = () => {
     isLoading: isLoadingDiary,
     error: errorDiary,
   } = useDiaryEntries(selectedDate);
+  const meals = {
+    breakfast: diaryEntries?.filter((entry) => entry?.meal === "早餐"),
+    lunch: diaryEntries?.filter((entry) => entry?.meal === "午餐"),
+    dinner: diaryEntries?.filter((entry) => entry?.meal === "晚餐"),
+    snack: diaryEntries?.filter((entry) => entry?.meal === "點心"),
+  };
 
   const {
     data: userName,
     isLoading: isLoadingUserName,
     error: userNameError,
-  } = useQuery(
-    "fetchUserName",
-    () => {
-      if (auth.currentUser) {
-        console.log("成功", auth.currentUser);
-
-        return fetchUserName(auth.currentUser);
-      }
-      throw new Error("尚未登入");
-    },
-    {
-      enabled: !!auth.currentUser,
-    }
-  );
+  } = useUserName();
   const displayName = auth.currentUser
     ? auth.currentUser.displayName
-    : "未設定用戶名";
+    : "User not set";
+
   const extractNumberFromString = (str: string): number => {
     const match = str.match(/(\d+(\.\d+)?)/);
     return match ? parseFloat(match[0]) : 0;
@@ -123,14 +115,7 @@ const UserInfo = () => {
   const isExceeded = remainingCalories < 0;
   const latestBMI = latestTDEE?.bmi;
   const latestBodyFat = latestTDEE?.bodyFat;
-  if (errorTDEE || errorDiary || userNameError) {
-    const errorMessageTDEE =
-      (errorTDEE as Error)?.message || "Unknown TDEE Error";
-    const errorMessageDiary =
-      (errorDiary as Error)?.message || "Unknown Diary Error";
 
-    return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
-  }
   const handleDeleteClick = (entryId: string, entryFood: string) => {
     openDialog(entryFood, () => handleDelete(entryId));
   };
@@ -148,14 +133,6 @@ const UserInfo = () => {
       console.error("刪除日記失敗:", error);
     }
   };
-
-  const meals = {
-    breakfast: diaryEntries?.filter((entry) => entry?.meal === "早餐"),
-    lunch: diaryEntries?.filter((entry) => entry?.meal === "午餐"),
-    dinner: diaryEntries?.filter((entry) => entry?.meal === "晚餐"),
-    snack: diaryEntries?.filter((entry) => entry?.meal === "點心"),
-  };
-
   const handleEdit = (entryId: string) => {
     setSelectedEntryId(entryId);
     setIsModalOpen(true);
@@ -167,7 +144,14 @@ const UserInfo = () => {
     setIsModalOpen(false);
     setSelectedEntryId(null);
   };
+  if (errorTDEE || errorDiary || userNameError) {
+    const errorMessageTDEE =
+      (errorTDEE as Error)?.message || "Unknown TDEE Error";
+    const errorMessageDiary =
+      (errorDiary as Error)?.message || "Unknown Diary Error";
 
+    return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
+  }
   return (
     <Wrapper>
       <AlertMessage />

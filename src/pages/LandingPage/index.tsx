@@ -100,8 +100,6 @@ const LandingPage = () => {
       </HeaderWrapper>
       <GSAPHEAD />
       <GSAPMAIN />
-
-      {/* <ProductInfo /> */}
     </Wrapper>
   );
 };
