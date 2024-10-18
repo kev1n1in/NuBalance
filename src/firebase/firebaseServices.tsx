@@ -300,10 +300,6 @@ export const getUserHistory = async (
   const userRef = doc(db, "users", user.uid);
   const userSnapshot = await getDoc(userRef);
 
-  if (!userSnapshot.exists()) {
-    throw new Error("用戶不存在");
-  }
-
   const userData = userSnapshot.data();
 
   if (!userData || !userData.history || userData.history.length === 0) {

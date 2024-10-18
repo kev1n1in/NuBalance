@@ -68,21 +68,13 @@ const UserInfo = () => {
   };
 
   useEffect(() => {
-    const checkElement = setInterval(() => {
-      if (document.getElementById("calculate-tdee-button")) {
-        setRun(true);
-        clearInterval(checkElement);
-      }
-    }, 500);
-  }, []);
-  useEffect(() => {
     setSteps([
       {
         target: ".calculate-tdee-button",
         content:
           "Click here to calculate your Total Daily Energy Expenditure (TDEE).",
         placement: "top",
-        spotlightPadding: 10, // 添加聚焦區域的間距
+        spotlightPadding: 10,
       },
       {
         target: ".search-food-button",
@@ -104,26 +96,39 @@ const UserInfo = () => {
       },
     ]);
     setRun(false);
-  }, []); // 依賴於日記條目的數量
+  }, []);
 
   const {
-    data: latestTDEE = { tdee: 1800, bmi: 0, bodyFat: 0 },
+    data: latestTDEE = { tdee: 2141, bmi: 0, bodyFat: 0 },
     isLoading: isLoadingTDEE,
     error: errorTDEE,
-  } = useQuery("latestTDEE", async () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      throw new Error("用戶未登入");
+  } = useQuery(
+    "latestTDEE",
+    async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        console.error("用戶未登入");
+        throw new Error("用戶未登入");
+      }
+      console.log("開始獲取最新TDEE歷史紀錄");
+      const latestHistory = await getUserHistory(currentUser, true);
+      if (latestHistory) {
+        console.log("獲取到的最新TDEE歷史紀錄:", latestHistory);
+      } else {
+        console.log("未獲取到任何TDEE歷史紀錄");
+      }
+      const tdee = latestHistory?.tdee || 2141;
+      const bmi = latestHistory?.bmi || 0;
+      const bodyFat = latestHistory?.bodyFat || 0;
+
+      return { tdee, bmi, bodyFat };
+    },
+    {
+      onError: (error) => {
+        console.error("獲取TDEE失敗:", error);
+      },
     }
-    const latestHistory = await getUserHistory(currentUser, true);
-    const tdee = latestHistory?.tdee || 1800;
-    const bmi = latestHistory?.bmi || 0;
-    const bodyFat = latestHistory?.bodyFat || 0;
-
-    console.log("最新歷史紀錄:", latestHistory);
-
-    return { tdee, bmi, bodyFat };
-  });
+  );
 
   const {
     data: diaryEntries = [],
@@ -135,7 +140,8 @@ const UserInfo = () => {
       throw new Error("用戶未登入");
     }
     const formattedDate = selectedDate.toLocaleDateString("sv-SE");
-    return await getDiaryEntry(currentUser, formattedDate);
+    const entries = await getDiaryEntry(currentUser, formattedDate);
+    return entries || [];
   });
   const {
     data: userName,
@@ -152,7 +158,7 @@ const UserInfo = () => {
       throw new Error("尚未登入");
     },
     {
-      enabled: !!auth.currentUser, // 只有當 currentUser 存在時才啟用這個查詢
+      enabled: !!auth.currentUser,
     }
   );
   const displayName = auth.currentUser
@@ -168,15 +174,17 @@ const UserInfo = () => {
     return total + extractNumberFromString(caloriesStr);
   }, 0);
 
-  const tdee = latestTDEE.tdee;
+  const tdee = latestTDEE.tdee || 2141;
   const remainingCalories = tdee - todayNutrition;
   const percentage = (todayNutrition / tdee) * 100;
   const isExceeded = remainingCalories < 0;
   const latestBMI = latestTDEE.bmi;
   const latestBodyFat = latestTDEE.bodyFat;
   if (errorTDEE || errorDiary || userNameError) {
-    const errorMessageTDEE = (errorTDEE as Error)?.message || "未知的錯誤";
-    const errorMessageDiary = (errorDiary as Error)?.message || "未知的錯誤";
+    const errorMessageTDEE =
+      (errorTDEE as Error)?.message || "Unknown TDEE Error";
+    const errorMessageDiary =
+      (errorDiary as Error)?.message || "Unknown Diary Error";
 
     return <div>Error: {errorMessageTDEE || errorMessageDiary}</div>;
   }
@@ -277,12 +285,12 @@ const UserInfo = () => {
           styles={{
             options: {
               zIndex: 10000,
-              arrowColor: "#eee", // 箭頭顏色
-              backgroundColor: "#fff", // 提示框背景色
-              overlayColor: "rgba(54, 54, 54, 0.4)", // 遮罩背景色
-              primaryColor: "#ff0000", // 改變點點（或引導步驟的顏色）
+              arrowColor: "#eee",
+              backgroundColor: "#fff",
+              overlayColor: "rgba(54, 54, 54, 0.4)",
+              primaryColor: "#ff0000",
               textColor: "#333",
-              spotlightShadow: "0 0 15px rgba(255, 0, 0, 0.8)", // 聚焦區域的陰影顏色
+              spotlightShadow: "0 0 15px rgba(255, 0, 0, 0.8)",
             },
           }}
         />
@@ -315,7 +323,9 @@ const UserInfo = () => {
                   </HandwrittenContainer>
                   <BodyDataContainer>
                     <BMIText>{`BMI: ${
-                      typeof latestBMI === "number" ? latestBMI.toFixed(2) : "0"
+                      typeof latestBMI === "number"
+                        ? latestBMI.toFixed(2)
+                        : "2141"
                     }`}</BMIText>
                     <BodyFatText>{`BodyFat: ${
                       typeof latestBodyFat === "number"
