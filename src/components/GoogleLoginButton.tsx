@@ -14,7 +14,7 @@ const GoogleLogin = () => {
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
-    googleLogin(); // 調用 googleLogin 函數
+    googleLogin();
   };
 
   const googleLetters = [
@@ -60,7 +60,6 @@ const GoogleLogin = () => {
   );
 };
 
-// 樣式化的 Google 登錄按鈕
 const GoogleButton = styled.button`
   display: flex;
   position: relative;

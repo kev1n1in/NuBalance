@@ -9,28 +9,27 @@ import fat from "./fat.png";
 gsap.registerPlugin(ScrollTrigger);
 
 const GSAPMain: React.FC = () => {
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]); // 多張卡片引用
-  const containerRef = useRef<HTMLDivElement | null>(null); // 卡片容器引用
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const windowWidth = window.innerWidth;
 
   useEffect(() => {
-    const wrapper = document.querySelector("#wrapper"); // 選取 Wrapper 元素
+    const wrapper = document.querySelector("#wrapper");
 
     if (containerRef.current && cardRefs.current) {
-      // 設置卡片容器的 X 軸動畫
       gsap.fromTo(
         containerRef.current,
         {
-          x: windowWidth, // 從視窗右邊進入
+          x: windowWidth,
         },
         {
-          x: -100, // 移動到中心
-          ease: "power2.out", // 添加緩動效果，讓移動更加順暢
+          x: -100,
+          ease: "power2.out",
           scrollTrigger: {
-            trigger: wrapper, // 以 Wrapper 作為觸發點
-            start: "top 66%", // 當 Wrapper 的頂部到達視窗的 2/3 處開始動畫
-            end: "bottom center", // 當 Wrapper 的底部到達視窗底部時動畫結束
-            scrub: 1, // 添加緩動，動畫與滾動同步，並有一點延遲
+            trigger: wrapper,
+            start: "top 66%",
+            end: "bottom center",
+            scrub: 1,
           },
         }
       );
@@ -138,16 +137,16 @@ const Card = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   margin: 50px 0;
-  transform-style: preserve-3d; // 保持 3D 效果
-  transition: transform 0.8s ease; // 控制翻轉效果
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
   z-index: 20;
-  transform: rotateY(180deg); // 初始狀態為翻轉過去的
+  transform: rotateY(180deg);
 `;
 const CardContainer = styled.div`
   cursor: pointer;
-  perspective: 1000px; // 添加視角，讓 3D 效果更明顯
+  perspective: 1000px;
   &:hover ${Card} {
-    transform: rotateY(0deg); // hover 到外部容器時觸發卡片翻轉
+    transform: rotateY(0deg);
   }
 `;
 
@@ -205,7 +204,7 @@ const Front = styled.div`
     position: absolute;
     top: 50%;
     width: auto;
-    height: 240px; // 保持圖片比例
+    height: 240px;
     transform: translateY(-50%);
   }
 `;

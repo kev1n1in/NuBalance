@@ -160,8 +160,6 @@ const Report: React.FC = () => {
       <Sidebar toggleMenu={toggleMenu} />
       <Container>
         <Title>Report</Title>
-
-        {/* 體重圖表 */}
         <BarChartContainer
           isActive={activeTab === "Weight"}
           style={{ display: activeTab === "Weight" ? "block" : "none" }}
@@ -191,8 +189,6 @@ const Report: React.FC = () => {
             <p>沒有體重變化的歷史資料</p>
           )}
         </BarChartContainer>
-
-        {/* 營養素圖表 */}
         <PieChartContainer
           isActive={activeTab === "Weight"}
           style={{ display: activeTab === "Nutrients" ? "block" : "none" }}

@@ -9,7 +9,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Loader from "../Loader";
 import RequiredMark from "../RequiredMark";
 import useAlert from "../../hooks/useAlertMessage";
-import { useDropzone } from "react-dropzone"; // 新增這一行
+import { useDropzone } from "react-dropzone";
 
 interface FormValues {
   foodInfo: string[];
@@ -53,15 +53,14 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
     },
   });
 
-  // 使用 dropzone 處理圖片上傳
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
     onDrop: async (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (file) {
-        setPreviewImage(URL.createObjectURL(file)); // 設置圖片預覽
-        const downloadUrl = await handleImageUpload(file); // 上傳圖片並獲取 URL
-        await processImageForText(downloadUrl); // 執行文字辨識
+        setPreviewImage(URL.createObjectURL(file));
+        const downloadUrl = await handleImageUpload(file);
+        await processImageForText(downloadUrl);
       }
     },
   });
@@ -88,9 +87,8 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
         () => {
           getDownloadURL(uploadTask.snapshot.ref)
             .then((downloadURL) => {
-              console.log("圖片上傳成功，圖片URL: ", downloadURL);
-              setImageUrl(downloadURL); // 設置圖片 URL
-              setPreviewImage(URL.createObjectURL(file)); // 設置圖片預覽
+              setImageUrl(downloadURL);
+              setPreviewImage(URL.createObjectURL(file));
               setIsUploading(false);
               resolve(downloadURL);
             })
@@ -103,7 +101,6 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
   };
 
   const processImageForText = async (imageUrl: string) => {
-    console.log("發送的圖片URL: ", imageUrl);
     try {
       setIsUploading(true);
       const response = await fetch(
@@ -123,10 +120,8 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
       }
 
       const data = await response.json();
-      console.log("文字辨識結果：", data.text);
       setRecognizedText(data.text);
 
-      // 自動填充提取的數據到對應的 Input 欄位
       const caloriesMatch = data.text.match(/熱量\s*(\d+(\.\d+)?)\s*大卡/);
       const proteinMatch = data.text.match(/蛋白質\s*(\d+(\.\d+)?)\s*公克/);
       const fatMatch = data.text.match(/脂肪\s*(\d+(\.\d+)?)\s*公克/);
@@ -146,10 +141,9 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
       setIsUploading(false);
       console.error("Cloud Function 呼叫失敗:", error);
       if (error instanceof Error) {
-        // 確保錯誤是 Error 類型
         addAlert(error.message);
       } else {
-        addAlert("Scanning Failed"); // 如果不是 Error 實例，則使用通用消息
+        addAlert("Scanning Failed");
       }
     }
   };
@@ -164,7 +158,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           carbohydrates: data.carbohydrates,
           protein: data.protein,
           fat: data.fat,
-          imageUrl, // 如果有圖片URL，包含它
+          imageUrl,
         },
         auth
       );
@@ -300,7 +294,6 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
           Or <span style={{ color: "#a23419" }}>Scan</span> Nutrition Label
         </InputTitle>
 
-        {/* Dropzone component */}
         <DropzoneContainer {...getRootProps()}>
           <input {...getInputProps()} />
           {previewImage ? (
@@ -323,7 +316,6 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
   );
 };
 
-// Styled components
 const ModalWrapper = styled.div`
   margin-top: 100px;
 `;

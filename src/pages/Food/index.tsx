@@ -106,9 +106,9 @@ const Food: React.FC = () => {
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
 
         <DataContainer>
-          {isLoading && <p>加載中...</p>}
+          {isLoading && <p>Loading...</p>}
           {error && error instanceof Error ? (
-            <p>發生錯誤: {error.message}</p>
+            <p>Error: {error.message}</p>
           ) : null}
 
           {foods.length > 0

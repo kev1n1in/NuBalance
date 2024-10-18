@@ -42,7 +42,7 @@ const HandDrawnProgress: React.FC<HandDrawnProgressProps> = ({
         rc.rectangle(
           10,
           30,
-          (effectivePercentage / 100) * (canvas.width - 20), // 使用有效百分比
+          (effectivePercentage / 100) * (canvas.width - 20),
           height,
           {
             fill: effectiveFillColor,
@@ -80,28 +80,27 @@ const HandDrawnProgress: React.FC<HandDrawnProgressProps> = ({
   useLayoutEffect(() => {
     const handleResize = () => {
       setTimeout(() => {
-        // 延遲執行邏輯
         if (containerRef.current) {
           const newWidth = containerRef.current.offsetWidth;
           if (newWidth !== canvasWidth) {
             setCanvasWidth(newWidth);
             if (canvasRef.current) {
               canvasRef.current.width = newWidth;
-              requestAnimationFrame(updateCanvas); // 確保畫面更新是平滑的
+              requestAnimationFrame(updateCanvas);
             }
           }
         }
-      }, 200); // 延遲200ms，您可以根據需要調整這個數值
+      }, 200);
     };
 
-    handleResize(); // 初始化時更新一次寬度
-    window.addEventListener("resize", handleResize); // 當螢幕寬度改變時，更新寬度
+    handleResize();
+    window.addEventListener("resize", handleResize);
     console.log("現在寬度", canvasWidth);
-    return () => window.removeEventListener("resize", handleResize); // 清理事件
+    return () => window.removeEventListener("resize", handleResize);
   }, [canvasWidth, updateCanvas]);
 
   useLayoutEffect(() => {
-    updateCanvas(); // 確保初次加載和尺寸變更後重新繪製
+    updateCanvas();
   }, [updateCanvas]);
 
   return (

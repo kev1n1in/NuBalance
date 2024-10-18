@@ -196,7 +196,7 @@ const GSAPHEAD: React.FC = () => {
     { x: centerX, y: centerY },
   ];
 
-  const fontGap = windowWidth * 0.05; // 字母之間的間距
+  const fontGap = windowWidth * 0.05;
 
   const finalPositions = [
     ...nutritionWords.map((_, index) => ({
@@ -210,14 +210,13 @@ const GSAPHEAD: React.FC = () => {
   ];
 
   useEffect(() => {
-    // 設定文字初始位置
     if (arrowRef.current) {
       gsap.to(arrowRef.current, {
-        y: -20, // 向上移動20px
-        duration: 1, // 動畫持續時間
-        repeat: -1, // 無限次重複
-        yoyo: true, // 動畫完成後反向
-        ease: "power1.inOut", // 緩動效果
+        y: -20,
+        duration: 1,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
       });
     }
     wordRefs.current.forEach((word, index) => {
@@ -234,7 +233,6 @@ const GSAPHEAD: React.FC = () => {
       });
     });
 
-    // 設定圖片初始位置
     Object.keys(images).forEach((key, index) => {
       const imageKey = key as keyof typeof images;
       const image = images[imageKey];
@@ -254,7 +252,6 @@ const GSAPHEAD: React.FC = () => {
         setScrollLocked(true);
         isAnimating.current = true;
 
-        // 文字動畫
         wordRefs.current.forEach((word, index) => {
           gsap.to(word, {
             duration: 1,
@@ -266,7 +263,6 @@ const GSAPHEAD: React.FC = () => {
           });
         });
 
-        // 圖片動畫
         Object.keys(images).forEach((key, index) => {
           const imageKey = key as keyof typeof images;
           const image = images[imageKey];
@@ -290,10 +286,10 @@ const GSAPHEAD: React.FC = () => {
         const garlicIndex = Object.keys(images).indexOf("garlic");
         if (garlicIndex !== -1) {
           gsap.to(imageRefs.current[garlicIndex], {
-            y: images.garlic.final.y, // 設置彈跳高度
-            duration: 1.5, // 動畫持續時間
+            y: images.garlic.final.y,
+            duration: 1.5,
             delay: 2,
-            ease: "bounce.out", // 使用 bounce 效果
+            ease: "bounce.out",
           });
         }
         isCentered.current = true;
@@ -305,7 +301,6 @@ const GSAPHEAD: React.FC = () => {
         isCentered.current &&
         window.scrollY === 0
       ) {
-        // 返回初始文字位置
         wordRefs.current.forEach((word, index) => {
           gsap.to(word, {
             duration: 1,
@@ -317,7 +312,6 @@ const GSAPHEAD: React.FC = () => {
           });
         });
 
-        // 返回初始圖片位置
         Object.keys(images).forEach((key, index) => {
           const imageKey = key as keyof typeof images;
           const image = images[imageKey];
@@ -354,9 +348,9 @@ const GSAPHEAD: React.FC = () => {
           <Word
             key={index}
             ref={(el) => (wordRefs.current[index] = el)}
-            style={{ zIndex: word.zIndex }} // 將 zIndex 應用到樣式中
+            style={{ zIndex: word.zIndex }}
           >
-            {word.letter} {/* 渲染 letter */}
+            {word.letter}
           </Word>
         ))}
 
@@ -367,9 +361,9 @@ const GSAPHEAD: React.FC = () => {
               ref={(el) =>
                 (wordRefs.current[index + nutritionWords.length] = el)
               }
-              style={{ zIndex: word.zIndex }} // 將 zIndex 應用到樣式中
+              style={{ zIndex: word.zIndex }}
             >
-              {word.letter} {/* 渲染 letter */}
+              {word.letter}
             </Word>
           ))}
         </BalanceContainer>
@@ -390,23 +384,18 @@ const GSAPHEAD: React.FC = () => {
           );
         })}
       </ImageContainer>
-      <ArrowImage
-        ref={arrowRef} // 連結箭頭的引用
-        src={arrow}
-        alt="Scroll down"
-      />
+      <ArrowImage ref={arrowRef} src={arrow} alt="Scroll down" />
     </Wrapper>
   );
 };
 
-// 樣式定義
 const Wrapper = styled.div`
-  height: 100vh; /* 增加頁面高度以觸發滾動 */
+  height: 100vh;
   width: 100%;
   position: relative;
   overflow: hidden;
   &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
   }
 `;
 
@@ -448,9 +437,9 @@ const BalanceContainer = styled.div`
 `;
 const ArrowImage = styled.img`
   position: absolute;
-  bottom: 20px; /* 離底部20px */
-  right: 40px; /* 離右邊20px */
-  width: 75px; /* 設置箭頭寬度 */
+  bottom: 20px;
+  right: 40px;
+  width: 75px;
   height: auto;
 `;
 

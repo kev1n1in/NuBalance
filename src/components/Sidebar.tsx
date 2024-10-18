@@ -34,10 +34,10 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
     }
   };
   const handleLogoutClick = () => {
-    setIsConfirmOpen(true); // 打開確認對話框
+    setIsConfirmOpen(true);
   };
   const handleDialogClose = () => {
-    setIsConfirmOpen(false); // 關閉對話框
+    setIsConfirmOpen(false);
   };
   const handleLogoutConfirm = async () => {
     try {

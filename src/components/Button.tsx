@@ -70,7 +70,6 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-// Styled components
 const ButtonWrapper = styled.div<{ margin?: string }>`
   display: inline-block;
   width: 100%;
@@ -80,7 +79,7 @@ const ButtonWrapper = styled.div<{ margin?: string }>`
 const ContentWrapper = styled.div`
   display: flex;
   align-items: center;
-  z-index: 2; /* Ensure it's above the canvas */
+  z-index: 2;
   transition: 0.3s;
   &:hover {
     transform: scale(1.1);
