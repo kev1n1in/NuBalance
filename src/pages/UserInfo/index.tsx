@@ -29,6 +29,7 @@ import useConfirmDialog from "../../hooks/useConfirmDialog";
 import HandDrawnProgress from "../../components/ProgressBar/HandDrawnProgress";
 import useAlert from "../../hooks/useAlertMessage";
 import Joyride from "../../components/Joyride";
+import DiaryCard from "../../components/DiaryCard/DiaryCard";
 
 interface DiaryEntry {
   id: string;
@@ -46,6 +47,37 @@ interface DiaryEntry {
 interface RemainCaloriesProps {
   isExceeded: boolean;
 }
+const buttonConfig = [
+  {
+    key: "calculate-tdee",
+    label: "Calculate TDEE",
+    icon: calculatorImg,
+    path: "../calculator",
+    state: { fromUserInfo: true },
+  },
+  {
+    key: "search-food",
+    label: "Search Food",
+    icon: searchImg,
+    path: "../food",
+    state: { fromUserInfo: true },
+  },
+  {
+    key: "create-diary",
+    label: "Create Diary",
+    icon: createImg,
+    path: "../diary",
+    state: { fromUserInfo: true },
+  },
+  {
+    key: "check-report",
+    label: "Check Report",
+    icon: report,
+    path: "../report",
+    state: { fromUserInfo: true },
+  },
+];
+
 const UserInfo = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -66,10 +98,9 @@ const UserInfo = () => {
     async () => {
       const currentUser = auth.currentUser;
       if (!currentUser) {
-        console.error("用戶未登入");
+        addAlert("用戶未登入");
         throw new Error("用戶未登入");
       }
-      console.log("開始獲取最新TDEE歷史紀錄");
       const latestHistory = await getUserHistory(currentUser, true);
       if (latestHistory) {
         console.log("獲取到的最新TDEE歷史紀錄:", latestHistory);
@@ -172,48 +203,6 @@ const UserInfo = () => {
     snack: diaryEntries.filter((entry) => entry.meal === "點心"),
   };
 
-  const MealSection = ({
-    title,
-    entries,
-  }: {
-    title: string;
-    entries: DiaryEntry[];
-  }) => (
-    <MealSectionContainer>
-      <Loader
-        isLoading={isLoadingTDEE || isLoadingDiary || isLoadingUserName}
-      />
-      <DiaryTitle>{title}</DiaryTitle>
-
-      {entries.length > 0 ? (
-        entries.map((entry) => (
-          <DiaryItem key={entry.id} onClick={() => handleEdit(entry.id)}>
-            <FoodName>{entry.food}</FoodName>
-            <FoodNutrition>
-              <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
-              <FoodCarbo>
-                {entry.nutrition?.carbohydrates || "未知"} |
-              </FoodCarbo>
-              <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
-              <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
-            </FoodNutrition>
-            <DeleteButtonContainer>
-              <DeleteButton
-                src={trashImg}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(entry.id, entry.food || "此項目");
-                }}
-              />
-            </DeleteButtonContainer>
-          </DiaryItem>
-        ))
-      ) : (
-        <EmptyList>No entries yet</EmptyList>
-      )}
-    </MealSectionContainer>
-  );
-
   const handleEdit = (entryId: string) => {
     setSelectedEntryId(entryId);
     setIsModalOpen(true);
@@ -276,49 +265,18 @@ const UserInfo = () => {
                 </RemainCaloriesContainer>
 
                 <ButtonsContainer>
-                  <ButtonContainer className="calculate-tdee-button">
-                    <Button
-                      label="Calculate TDEE"
-                      icon={calculatorImg}
-                      justifyContent={"flex-start"}
-                      onClick={() =>
-                        navigate("../calculator", {
-                          state: { fromUserInfo: true },
-                        })
-                      }
-                    />
-                  </ButtonContainer>
-                  <ButtonContainer className="search-food-button">
-                    <Button
-                      label="Search Food"
-                      icon={searchImg}
-                      justifyContent={"flex-start"}
-                      onClick={() =>
-                        navigate("../food", { state: { fromUserInfo: true } })
-                      }
-                    />
-                  </ButtonContainer>
-                  <ButtonContainer className="create-diary-button">
-                    <Button
-                      label="Create Diary"
-                      icon={createImg}
-                      justifyContent={"flex-start"}
-                      onClick={() =>
-                        navigate("../diary", { state: { fromUserInfo: true } })
-                      }
-                    />
-                  </ButtonContainer>
-                  <ButtonContainer className="check-report-button">
-                    <Button
-                      label="Check Report"
-                      icon={report}
-                      justifyContent={"flex-start"}
-                      onClick={() =>
-                        navigate("../report", { state: { fromUserInfo: true } })
-                      }
-                    />
-                  </ButtonContainer>
+                  {buttonConfig.map(({ key, label, icon, path, state }) => (
+                    <ButtonContainer key={key} className={key}>
+                      <Button
+                        label={label}
+                        icon={icon}
+                        justifyContent={"flex-start"}
+                        onClick={() => navigate(path, { state })}
+                      />
+                    </ButtonContainer>
+                  ))}
                 </ButtonsContainer>
+
                 <TodayTargetWrapper>
                   <TodayTargetContainer>
                     <TargetProgressContainer>
@@ -352,11 +310,16 @@ const UserInfo = () => {
               options={{ dateFormat: "Y-m-d" }}
             />
           </DatePickerContainer>
-
-          <MealSection title="Breakfast" entries={meals.breakfast} />
-          <MealSection title="Lunch" entries={meals.lunch} />
-          <MealSection title="Dinner" entries={meals.dinner} />
-          <MealSection title="Snack" entries={meals.snack} />
+          {Object.entries(meals).map(([mealType, entries]) => (
+            <DiaryCard
+              key={mealType}
+              title={mealType}
+              entries={entries}
+              isLoading={isLoadingDiary || isLoadingTDEE || isLoadingUserName}
+              handleEdit={handleEdit}
+              handleDeleteClick={handleDeleteClick}
+            />
+          ))}
         </DiaryList>
         {isModalOpen && selectedEntryId && (
           <Modal title={"Today I ate"} onClose={closeModal}>
