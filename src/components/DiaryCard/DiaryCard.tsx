@@ -4,7 +4,7 @@ import trashImg from "./trash.png";
 
 interface DiaryCardProps {
   title: string;
-  entries: DiaryEntry[];
+  entries: DiaryEntry[] | [];
   isLoading: boolean;
   handleEdit: (id: string) => void;
   handleDeleteClick: (id: string, foodName: string) => void;
