@@ -1,12 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Pie } from "rough-viz";
 import styled from "styled-components";
+import { RoughPieChartProps } from "../../types/charts";
 
-interface RoughPieChartProps {
-  data: { labels: string[]; values: number[] };
-}
-
-const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
+const RoughPieChart = ({ data }: RoughPieChartProps) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const calculatePercentages = (values: number[]) => {
     const total = values.reduce((acc, value) => acc + value, 0);

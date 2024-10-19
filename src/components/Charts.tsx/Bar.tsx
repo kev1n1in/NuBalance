@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Bar } from "rough-viz";
 import styled from "styled-components";
-import { RoughBarChartProps } from "../../types/Charts";
+import { RoughBarChartProps } from "../../types/charts";
 
 const RoughBarChart = ({ data }: RoughBarChartProps) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
