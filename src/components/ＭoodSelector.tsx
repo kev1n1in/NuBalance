@@ -1,7 +1,7 @@
-import { forwardRef, useRef, useEffect } from "react";
-import styled from "styled-components";
 import { motion } from "framer-motion";
+import { forwardRef, useEffect, useRef } from "react";
 import { annotate } from "rough-notation";
+import styled from "styled-components";
 
 type MoodItem = {
   id: string;

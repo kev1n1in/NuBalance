@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
-import { fetchUserName } from "../firebase/firebaseServices";
 import { auth } from "../firebase/firebaseConfig";
+import { fetchUserName } from "../firebase/firebaseServices";
 
 export const useUserName = () => {
   return useQuery(

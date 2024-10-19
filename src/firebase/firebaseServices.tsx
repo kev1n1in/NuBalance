@@ -1,22 +1,22 @@
+import { Auth, User } from "firebase/auth";
 import {
-  doc,
-  setDoc,
-  serverTimestamp,
-  Timestamp,
-  collection,
   addDoc,
-  getDocs,
-  getDoc,
-  deleteDoc,
-  query,
-  where,
-  updateDoc,
-  arrayUnion,
   arrayRemove,
+  arrayUnion,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { db } from "../firebase/firebaseConfig";
-import { User, Auth } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 let isUserProfileUpdated = false;
 

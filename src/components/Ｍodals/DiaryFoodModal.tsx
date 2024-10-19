@@ -1,37 +1,38 @@
-import { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
-import Button from "../Button";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { useQuery, useQueryClient } from "react-query";
-import {
-  fetchDiaryEntryById,
-  updateDiaryEntry,
-} from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import Modal from "./Modal";
-import QueryFoodModal from "./QueryFoodModal";
-import { useFoodStore } from "../../stores/foodStore";
+import { annotate } from "rough-notation";
+import styled from "styled-components";
 import aweImg from "../../asset/moodsImg/Awe.png";
 import eatingHappyImg from "../../asset/moodsImg/Eating_Happy.png";
 import rageImg from "../../asset/moodsImg/Rage.png";
 import suspiciousImg from "../../asset/moodsImg/Suspicious.png";
-import fearImg from "../../asset/moodsImg/angry.png";
+import {
+  default as angryImg,
+  default as fearImg,
+} from "../../asset/moodsImg/angry.png";
 import lovingImg from "../../asset/moodsImg/loving.png";
-import angryImg from "../../asset/moodsImg/angry.png";
-import { motion } from "framer-motion";
+import { auth } from "../../firebase/firebaseConfig";
+import {
+  fetchDiaryEntryById,
+  updateDiaryEntry,
+} from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
+import { useFoodStore } from "../../stores/foodStore";
+import Button from "../Button";
+import Modal from "./Modal";
+import QueryFoodModal from "./QueryFoodModal";
 import breakImg from "./mealsImg/breakfast.png";
 import breakSelectImg from "./mealsImg/breakfast_select.png";
-import lunchImg from "./mealsImg/lunch.png";
-import lunchSelectImg from "./mealsImg/lunch_select.png";
 import dinnerImg from "./mealsImg/dinner.png";
 import dinnerSelectImg from "./mealsImg/dinner_select.png";
+import lunchImg from "./mealsImg/lunch.png";
+import lunchSelectImg from "./mealsImg/lunch_select.png";
 import snackImg from "./mealsImg/snack.png";
 import snackSelectImg from "./mealsImg/snack_select.png";
-import useAlert from "../../hooks/useAlertMessage";
-import tape from "./tape.png";
 import polaroid from "./polaroid.png";
-import { useDropzone } from "react-dropzone";
-import { annotate } from "rough-notation";
-import AlertMessage from "../AlertMessage";
+import tape from "./tape.png";
 
 interface FoodItem {
   id: string;

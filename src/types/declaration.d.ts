@@ -1,4 +1,3 @@
-// declaration.d.ts
 declare module "*.png" {
   const value: string;
   export default value;
@@ -23,14 +22,5 @@ declare module "roughjs/bin/rough" {
   export default rough;
 }
 
-declare module "react-range-slider-input" {
-  const RangeSlider: any;
-  export default RangeSlider;
-}
-declare module "opentype.js" {
-  const content: any;
-  export default content;
-}
 declare module "rough-viz";
-
 declare module "lodash.debounce";

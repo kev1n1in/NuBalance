@@ -1,24 +1,24 @@
-import { useState, useEffect, MouseEvent } from "react";
-import { signInWithEmail, signUpWithEmail } from "../../firebase/firebaseAuth";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { auth } from "../../firebase/firebaseConfig";
-import GoogleLoginButton from "../../components/GoogleLoginButton";
+import { MouseEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
-import Button from "../../components/Button";
-import { updateUserProfile } from "../../firebase/firebaseServices";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import GoogleLoginButton from "../../components/GoogleLoginButton";
+import StickerWrapper from "../../components/LoginWrapper/Wrapper";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
+import RequiredMark from "../../components/RequiredMark";
+import Sidebar from "../../components/Sidebar";
+import { signInWithEmail, signUpWithEmail } from "../../firebase/firebaseAuth";
+import { auth } from "../../firebase/firebaseConfig";
+import { updateUserProfile } from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
 import emailIcon from "./email.png";
 import passwordIcon from "./password.png";
 import userIcon from "./user.png";
-import HamburgerIcon from "../../components/MenuButton";
-import Overlay from "../../components/Overlay";
-import Sidebar from "../../components/Sidebar";
-import RequiredMark from "../../components/RequiredMark";
-import useAlert from "../../hooks/useAlertMessage";
-import StickerWrapper from "../../components/LoginWrapper/Wrapper";
 
 const Login = () => {
   const [user, setUser] = useState<User | null>(null);

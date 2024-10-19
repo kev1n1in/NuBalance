@@ -1,31 +1,31 @@
-import Sidebar from "../../components/Sidebar";
-import styled from "styled-components";
-import Button from "../../components/Button";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "react-query";
-import { deleteDiaryEntry } from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import userImg from "./userImg.png";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
-import Modal from "../../components/Ｍodals/Modal";
+import { useState } from "react";
+import Flatpickr from "react-flatpickr";
+import { useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import DiaryCard from "../../components/DiaryCard/DiaryCard";
+import Joyride from "../../components/Joyride";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
-import calculatorImg from "./calculator.png";
-import createImg from "./create.png";
-import searchImg from "./search.png";
-import report from "./report.png";
-import useConfirmDialog from "../../hooks/useConfirmDialog";
 import HandDrawnProgress from "../../components/ProgressBar/HandDrawnProgress";
+import Sidebar from "../../components/Sidebar";
+import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
+import Modal from "../../components/Ｍodals/Modal";
+import { auth } from "../../firebase/firebaseConfig";
+import { deleteDiaryEntry } from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
-import Joyride from "../../components/Joyride";
-import DiaryCard from "../../components/DiaryCard/DiaryCard";
-import { useUserTDEE } from "../../hooks/useUserTDEE";
+import useConfirmDialog from "../../hooks/useConfirmDialog";
 import { useDiaryEntries } from "../../hooks/useUserDiary";
 import { useUserName } from "../../hooks/useUserName";
+import { useUserTDEE } from "../../hooks/useUserTDEE";
+import calculatorImg from "./calculator.png";
+import createImg from "./create.png";
+import report from "./report.png";
+import searchImg from "./search.png";
+import userImg from "./userImg.png";
 
 interface RemainCaloriesProps {
   isExceeded: boolean;
@@ -89,11 +89,7 @@ const UserInfo = () => {
     snack: diaryEntries?.filter((entry) => entry?.meal === "點心"),
   };
 
-  const {
-    data: userName,
-    isLoading: isLoadingUserName,
-    error: userNameError,
-  } = useUserName();
+  const { isLoading: isLoadingUserName, error: userNameError } = useUserName();
   const displayName = auth.currentUser
     ? auth.currentUser.displayName
     : "User not set";

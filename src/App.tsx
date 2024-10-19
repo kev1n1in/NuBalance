@@ -1,19 +1,19 @@
-import { GlobalStyle } from "./GlobalStyle";
+import { QueryClient, QueryClientProvider } from "react-query";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "react-query";
-import Login from "./pages/Login";
+import Food from "../src/pages/Food";
+import PrivateRoute from "./components/PrivateRoute";
+import { GlobalStyle } from "./GlobalStyle";
 import Calculator from "./pages/Calculator";
 import Diary from "./pages/Diary";
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
 import Report from "./pages/Report";
 import UserInfo from "./pages/UserInfo";
-import PrivateRoute from "./components/PrivateRoute";
-import Food from "../src/pages/Food";
-import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 

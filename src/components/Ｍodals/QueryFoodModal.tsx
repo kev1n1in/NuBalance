@@ -1,9 +1,9 @@
 import { useState } from "react";
-import styled from "styled-components";
-import Button from "../Button";
 import { useQuery } from "react-query";
-import { fetchFoodData } from "../../firebase/firebaseServices";
+import styled from "styled-components";
 import { auth } from "../../firebase/firebaseConfig";
+import { fetchFoodData } from "../../firebase/firebaseServices";
+import Button from "../Button";
 import CreateFoodModal from "./CreateFoodModal";
 import Modal from "./Modal";
 

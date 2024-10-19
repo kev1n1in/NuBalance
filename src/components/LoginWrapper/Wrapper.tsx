@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import tomato from "./tomato.png";
-import meat from "./meat.png";
-import cheese from "./cheese.png";
-import veg from "./veg.png";
 import avocado from "./avocado.png";
+import cheese from "./cheese.png";
+import meat from "./meat.png";
+import tomato from "./tomato.png";
+import veg from "./veg.png";
 
 type Position = {
   top?: string;

@@ -1,17 +1,17 @@
+import { onAuthStateChanged, User } from "firebase/auth";
+import "flatpickr/dist/flatpickr.min.css";
 import React, { useEffect, useState } from "react";
+import Flatpickr from "react-flatpickr";
 import { useQuery } from "react-query";
-import { getUserHistory, getDiaryEntry } from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
 import styled from "styled-components";
-import Sidebar from "../../components/Sidebar";
+import Loader from "../../components/Loader";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
 import RoughBarChart from "../../components/RoughCharts.tsx/Bar";
 import RoughPieChart from "../../components/RoughCharts.tsx/Pie";
-import Overlay from "../../components/Overlay";
-import HamburgerIcon from "../../components/MenuButton";
-import { onAuthStateChanged, User } from "firebase/auth";
-import Loader from "../../components/Loader";
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
+import Sidebar from "../../components/Sidebar";
+import { auth } from "../../firebase/firebaseConfig";
+import { getDiaryEntry, getUserHistory } from "../../firebase/firebaseServices";
 
 interface HistoryItem {
   clientUpdateTime: { seconds: number };
@@ -88,7 +88,6 @@ const Report: React.FC = () => {
         date: item.date.slice(5),
         weight: item.weight,
       }));
-      const latestEntry = allHistory[allHistory.length - 1];
       setWeightChartData(weightData);
     } else {
       setWeightChartData([]);
@@ -168,7 +167,7 @@ const Report: React.FC = () => {
             <BarFolderTab onClick={() => setActiveTab("Nutrients")}>
               Nutrients
             </BarFolderTab>
-            <ChartTitle>Weight change for the 7 days before</ChartTitle>
+            <ChartTitle>Weight change for the 7 entries before</ChartTitle>
             <DatePickerContainer>
               <Flatpickr
                 value={selectedDate}
@@ -186,7 +185,7 @@ const Report: React.FC = () => {
           {weightChartData.length > 0 ? (
             <RoughBarChart data={roughData} />
           ) : (
-            <p>沒有體重變化的歷史資料</p>
+            <p>No body weight records</p>
           )}
         </BarChartContainer>
         <PieChartContainer

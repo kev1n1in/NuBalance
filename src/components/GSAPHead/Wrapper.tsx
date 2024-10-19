@@ -1,17 +1,17 @@
-import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import arrow from "./arrow.png";
 import asparagus from "./asparagus.png";
 import avocado from "./avocado.png";
 import banana from "./banana.png";
-import lemon from "./lemon.png";
 import garlic from "./garlic.png";
-import potato from "./potato.png";
-import tomato from "./tomato.png";
+import lemon from "./lemon.png";
 import pear from "./pear.png";
 import pineapple from "./pineapple.png";
+import potato from "./potato.png";
 import redCarrot from "./redCarrot.png";
-import arrow from "./arrow.png";
+import tomato from "./tomato.png";
 
 const GSAPHEAD: React.FC = () => {
   const wordRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -265,7 +265,6 @@ const GSAPHEAD: React.FC = () => {
 
         Object.keys(images).forEach((key, index) => {
           const imageKey = key as keyof typeof images;
-          const image = images[imageKey];
           gsap.to(imageRefs.current[index], {
             x: images[imageKey].final.x,
             y: images[imageKey].final.y,

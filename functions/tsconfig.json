@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ESNext",  // 確保這裡是 ESNext 或 ES6
+    "module": "ESNext",  
     "target": "ES6",
     "moduleResolution": "node",
     "outDir": "lib",

@@ -1,5 +1,5 @@
-import styled from "styled-components";
 import { PacmanLoader } from "react-spinners";
+import styled from "styled-components";
 
 interface LoadingProps {
   isLoading: boolean;

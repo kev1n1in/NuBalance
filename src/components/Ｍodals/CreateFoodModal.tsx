@@ -1,15 +1,15 @@
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React, { useState } from "react";
-import styled from "styled-components";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useDropzone } from "react-dropzone";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import Button from "../Button";
-import { addFoodItem } from "../../firebase/firebaseServices";
+import styled from "styled-components";
 import { auth, storage } from "../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { addFoodItem } from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
+import Button from "../Button";
 import Loader from "../Loader";
 import RequiredMark from "../RequiredMark";
-import useAlert from "../../hooks/useAlertMessage";
-import { useDropzone } from "react-dropzone";
 
 interface FormValues {
   foodInfo: string[];

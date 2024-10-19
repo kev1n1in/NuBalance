@@ -1,6 +1,6 @@
-import styled from "styled-components";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/airbnb.css";
+import Flatpickr from "react-flatpickr";
+import styled from "styled-components";
 
 interface DatePickerProps {
   initialTime: string;

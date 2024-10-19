@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import ReactJoyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { useEffect, useState } from "react";
+import ReactJoyride, { CallBackProps, Step } from "react-joyride";
 
 interface JoyrideProps {
   run: boolean;

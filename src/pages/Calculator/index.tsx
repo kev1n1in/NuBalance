@@ -1,25 +1,25 @@
-import styled from "styled-components";
-import Sidebar from "../../components/Sidebar";
+import { MenuItem, Select } from "@mui/material";
+import { Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import TDEECalculator from "../../services/TDEECalculator";
-import Button from "../../components/Button";
-import {
-  updateTDEEHistory,
-  getUserHistory,
-} from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery, useMutation } from "react-query";
-import Loader from "../../components/Loader";
-import { Select, MenuItem, Menu } from "@mui/material";
+import { useMutation, useQuery } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import FormItem from "../../components/CalculatorInput/FormItem";
+import Loader from "../../components/Loader";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
-import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
+import Sidebar from "../../components/Sidebar";
+import { auth } from "../../firebase/firebaseConfig";
+import {
+  getUserHistory,
+  updateTDEEHistory,
+} from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
+import TDEECalculator from "../../services/TDEECalculator";
 import pointer from "./pointer.png";
-import FormItem from "../../components/CalculatorInput/FormItem";
 
 interface userDataProps {
   age: number;

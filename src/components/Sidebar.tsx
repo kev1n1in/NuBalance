@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { useNavigate, useLocation } from "react-router-dom";
-import { signOutUser } from "../firebase/firebaseAuth";
 import Cookies from "js-cookie";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { annotate } from "rough-notation";
+import styled from "styled-components";
+import { signOutUser } from "../firebase/firebaseAuth";
 import ConfirmDialog from "./ConfirmDialog";
 
 interface SidebarProps {

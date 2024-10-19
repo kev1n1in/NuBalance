@@ -1,9 +1,9 @@
-import styled from "styled-components";
-import { useState, useRef, useEffect } from "react";
-import tape from "./tape.png";
-import polaroid from "./polaroid.png";
+import { useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { annotate } from "rough-notation";
+import styled from "styled-components";
+import polaroid from "./polaroid.png";
+import tape from "./tape.png";
 
 interface FoodItem {
   food_name: string;

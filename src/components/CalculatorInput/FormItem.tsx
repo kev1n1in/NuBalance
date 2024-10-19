@@ -1,7 +1,7 @@
 import React from "react";
-import Slider from "./Slider";
 import styled from "styled-components";
 import RequiredMark from "../RequiredMark";
+import Slider from "./Slider";
 
 interface FormItemProps {
   title: string;
