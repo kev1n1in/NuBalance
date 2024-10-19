@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
-import { auth } from "../firebase/firebaseConfig";
-import { getDiaryEntry } from "../firebase/firebaseServices";
+import { auth } from "../../firebase/firebaseConfig";
+import { getDiaryEntry } from "../../firebase/firebaseServices";
 
 interface DiaryEntry {
   id: string;

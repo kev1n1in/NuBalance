@@ -18,7 +18,7 @@ import {
   updateTDEEHistory,
 } from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
-import TDEECalculator from "../../services/TDEECalculator";
+import TDEECalculator from "../../utils/TDEECalculator";
 import pointer from "./pointer.png";
 
 interface userDataProps {
