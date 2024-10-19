@@ -88,7 +88,7 @@ const RoughPieChart: React.FC<RoughPieChartProps> = ({ data }) => {
 
         const percentageValues = calculatePercentages(data.values);
 
-        const pieChart = new Pie({
+        new Pie({
           element: `#${chartRef.current.id}`,
           data: {
             labels: data.labels,

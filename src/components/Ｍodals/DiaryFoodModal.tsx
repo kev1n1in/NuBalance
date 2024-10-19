@@ -109,7 +109,6 @@ const DiaryFoodModal: React.FC<{
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
   const { addAlert, AlertMessage } = useAlert();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
   const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
@@ -123,7 +122,6 @@ const DiaryFoodModal: React.FC<{
     },
     onDrop: (acceptedFiles) => {
       const file = acceptedFiles[0];
-      setImageFile(file);
       setIsImageUploaded(true);
 
       const reader = new FileReader();
@@ -153,11 +151,7 @@ const DiaryFoodModal: React.FC<{
     }
   }, [currentFood]);
 
-  const {
-    data: diaryEntry,
-    isLoading,
-    error,
-  } = useQuery<DiaryEntry>(
+  const { isLoading, error } = useQuery<DiaryEntry>(
     ["diaryEntry", entryId],
     () => {
       if (!currentUser) {

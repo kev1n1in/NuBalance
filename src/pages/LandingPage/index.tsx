@@ -12,7 +12,6 @@ import { auth } from "../../firebase/firebaseConfig";
 
 const LandingPage = () => {
   const [isTitleInHeader, setIsTitleInHeader] = useState(false);
-  const [isAtTop, setIsAtTop] = useState(true);
   const [toggleMenu, setToggleMenu] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -31,7 +30,6 @@ const LandingPage = () => {
         ease: "power4.out",
         onComplete: () => setIsTitleInHeader(true),
       });
-      setIsAtTop(false);
     } else if (scrollY === 0 && isTitleInHeader) {
       gsap.to(titleRef.current, {
         y: 200,
@@ -39,7 +37,6 @@ const LandingPage = () => {
         ease: "power4.out",
         onComplete: () => setIsTitleInHeader(false),
       });
-      setIsAtTop(true);
     }
   };
 
@@ -139,11 +136,4 @@ const LoginButton = styled.div`
   cursor: pointer;
   z-index: 11;
 `;
-const ProductInfo = styled.div`
-  width: 100%;
-  height: 800px;
-  margin-top: 20px;
-  background-color: gray;
-`;
-
 export default LandingPage;

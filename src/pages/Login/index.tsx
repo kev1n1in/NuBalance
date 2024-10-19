@@ -21,7 +21,6 @@ import passwordIcon from "./password.png";
 import userIcon from "./user.png";
 
 const Login = () => {
-  const [user, setUser] = useState<User | null>(null);
   const [inputUser, setInputUser] = useState("");
   const [inputEmail, setInputEmail] = useState("");
   const [inputPassword, setInputPassword] = useState("");
@@ -44,10 +43,8 @@ const Login = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        setUser(currentUser);
         Cookies.set("isLoggedIn", "true", { expires: 7 });
       } else {
-        setUser(null);
         Cookies.remove("isLoggedIn");
       }
     });
@@ -78,12 +75,6 @@ const Login = () => {
       throw error;
     }
   };
-  const handleInputChange =
-    (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-      removeMessage();
-    };
 
   const handleSignUp = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -107,11 +98,7 @@ const Login = () => {
     }
 
     try {
-      const newUser = await signUpWithEmail(
-        inputEmail,
-        inputPassword,
-        inputUser
-      );
+      await signUpWithEmail(inputEmail, inputPassword, inputUser);
       addAlert("註冊成功！請使用您的帳號登入。");
       setIsSignUp(false);
     } catch (error) {

@@ -6,7 +6,7 @@ interface PrivateRouteProps {
   element: React.ReactElement;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ element, ...rest }) => {
+const PrivateRoute = ({ element }: PrivateRouteProps) => {
   const location = useLocation();
   const isLoggedIn = Cookies.get("isLoggedIn");
 

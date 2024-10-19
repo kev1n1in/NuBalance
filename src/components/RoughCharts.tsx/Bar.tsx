@@ -23,7 +23,6 @@ const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
         svgLabel.style.fontSize = `${fontSize}px`;
 
         if (transform && transform.includes("rotate(-90)")) {
-          const yPos = containerHeight * 0.5;
           label.setAttribute("y", `-${containerWidth * 0.1}`);
         } else {
           const xPos = containerWidth * 0.5;

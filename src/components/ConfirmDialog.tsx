@@ -18,6 +18,7 @@ interface ConfirmDialogProps {
   confirmButtonColor: string;
   cancelButtonColor?: string;
 }
+
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   onClose,
@@ -29,12 +30,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmButtonColor = "#6db96d",
   cancelButtonColor = "gray",
 }) => {
-  const handleDialogClose = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onClose("escapeKeyDown");
-  };
-
   return (
-    <Dialog open={open} onClose={(event, reason) => onClose(reason)}>
+    <Dialog open={open} onClose={(_event, reason) => onClose(reason)}>
       <DialogTitle sx={{ fontFamily: "KG Second Chances" }}>
         {title}
       </DialogTitle>
@@ -46,7 +43,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <DialogActions>
         <Button
           sx={{ fontFamily: "KG Second Chances", color: cancelButtonColor }}
-          onClick={handleDialogClose}
+          onClick={() => onClose("escapeKeyDown")}
         >
           {cancelButtonText}
         </Button>
