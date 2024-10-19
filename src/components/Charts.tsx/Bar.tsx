@@ -1,12 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Bar } from "rough-viz";
 import styled from "styled-components";
+import { RoughBarChartProps } from "../../types/Charts";
 
-interface RoughBarChartProps {
-  data: { labels: string[]; values: number[] };
-}
-
-const RoughBarChart: React.FC<RoughBarChartProps> = ({ data }) => {
+const RoughBarChart = ({ data }: RoughBarChartProps) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
   const adjustLabels = () => {
