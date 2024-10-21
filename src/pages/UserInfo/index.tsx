@@ -21,15 +21,13 @@ import useConfirmDialog from "../../hooks/useConfirmDialog";
 import { useDiaryEntries } from "../../hooks/user/useDiary";
 import { useUserName } from "../../hooks/user/useName";
 import { useUserTDEE } from "../../hooks/user/useTDEE";
+import { RemainCaloriesProps } from "../../types/Pages";
 import calculatorImg from "./calculator.png";
 import createImg from "./create.png";
 import report from "./report.png";
 import searchImg from "./search.png";
 import userImg from "./userImg.png";
 
-interface RemainCaloriesProps {
-  isExceeded: boolean;
-}
 const buttonConfig = [
   {
     key: "calculate-tdee",

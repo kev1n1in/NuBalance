@@ -18,22 +18,12 @@ import {
   updateTDEEHistory,
 } from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
+import { CalculatorPageProps } from "../../types/Pages";
 import TDEECalculator from "../../utils/TDEECalculator";
 import pointer from "./pointer.png";
 
-interface userDataProps {
-  age: number;
-  gender: string;
-  weight: number;
-  height: number;
-  activityLevel: string;
-  bodyFat: number;
-  totalCalories: number;
-  [key: string]: string | number;
-}
-
 const Calculator = () => {
-  const [userData, setUserData] = useState<userDataProps>({
+  const [userData, setUserData] = useState<CalculatorPageProps>({
     age: 34,
     gender: "male",
     weight: 60,
@@ -61,7 +51,7 @@ const Calculator = () => {
     { title: "Height", field: "height", min: 100, max: 250, required: true },
     { title: "Body Fat", field: "bodyFat", min: 0, max: 150, required: false },
   ];
-  const getUserDataProps = (userData: userDataProps) => {
+  const getUserDataProps = (userData: CalculatorPageProps) => {
     return {
       weight: userData.weight,
       height: userData.height,
@@ -182,7 +172,7 @@ const Calculator = () => {
   };
 
   const handleInputChange = (
-    field: keyof userDataProps,
+    field: keyof CalculatorPageProps,
     value: number | string
   ) => {
     setUserData((prevState) => ({

@@ -12,14 +12,9 @@ import Modal from "../../components/Ｍodals/Modal";
 import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
 import { useFoodStore } from "../../stores/foodStore";
+import { FoodItem } from "../../types/Pages";
 
-interface FoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-}
-
-const Food: React.FC = () => {
+const Food = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const [isComposing, setIsComposing] = useState<boolean>(false);
