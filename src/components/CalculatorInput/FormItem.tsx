@@ -1,16 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import { FormItemProps } from "../../types/TDEEForm";
 import RequiredMark from "../RequiredMark";
 import Slider from "./Slider";
-
-interface FormItemProps {
-  title: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (value: number) => void;
-  required?: boolean;
-}
 
 const FormItem = ({
   title,
