@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Pie } from "rough-viz";
 import styled from "styled-components";
-import { RoughPieChartProps } from "../../types/charts";
+import { RoughPieChartProps } from "../../types/Charts";
 
 const RoughPieChart = ({ data }: RoughPieChartProps) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -18,8 +18,7 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
         const width = chartRef.current.clientWidth;
         const height = chartRef.current.clientHeight;
 
-        let bottomMargin,
-          translateX,
+        let translateX,
           translateY,
           viewBoxX,
           viewBoxY,
@@ -28,7 +27,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendScale;
 
         if (window.innerWidth < 360) {
-          bottomMargin = 0;
           translateX = -50;
           translateY = 0;
           viewBoxX = -100;
@@ -37,7 +35,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendTranslateY = -30;
           legendScale = 1;
         } else if (window.innerWidth < 480) {
-          bottomMargin = 0;
           translateX = -50;
           translateY = 0;
           viewBoxX = -100;
@@ -46,7 +43,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendTranslateY = -30;
           legendScale = 1;
         } else if (window.innerWidth < 768) {
-          bottomMargin = 20;
           translateX = -50;
           translateY = 0;
           viewBoxX = -100;
@@ -55,7 +51,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendTranslateY = -30;
           legendScale = 1;
         } else if (window.innerWidth < 1000) {
-          bottomMargin = 120;
           translateX = -100;
           translateY = -50;
           viewBoxX = -100;
@@ -64,7 +59,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendTranslateY = -30;
           legendScale = 1.5;
         } else if (window.innerWidth < 1280) {
-          bottomMargin = 0;
           translateX = -1000;
           translateY = 0;
           viewBoxX = -100;
@@ -73,7 +67,6 @@ const RoughPieChart = ({ data }: RoughPieChartProps) => {
           legendTranslateY = -30;
           legendScale = 2;
         } else {
-          bottomMargin = 0;
           translateX = -100;
           translateY = 0;
           viewBoxX = -100;

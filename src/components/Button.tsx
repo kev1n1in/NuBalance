@@ -1,21 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import rough from "roughjs/bin/rough";
 import styled from "styled-components";
+import { ButtonProps } from "../types/GlobalComponents";
 
-interface ButtonProps {
-  id?: string;
-  label: string;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  margin?: string;
-  disabled?: boolean;
-  color?: string;
-  backgroundColor?: string;
-  strokeColor?: string;
-  justifyContent?: "flex-start" | "center" | "flex-end";
-  icon?: string;
-}
-
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   label,
   onClick,
   disabled,
@@ -25,7 +13,7 @@ const Button: React.FC<ButtonProps> = ({
   backgroundColor = "#fff",
   justifyContent = "center",
   icon,
-}) => {
+}: ButtonProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 

@@ -1,8 +1,5 @@
 import styled, { keyframes } from "styled-components";
-
-interface AlertMessageProp {
-  message: string;
-}
+import { AlertMessageProp } from "../types/GlobalComponents";
 
 const AlertMessage = ({ message }: AlertMessageProp) => {
   if (!message) return null;

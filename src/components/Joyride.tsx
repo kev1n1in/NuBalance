@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactJoyride, { CallBackProps, Step } from "react-joyride";
-
-interface JoyrideProps {
-  run: boolean;
-  setRun: (run: boolean) => void;
-}
+import { JoyrideProps } from "../types/GlobalComponents";
 
 const Joyride = ({ run, setRun }: JoyrideProps) => {
   const [steps, setSteps] = useState<Step[]>([]);
