@@ -1,20 +1,7 @@
 import { useQuery } from "react-query";
 import { auth } from "../../firebase/firebaseConfig";
 import { getDiaryEntry } from "../../firebase/firebaseServices";
-
-interface DiaryEntry {
-  id: string;
-  food?: string;
-  meal?: string;
-  bmi?: string;
-  bodyFat?: string;
-  nutrition?: {
-    calories?: string;
-    carbohydrates?: string;
-    protein?: string;
-    fat?: string;
-  };
-}
+import { DiaryEntry } from "../../types/Hooks";
 
 export const useDiaryEntries = (selectedDate: Date) => {
   return useQuery<DiaryEntry[]>(
