@@ -1,11 +1,7 @@
 import "flatpickr/dist/themes/airbnb.css";
 import Flatpickr from "react-flatpickr";
 import styled from "styled-components";
-
-interface DatePickerProps {
-  initialTime: string;
-  onDateChange: (date: Date) => void;
-}
+import { DatePickerProps } from "../types/Selectors";
 
 const DatePicker = ({ initialTime, onDateChange }: DatePickerProps) => {
   return (

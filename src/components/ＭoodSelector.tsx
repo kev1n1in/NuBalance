@@ -2,18 +2,7 @@ import { motion } from "framer-motion";
 import { forwardRef, useEffect, useRef } from "react";
 import { annotate } from "rough-notation";
 import styled from "styled-components";
-
-type MoodItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-};
-
-interface MoodSelectorProps {
-  moods: MoodItem[];
-  selectedMood: MoodItem | null;
-  setSelectedMoodClick: (mood: MoodItem | null) => void;
-}
+import { MoodItem, MoodSelectorProps } from "../types/Selectors";
 
 const MoodSelector = forwardRef(
   ({ moods, selectedMood, setSelectedMoodClick }: MoodSelectorProps) => {
