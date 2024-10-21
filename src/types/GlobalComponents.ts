@@ -14,6 +14,7 @@ export interface ButtonProps {
   justifyContent?: "flex-start" | "center" | "flex-end";
   icon?: string;
 }
+
 export interface ConfirmDialogProps {
   open: boolean;
   onClose: (reason: "backdropClick" | "escapeKeyDown") => void;
@@ -25,10 +26,16 @@ export interface ConfirmDialogProps {
   confirmButtonColor: string;
   cancelButtonColor?: string;
 }
+
 export interface JoyrideProps {
   run: boolean;
   setRun: (run: boolean) => void;
 }
+
 export interface LoadingProps {
   isLoading: boolean;
+}
+
+export interface PrivateRouteProps {
+  element: React.ReactElement;
 }

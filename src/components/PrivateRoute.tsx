@@ -1,10 +1,6 @@
 import Cookies from "js-cookie";
-import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-
-interface PrivateRouteProps {
-  element: React.ReactElement;
-}
+import { PrivateRouteProps } from "../types/GlobalComponents";
 
 const PrivateRoute = ({ element }: PrivateRouteProps) => {
   const location = useLocation();
