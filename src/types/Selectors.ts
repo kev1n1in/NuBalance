@@ -27,3 +27,13 @@ export interface MoodSelectorProps {
   selectedMood: MoodItem | null;
   setSelectedMoodClick: (mood: MoodItem | null) => void;
 }
+
+interface FoodItem {
+  food_name: string;
+  food_info: string[];
+}
+
+export interface NutrientSelectorProps {
+  selectedFood: FoodItem | null;
+  onClick: () => void;
+}
