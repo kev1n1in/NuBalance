@@ -3,21 +3,12 @@ import { useQuery } from "react-query";
 import styled from "styled-components";
 import { auth } from "../../firebase/firebaseConfig";
 import { fetchFoodData } from "../../firebase/firebaseServices";
+import { FoodItem, QueryFoodModalProps } from "../../types/Modals";
 import Button from "../Button";
 import CreateFoodModal from "./CreateFoodModal";
 import Modal from "./Modal";
 
-type FoodItem = {
-  id: string;
-  food_name: string;
-  food_info: string[];
-};
-
-type QueryFoodModalProps = {
-  onAddFood: (food: FoodItem) => void;
-};
-
-const QueryFoodModal: React.FC<QueryFoodModalProps> = ({ onAddFood }) => {
+const QueryFoodModal = ({ onAddFood }: QueryFoodModalProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);

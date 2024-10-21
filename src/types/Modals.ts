@@ -56,3 +56,7 @@ export interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
 }
+
+export type QueryFoodModalProps = {
+  onAddFood: (food: FoodItem) => void;
+};
