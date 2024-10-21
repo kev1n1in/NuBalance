@@ -1,16 +1,13 @@
 import Cookies from "js-cookie";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { annotate } from "rough-notation";
 import styled from "styled-components";
 import { signOutUser } from "../firebase/firebaseAuth";
+import { SidebarProps } from "../types/Sidebar";
 import ConfirmDialog from "./ConfirmDialog";
 
-interface SidebarProps {
-  toggleMenu: boolean;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ toggleMenu }) => {
+const Sidebar = ({ toggleMenu }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
