@@ -1,15 +1,9 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import CloseImg from "../../asset/close.png";
+import { ModalProps } from "../../types/Modals";
 
-interface ModalProps {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}
-
-const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
+const Modal = ({ title, onClose, children }: ModalProps) => {
   return ReactDOM.createPortal(
     <Wrapper onClick={onClose}>
       <Content onClick={(e) => e.stopPropagation()}>

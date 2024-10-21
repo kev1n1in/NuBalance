@@ -20,6 +20,13 @@ import {
 } from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
 import { useFoodStore } from "../../stores/foodStore";
+import {
+  DiaryEntry,
+  DiaryFoodModalProps,
+  FoodItem,
+  MealItem,
+  MoodItem,
+} from "../../types/Modals";
 import Button from "../Button";
 import Modal from "./Modal";
 import QueryFoodModal from "./QueryFoodModal";
@@ -34,39 +41,6 @@ import snackSelectImg from "./mealsImg/snack_select.png";
 import polaroid from "./polaroid.png";
 import tape from "./tape.png";
 
-interface FoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-}
-
-interface DiaryEntry {
-  id: string;
-  meal?: string;
-  food?: string;
-  time?: string;
-  mood?: string;
-  note?: string;
-  imageUrl?: string;
-  nutrition?: {
-    calories?: string;
-    carbohydrates?: string;
-    protein?: string;
-    fat?: string;
-  };
-}
-type MealItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-  selectImgSrc: string;
-};
-
-type MoodItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-};
 const meals: MealItem[] = [
   {
     id: "早餐",
@@ -94,11 +68,11 @@ const moods: MoodItem[] = [
   { id: "angry", name: "生氣", imgSrc: angryImg },
 ];
 
-const DiaryFoodModal: React.FC<{
-  onClose: () => void;
-  entryId: string;
-  selectedDate: Date;
-}> = ({ onClose, entryId, selectedDate }) => {
+const DiaryFoodModal = ({
+  onClose,
+  entryId,
+  selectedDate,
+}: DiaryFoodModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { selectedFood, setSelectedFood } = useFoodStore();
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);

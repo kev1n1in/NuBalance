@@ -7,24 +7,10 @@ import styled from "styled-components";
 import { auth, storage } from "../../firebase/firebaseConfig";
 import { addFoodItem } from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
+import { CreateFoodModalProps, FormValues } from "../../types/Modals";
 import Button from "../Button";
 import Loader from "../Loader";
 import RequiredMark from "../RequiredMark";
-
-interface FormValues {
-  foodInfo: string[];
-  foodName: string;
-  calories: number;
-  carbohydrates: number;
-  protein: number;
-  fat: number;
-  image: FileList;
-}
-
-interface CreateFoodModalProps {
-  onClose: () => void;
-  onFoodCreated: (foodName: string) => void;
-}
 
 const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
   const queryClient = useQueryClient();
