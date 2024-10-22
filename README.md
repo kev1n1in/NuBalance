@@ -13,7 +13,6 @@
 
 **This website tool is for tracking nutrients and calories in your diet.**
 
-[Project info]
 
 # Built with
 - ![React Badge](https://img.shields.io/badge/React-black?style=for-the-badge&logo=react&logoColor=#087ea4) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
