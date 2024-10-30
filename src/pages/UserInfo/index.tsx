@@ -30,28 +30,28 @@ import userImg from "./userImg.png";
 
 const buttonConfig = [
   {
-    key: "calculate-tdee",
+    key: "calculate-tdee-button",
     label: "Calculate TDEE",
     icon: calculatorImg,
     path: "../calculator",
     state: { fromUserInfo: true },
   },
   {
-    key: "search-food",
+    key: "search-food-button",
     label: "Search Food",
     icon: searchImg,
     path: "../food",
     state: { fromUserInfo: true },
   },
   {
-    key: "create-diary",
+    key: "create-diary-button",
     label: "Create Diary",
     icon: createImg,
     path: "../diary",
     state: { fromUserInfo: true },
   },
   {
-    key: "check-report",
+    key: "check-report-button",
     label: "Check Report",
     icon: report,
     path: "../report",
@@ -185,8 +185,8 @@ const UserInfo = () => {
                       typeof latestBMI === "number"
                         ? latestBMI.toFixed(2)
                         : "2141"
-                    }`}</BMIText>
-                    <BodyFatText>{`BodyFat: ${
+                    } `}</BMIText>
+                    <BodyFatText>{` BodyFat: ${
                       typeof latestBodyFat === "number"
                         ? latestBodyFat.toFixed(2) + "%"
                         : "0"
@@ -368,6 +368,7 @@ const BodyDataContainer = styled.div`
 `;
 const BMIText = styled.span`
   font-weight: bold;
+  margin-right: 12px;
 `;
 const BodyFatText = styled.span`
   font-weight: bold;
