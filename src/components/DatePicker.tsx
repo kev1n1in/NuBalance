@@ -33,7 +33,7 @@ const TimePickerContainer = styled.div`
   }
   @media (max-width: 480px) {
     .flatpickr-calendar.inline {
-      right: 30px;
+      right: 110px;
       transform: scale(0.8);
     }
   }
@@ -41,7 +41,7 @@ const TimePickerContainer = styled.div`
     margin: 48px 0 0 0;
     .flatpickr-calendar.inline {
       top: 24px !important;
-      right: 46px;
+      right: 120px;
       transform: scale(0.7);
     }
   }
@@ -63,11 +63,11 @@ const StyledFlatpickr = styled(Flatpickr)`
   height: 50px;
   width: 150px;
   @media (max-width: 480px) {
-    left: 90px;
+    top: 24px;
+    left: -80px;
   }
   @media (max-width: 360px) {
-    top: 48px;
-    left: 0;
+    top: 0px;
   }
 `;
 
