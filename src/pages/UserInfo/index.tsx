@@ -289,6 +289,9 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   z-index: 2;
+  @media (max-width: 480px) {
+    margin-top: 72px;
+  }
 `;
 const JoyrideButton = styled.button`
   position: absolute;
@@ -328,6 +331,9 @@ const Title = styled.h1`
   font-size: 48px;
   @media (max-width: 1000px) {
     text-align: left;
+  }
+  @media (max-width: 480px) {
+    font-size: 40px;
   }
 `;
 const InfoWrapper = styled.div`
@@ -424,11 +430,6 @@ const TodayTargetWrapper = styled.div`
   @media (max-width: 480px) {
     position: absolute;
     top: 160px;
-    width: 100%;
-  }
-  @media (max-width: 360px) {
-    position: absolute;
-    top: 200px;
     width: 100%;
   }
 `;
@@ -539,7 +540,10 @@ const TargetProgressContainer = styled.div`
   width: 100%;
   margin-top: 80px;
   @media (max-width: 480px) {
-    margin-top: 0;
+    margin-top: 24px;
+  }
+  @media (max-width: 360px) {
+    margin-top: 64px;
   }
 `;
 const IndicatorWrapper = styled.div`
