@@ -322,17 +322,25 @@ const Container = styled.div`
   width: 90%;
   height: 90vh;
   margin: 50px auto 72px auto;
-  padding: 24px 24px 0 24px;
+  padding: 24px 24px;
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @media (max-width: 1000px) {
     height: 100vh;
-    margin: 50px 100px 72px 50px;
+    margin: 72px auto 72px 50px;
   }
   @media (max-width: 768px) {
+    margin: 72px 50px 72px 50px;
     height: 1350px;
+  }
+  @media (max-width: 480px) {
+    margin: 72px 50px 72px 50px;
+    height: 1250px;
+  }
+  @media (max-width: 360px) {
+    margin: 72px 24px 72px 24px;
   }
 `;
 
@@ -393,6 +401,9 @@ const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
   }
   @media (max-width: 768px) {
     margin-left: 0;
+  }
+  @media (max-width: 480px) {
+    font-size: 24px;
   }
 `;
 
