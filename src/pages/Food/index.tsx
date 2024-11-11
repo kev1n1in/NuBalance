@@ -175,12 +175,24 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @media (max-width: 1000px) {
-    margin: 50px 100px 72px 50px;
+    margin: 72px 50px 72px 50px;
+  }
+  @media (max-width: 768px) {
+    margin-top: 72px;
+  }
+  @media (max-width: 480px) {
+    margin: 72px 24px 72px 24px;
   }
 `;
 const Title = styled.h1`
   font-size: 40px;
   margin: 0;
+  @media (max-width: 1000px) {
+    margin-bottom: 12px;
+  }
+  @media (max-width: 480px) {
+    font-size: 30px;
+  }
 `;
 
 const Input = styled.input`
@@ -251,6 +263,10 @@ const NoItemsMessage = styled.p`
 const NoDataMessageContainer = styled.div`
   margin: 24px 0;
   text-align: center;
+  @media (max-width: 1000px) {
+    padding: 10px;
+    text-align: left;
+  }
 `;
 
 const NoDataMessage = styled.span`
