@@ -364,11 +364,12 @@ const Container = styled.div`
   @media (max-width: 1280px) {
     margin: 50px 100px 72px 50px;
   }
-  @media (max-width: 768px) {
-    margin: 50px 50px 72px 50px;
+  @media (max-width: 1000px) {
+    margin: 72px 100px 72px 50px;
   }
+
   @media (max-width: 480px) {
-    margin: 12px auto;
+    margin: 72px 24px 72px 12px;
   }
 `;
 
