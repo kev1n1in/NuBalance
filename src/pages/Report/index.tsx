@@ -245,6 +245,9 @@ const BarChartContainer = styled.div<{ isActive: boolean }>`
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     z-index: 1;
+    @media (max-width: 768px) {
+      width: 120px;
+    }
   }
   &:before {
     content: "Weight";
@@ -262,6 +265,9 @@ const BarChartContainer = styled.div<{ isActive: boolean }>`
     border-top-right-radius: 16px;
     z-index: -1;
     color: ${({ isActive }) => (isActive ? "#a23419" : "gray")};
+    @media (max-width: 768px) {
+      width: 120px;
+    }
   }
 `;
 const BarFolderTab = styled.div`
@@ -280,6 +286,10 @@ const BarFolderTab = styled.div`
   border-top-right-radius: 16px;
   z-index: -2;
   cursor: pointer;
+  @media (max-width: 768px) {
+    left: 140px;
+    width: 120px;
+  }
 `;
 
 const PieChartContainer = styled.div<{ isActive: boolean }>`
@@ -301,6 +311,10 @@ const PieChartContainer = styled.div<{ isActive: boolean }>`
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     z-index: 1;
+    @media (max-width: 768px) {
+      left: 140px;
+      width: 120px;
+    }
   }
   &:before {
     content: "Nutrients";
@@ -318,6 +332,10 @@ const PieChartContainer = styled.div<{ isActive: boolean }>`
     border-top-right-radius: 16px;
     z-index: -1;
     color: ${({ isActive }) => (isActive ? "gray" : "#a23419")};
+    @media (max-width: 768px) {
+      left: 140px;
+      width: 120px;
+    }
   }
 `;
 
@@ -337,6 +355,9 @@ const PieFolderTab = styled.div`
   border-top-right-radius: 16px;
   z-index: -2;
   cursor: pointer;
+  @media (max-width: 768px) {
+    width: 120px;
+  }
 `;
 
 const CenteredChartContainer = styled.div`
