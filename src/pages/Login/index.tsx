@@ -22,8 +22,8 @@ import userIcon from "./user.png";
 
 const Login = () => {
   const [inputUser, setInputUser] = useState("");
-  const [inputEmail, setInputEmail] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
+  const [inputEmail, setInputEmail] = useState("admin@example.com");
+  const [inputPassword, setInputPassword] = useState("123456");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
@@ -167,7 +167,7 @@ const Login = () => {
                         type="email"
                         value={inputEmail}
                         onChange={(e) => setInputEmail(e.target.value)}
-                        placeholder="admin@1.com"
+                        placeholder="admin@example.com"
                       />
                     </InputContainer>
                     <InputTitle>
@@ -208,7 +208,7 @@ const Login = () => {
                         </>
                       ) : (
                         <>
-                          Don't have an account?
+                          <p>No account?</p>
                           <SignUpLink onClick={() => setIsSignUp(true)}>
                             Create account
                           </SignUpLink>
@@ -246,12 +246,7 @@ const LoginWrapper = styled.div`
   right: 0;
   height: 100vh;
   width: 670px;
-
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    margin-top: 47px;
-  }
 `;
 
 const LoginContainer = styled.div`

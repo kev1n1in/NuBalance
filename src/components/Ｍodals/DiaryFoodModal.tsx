@@ -236,6 +236,7 @@ const DiaryFoodModal = ({
       await updateDiaryEntry(currentUser, entryId, updatedData);
       addAlert("編輯成功");
       queryClient.invalidateQueries(["diaryEntries", selectedDate]);
+      queryClient.invalidateQueries(["diaryEntries"]);
       setTimeout(() => {
         onClose();
       }, 1000);

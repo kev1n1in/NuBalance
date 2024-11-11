@@ -26,3 +26,6 @@ export interface HandDrawnProgressProps {
   strokeColor?: string;
   fillColor?: string;
 }
+
+
+
