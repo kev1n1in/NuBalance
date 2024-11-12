@@ -41,9 +41,9 @@ function App() {
               path="/userInfo"
               element={<PrivateRoute element={<UserInfo />} />}
             />
-            <Route path="*" element={<Navigate to="/userInfo" replace />} />
             <Route path="/food" element={<PrivateRoute element={<Food />} />} />
             <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/userInfo" replace />} />
           </Routes>
         </Router>
       </QueryClientProvider>
