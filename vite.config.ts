@@ -1,7 +1,6 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   base: "",
   plugins: [
@@ -13,8 +12,8 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: "dist", // 構建輸出的目錄
-    assetsDir: "assets", // 靜態資源目錄
+    outDir: "dist",
+    assetsDir: "assets",
   },
   optimizeDeps: {
     include: ["date-fns"],
