@@ -1,7 +1,7 @@
-import styled from "@emotion/styled";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
+import styled from "styled-components";
 import carb from "./carb.png";
 import fat from "./fat.png";
 import protein from "./protein.png";

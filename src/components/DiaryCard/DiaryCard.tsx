@@ -12,18 +12,18 @@ const DiaryCard = ({
 }: DiaryCardProps) => (
   <MealSectionContainer>
     <Loader isLoading={isLoading} />
-    <DiaryTitle>{title}</DiaryTitle>
+    <h2>{title}</h2>
 
     {entries.length > 0 ? (
       entries.map((entry) => (
         <DiaryItem key={entry.id} onClick={() => handleEdit(entry.id)}>
           <FoodName>{entry.food}</FoodName>
-          <FoodNutrition>
-            <FoodCal>{entry.nutrition?.calories || "未知"} | </FoodCal>
-            <FoodCarbo>{entry.nutrition?.carbohydrates || "未知"} | </FoodCarbo>
-            <FoodProtein>{entry.nutrition?.protein || "未知"} | </FoodProtein>
-            <FoodFat>{entry.nutrition?.fat || "未知"}</FoodFat>
-          </FoodNutrition>
+          <div>
+            <span>{entry.nutrition?.calories || "未知"} | </span>
+            <span>{entry.nutrition?.carbohydrates || "未知"} | </span>
+            <span>{entry.nutrition?.protein || "未知"} | </span>
+            <span>{entry.nutrition?.fat || "未知"}</span>
+          </div>
           <DeleteButtonContainer>
             <DeleteButton
               src={trashImg}
@@ -51,7 +51,6 @@ const MealSectionContainer = styled.div`
 const EmptyList = styled.div`
   color: gray;
 `;
-const DiaryTitle = styled.h2``;
 
 const DiaryItem = styled.div`
   display: flex;
@@ -64,19 +63,10 @@ const DiaryItem = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 `;
-const FoodNutrition = styled.div``;
 
 const FoodName = styled.span`
   font-size: 24px;
 `;
-
-const FoodCal = styled.span``;
-
-const FoodCarbo = styled.span``;
-
-const FoodProtein = styled.span``;
-
-const FoodFat = styled.span``;
 
 const DeleteButtonContainer = styled.div`
   position: absolute;

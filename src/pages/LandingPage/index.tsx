@@ -80,7 +80,7 @@ const LandingPage = () => {
     setToggleMenu((prev) => !prev);
   };
   return (
-    <Wrapper>
+    <div>
       <HeaderWrapper ref={headerRef}>
         {toggleMenu && <Overlay onClick={handleMenuToggle} />}
         {user ? (
@@ -97,11 +97,9 @@ const LandingPage = () => {
       </HeaderWrapper>
       <GSAPHEAD />
       <GSAPMAIN />
-    </Wrapper>
+    </div>
   );
 };
-
-const Wrapper = styled.div``;
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -118,7 +116,7 @@ const HeaderWrapper = styled.div`
 const Title = styled.p<{ isTitleInHeader: boolean }>`
   position: ${({ isTitleInHeader }) =>
     isTitleInHeader ? "fixed" : "absolute"};
-  top: ${({ isTitleInHeader }) => (isTitleInHeader ? "50px" : "50px")};
+  top: 50px;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: ${({ isTitleInHeader }) => (isTitleInHeader ? "24px" : "48px")};

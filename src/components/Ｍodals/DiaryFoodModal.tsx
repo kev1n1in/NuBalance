@@ -300,10 +300,10 @@ const DiaryFoodModal = ({
               <Nutrition>
                 {currentFood && (
                   <>
-                    <FoodInfo>{currentFood.food_info[0]}</FoodInfo>
-                    <FoodInfo>{currentFood.food_info[1]}</FoodInfo>
-                    <FoodInfo>{currentFood.food_info[2]}</FoodInfo>
-                    <FoodInfo>{currentFood.food_info[3]}</FoodInfo>
+                    <p>{currentFood.food_info[0]}</p>
+                    <p>{currentFood.food_info[1]}</p>
+                    <p>{currentFood.food_info[2]}</p>
+                    <p>{currentFood.food_info[3]}</p>
                   </>
                 )}
               </Nutrition>
@@ -552,7 +552,6 @@ const UploadBox = styled.div`
   cursor: pointer;
   background-color: #f9f9f9;
 `;
-const FoodInfo = styled.p``;
 
 const NoteContainer = styled.div`
   display: flex;

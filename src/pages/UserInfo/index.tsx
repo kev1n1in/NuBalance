@@ -232,14 +232,14 @@ const UserInfo = () => {
           </InfoContainer>
         </InfoWrapper>
         <DiaryList>
-          <DiaryTitle>Today I ate</DiaryTitle>
-          <DatePickerContainer>
+          <h2>Today I ate</h2>
+          <div>
             <StyledFlatpickr
               value={selectedDate}
               onChange={(date: Date[]) => setSelectedDate(date[0])}
               options={{ dateFormat: "Y-m-d" }}
             />
-          </DatePickerContainer>
+          </div>
           {Object.entries(meals).map(([mealType, entries]) => (
             <DiaryCard
               key={mealType}
@@ -567,7 +567,7 @@ const ProgressNumbers = styled.div`
     color: gray;
   }
 `;
-const DatePickerContainer = styled.div``;
+
 const DiaryList = styled.div`
   margin: 0;
   @media (max-width: 1000px) {
@@ -578,4 +578,3 @@ const DiaryList = styled.div`
     margin: 24px 0;
   }
 `;
-const DiaryTitle = styled.h2``;

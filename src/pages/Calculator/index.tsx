@@ -202,7 +202,7 @@ const Calculator = () => {
                   Gender
                   <RequiredMark />
                 </FormTitle>
-                <GenderContainer>
+                <div>
                   <GenderText
                     isSelected={userData.gender === "male"}
                     isMale={true}
@@ -217,7 +217,7 @@ const Calculator = () => {
                   >
                     Female
                   </GenderText>
-                </GenderContainer>
+                </div>
               </GenderWrapper>
 
               <ActiveContainer>
@@ -384,7 +384,6 @@ const GenderWrapper = styled.div`
     flex-direction: column;
   }
 `;
-const GenderContainer = styled.div``;
 
 const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
   font-size: 30px;
