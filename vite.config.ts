@@ -3,14 +3,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   base: "",
-  plugins: [
-    react({
-      jsxImportSource: "@emotion/react",
-      babel: {
-        plugins: ["@emotion/babel-plugin"],
-      },
-    }),
-  ],
+  plugins: [react()],
   build: {
     outDir: "dist",
     assetsDir: "assets",
