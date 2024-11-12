@@ -6,28 +6,28 @@ import meat from "./meat.png";
 import tomato from "./tomato.png";
 import veg from "./veg.png";
 
-const images: { [key: string]: ImageInfo } = {
-  tomato: {
+const Images: { [key: string]: ImageInfo } = {
+  TOMATO: {
     src: tomato,
     position: { bottom: "100px", right: "40px" },
     size: { width: "200px", height: "auto" },
   },
-  meat: {
+  MEAT: {
     src: meat,
     position: { top: "50px", left: "50px" },
     size: { width: "180px", height: "auto" },
   },
-  cheese: {
+  CHEESE: {
     src: cheese,
     position: { bottom: "100px", left: "200px" },
     size: { width: "180px", height: "auto" },
   },
-  veg: {
+  VEG: {
     src: veg,
     position: { top: "350px", left: "450px" },
     size: { width: "160px", height: "auto" },
   },
-  avocado: {
+  AVOCADO: {
     src: avocado,
     position: { top: "170px", right: "160px" },
     size: { width: "180px", height: "auto" },
@@ -36,12 +36,12 @@ const images: { [key: string]: ImageInfo } = {
 
 const ImagesComponent = () => (
   <Wrapper>
-    {Object.keys(images).map((key) => (
+    {Object.keys(Images).map((key) => (
       <StyledImage
         key={key}
-        src={images[key].src}
-        position={images[key].position}
-        size={images[key].size}
+        src={Images[key].src}
+        position={Images[key].position}
+        size={Images[key].size}
         alt={key}
       />
     ))}
