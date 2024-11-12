@@ -1,25 +1,20 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { useQuery, useQueryClient } from "react-query";
-import { auth } from "../../firebase/firebaseConfig";
-import { fetchFoodData } from "../../firebase/firebaseServices";
-import Sidebar from "../../components/Sidebar";
-import Modal from "../../components/Ｍodals/Modal";
-import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
-import { useFoodStore } from "../../stores/foodStore";
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/Button";
+import styled from "styled-components";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
+import Sidebar from "../../components/Sidebar";
+import CreateFoodModal from "../../components/Ｍodals/CreateFoodModal";
+import Modal from "../../components/Ｍodals/Modal";
+import { auth } from "../../firebase/firebaseConfig";
+import { fetchFoodData } from "../../firebase/firebaseServices";
+import { useFoodStore } from "../../stores/foodStore";
+import { FoodItem } from "../../types/Pages";
 
-interface FoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-}
-
-const Food: React.FC = () => {
+const Food = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [triggerSearch, setTriggerSearch] = useState<boolean>(false);
   const [isComposing, setIsComposing] = useState<boolean>(false);
@@ -180,12 +175,24 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @media (max-width: 1000px) {
-    margin: 50px 100px 72px 50px;
+    margin: 72px 50px 72px 50px;
+  }
+  @media (max-width: 768px) {
+    margin-top: 72px;
+  }
+  @media (max-width: 480px) {
+    margin: 72px 24px 72px 24px;
   }
 `;
 const Title = styled.h1`
   font-size: 40px;
   margin: 0;
+  @media (max-width: 1000px) {
+    margin-bottom: 12px;
+  }
+  @media (max-width: 480px) {
+    font-size: 30px;
+  }
 `;
 
 const Input = styled.input`
@@ -256,6 +263,10 @@ const NoItemsMessage = styled.p`
 const NoDataMessageContainer = styled.div`
   margin: 24px 0;
   text-align: center;
+  @media (max-width: 1000px) {
+    padding: 10px;
+    text-align: left;
+  }
 `;
 
 const NoDataMessage = styled.span`

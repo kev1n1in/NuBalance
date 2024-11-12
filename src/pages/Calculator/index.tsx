@@ -1,39 +1,29 @@
-import styled from "styled-components";
-import Sidebar from "../../components/Sidebar";
+import { MenuItem, Select } from "@mui/material";
+import { Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import TDEECalculator from "../../services/TDEECalculator";
-import Button from "../../components/Button";
-import {
-  updateTDEEHistory,
-  getUserHistory,
-} from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery, useMutation } from "react-query";
-import Loader from "../../components/Loader";
-import { Select, MenuItem, Menu } from "@mui/material";
+import { useMutation, useQuery } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import FormItem from "../../components/CalculatorInput/FormItem";
+import Loader from "../../components/Loader";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
-import { Timestamp } from "firebase/firestore";
 import RequiredMark from "../../components/RequiredMark";
+import Sidebar from "../../components/Sidebar";
+import { auth } from "../../firebase/firebaseConfig";
+import {
+  getUserHistory,
+  updateTDEEHistory,
+} from "../../firebase/firebaseServices";
 import useAlert from "../../hooks/useAlertMessage";
+import { CalculatorPageProps } from "../../types/Pages";
+import TDEECalculator from "../../utils/TDEECalculator";
 import pointer from "./pointer.png";
-import FormItem from "../../components/CalculatorInput/FormItem";
-
-interface userDataProps {
-  age: number;
-  gender: string;
-  weight: number;
-  height: number;
-  activityLevel: string;
-  bodyFat: number;
-  totalCalories: number;
-  [key: string]: string | number;
-}
 
 const Calculator = () => {
-  const [userData, setUserData] = useState<userDataProps>({
+  const [userData, setUserData] = useState<CalculatorPageProps>({
     age: 34,
     gender: "male",
     weight: 60,
@@ -61,7 +51,7 @@ const Calculator = () => {
     { title: "Height", field: "height", min: 100, max: 250, required: true },
     { title: "Body Fat", field: "bodyFat", min: 0, max: 150, required: false },
   ];
-  const getUserDataProps = (userData: userDataProps) => {
+  const getUserDataProps = (userData: CalculatorPageProps) => {
     return {
       weight: userData.weight,
       height: userData.height,
@@ -182,7 +172,7 @@ const Calculator = () => {
   };
 
   const handleInputChange = (
-    field: keyof userDataProps,
+    field: keyof CalculatorPageProps,
     value: number | string
   ) => {
     setUserData((prevState) => ({
@@ -332,17 +322,25 @@ const Container = styled.div`
   width: 90%;
   height: 90vh;
   margin: 50px auto 72px auto;
-  padding: 24px 24px 0 24px;
+  padding: 24px 24px;
   background-color: #fff;
   border: 1px solid gray;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   @media (max-width: 1000px) {
     height: 100vh;
-    margin: 50px 100px 72px 50px;
+    margin: 72px auto 72px 50px;
   }
   @media (max-width: 768px) {
+    margin: 72px 50px 72px 50px;
     height: 1350px;
+  }
+  @media (max-width: 480px) {
+    margin: 72px 50px 72px 50px;
+    height: 1250px;
+  }
+  @media (max-width: 360px) {
+    margin: 72px 24px 72px 24px;
   }
 `;
 
@@ -403,6 +401,9 @@ const GenderText = styled.span<{ isSelected: boolean; isMale: boolean }>`
   }
   @media (max-width: 768px) {
     margin-left: 0;
+  }
+  @media (max-width: 480px) {
+    font-size: 24px;
   }
 `;
 

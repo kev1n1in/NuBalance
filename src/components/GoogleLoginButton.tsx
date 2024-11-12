@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
-import { updateUserProfile } from "../firebase/firebaseServices";
-import { signInWithGoogle } from "../firebase/firebaseAuth";
-import styled from "styled-components";
 import { UserCredential } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { signInWithGoogle } from "../firebase/firebaseAuth";
+import { updateUserProfile } from "../firebase/firebaseServices";
 import useAlert from "../hooks/useAlertMessage";
 
 const GoogleLogin = () => {
@@ -40,9 +40,6 @@ const GoogleLogin = () => {
       } catch (error) {
         console.error("Authentication with Firebase failed:", error);
       }
-    },
-    onError: (error) => {
-      console.log("Login Failed", error);
     },
   });
 

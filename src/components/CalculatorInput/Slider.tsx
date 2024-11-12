@@ -1,12 +1,9 @@
-import React from "react";
 import styled from "styled-components";
+import { SliderProps } from "../../types/TDEEForm";
 
-interface SliderProps {
-  value: number;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  min: number;
-  max: number;
-}
+const Slider = ({ value, onChange, min, max }: SliderProps) => {
+  return <StyledSlider value={value} onChange={onChange} min={min} max={max} />;
+};
 
 const StyledSlider = styled.input.attrs({ type: "range" })`
   appearance: none;
@@ -67,9 +64,5 @@ const StyledSlider = styled.input.attrs({ type: "range" })`
     cursor: pointer;
   }
 `;
-
-const Slider = ({ value, onChange, min, max }: SliderProps) => {
-  return <StyledSlider value={value} onChange={onChange} min={min} max={max} />;
-};
 
 export default Slider;

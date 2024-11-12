@@ -1,18 +1,6 @@
-import styled from "styled-components";
 import { motion } from "framer-motion";
-
-type MealItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-  selectImgSrc: string;
-};
-
-interface MealSelectorProps {
-  meals: MealItem[];
-  selectedMeal: MealItem | null;
-  handleMealClick: (meal: MealItem) => void;
-}
+import styled from "styled-components";
+import { MealSelectorProps } from "../types/Selectors";
 
 const MealSelector = ({
   meals,

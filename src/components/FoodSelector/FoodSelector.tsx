@@ -1,19 +1,10 @@
-import styled from "styled-components";
-import { useState, useRef, useEffect } from "react";
-import tape from "./tape.png";
-import polaroid from "./polaroid.png";
+import { useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { annotate } from "rough-notation";
-
-interface FoodItem {
-  food_name: string;
-  food_info: string[];
-}
-
-interface NutrientSelectorProps {
-  selectedFood: FoodItem | null;
-  onClick: () => void;
-}
+import styled from "styled-components";
+import { NutrientSelectorProps } from "../../types/Selectors";
+import polaroid from "./polaroid.png";
+import tape from "./tape.png";
 
 const NutrientSelector = ({ selectedFood, onClick }: NutrientSelectorProps) => {
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);

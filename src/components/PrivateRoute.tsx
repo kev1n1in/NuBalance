@@ -1,12 +1,8 @@
-import React from "react";
-import { useLocation, Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { Navigate, useLocation } from "react-router-dom";
+import { PrivateRouteProps } from "../types/GlobalComponents";
 
-interface PrivateRouteProps {
-  element: React.ReactElement;
-}
-
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ element, ...rest }) => {
+const PrivateRoute = ({ element }: PrivateRouteProps) => {
   const location = useLocation();
   const isLoggedIn = Cookies.get("isLoggedIn");
 

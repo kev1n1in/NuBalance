@@ -1,30 +1,29 @@
-import { useState, useEffect, MouseEvent } from "react";
-import { signInWithEmail, signUpWithEmail } from "../../firebase/firebaseAuth";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { auth } from "../../firebase/firebaseConfig";
-import GoogleLoginButton from "../../components/GoogleLoginButton";
+import { MouseEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
-import Button from "../../components/Button";
-import { updateUserProfile } from "../../firebase/firebaseServices";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import GoogleLoginButton from "../../components/GoogleLoginButton";
+import StickerWrapper from "../../components/LoginWrapper/Wrapper";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
+import RequiredMark from "../../components/RequiredMark";
+import Sidebar from "../../components/Sidebar";
+import { signInWithEmail, signUpWithEmail } from "../../firebase/firebaseAuth";
+import { auth } from "../../firebase/firebaseConfig";
+import { updateUserProfile } from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
 import emailIcon from "./email.png";
 import passwordIcon from "./password.png";
 import userIcon from "./user.png";
-import HamburgerIcon from "../../components/MenuButton";
-import Overlay from "../../components/Overlay";
-import Sidebar from "../../components/Sidebar";
-import RequiredMark from "../../components/RequiredMark";
-import useAlert from "../../hooks/useAlertMessage";
-import StickerWrapper from "../../components/LoginWrapper/Wrapper";
 
 const Login = () => {
-  const [user, setUser] = useState<User | null>(null);
   const [inputUser, setInputUser] = useState("");
-  const [inputEmail, setInputEmail] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
+  const [inputEmail, setInputEmail] = useState("admin@example.com");
+  const [inputPassword, setInputPassword] = useState("123456");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
@@ -44,10 +43,8 @@ const Login = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        setUser(currentUser);
         Cookies.set("isLoggedIn", "true", { expires: 7 });
       } else {
-        setUser(null);
         Cookies.remove("isLoggedIn");
       }
     });
@@ -78,12 +75,6 @@ const Login = () => {
       throw error;
     }
   };
-  const handleInputChange =
-    (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-      removeMessage();
-    };
 
   const handleSignUp = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -107,11 +98,7 @@ const Login = () => {
     }
 
     try {
-      const newUser = await signUpWithEmail(
-        inputEmail,
-        inputPassword,
-        inputUser
-      );
+      await signUpWithEmail(inputEmail, inputPassword, inputUser);
       addAlert("註冊成功！請使用您的帳號登入。");
       setIsSignUp(false);
     } catch (error) {
@@ -180,7 +167,7 @@ const Login = () => {
                         type="email"
                         value={inputEmail}
                         onChange={(e) => setInputEmail(e.target.value)}
-                        placeholder="admin@1.com"
+                        placeholder="admin@example.com"
                       />
                     </InputContainer>
                     <InputTitle>
@@ -221,7 +208,7 @@ const Login = () => {
                         </>
                       ) : (
                         <>
-                          Don't have an account?
+                          <p>No account?</p>
                           <SignUpLink onClick={() => setIsSignUp(true)}>
                             Create account
                           </SignUpLink>
@@ -259,12 +246,7 @@ const LoginWrapper = styled.div`
   right: 0;
   height: 100vh;
   width: 670px;
-
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    margin-top: 47px;
-  }
 `;
 
 const LoginContainer = styled.div`

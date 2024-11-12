@@ -1,9 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
-
-interface HamburgerIconProps {
-  onClick: () => void;
-}
+import { HamburgerIconProps } from "../types/Sidebar";
 
 const HamburgerIcon = ({ onClick }: HamburgerIconProps) => {
   const [active, setActive] = useState(false);

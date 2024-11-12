@@ -1,59 +1,57 @@
-import Sidebar from "../../components/Sidebar";
-import styled from "styled-components";
-import Button from "../../components/Button";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "react-query";
-import { deleteDiaryEntry } from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import userImg from "./userImg.png";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
-import Modal from "../../components/Ｍodals/Modal";
+import { useState } from "react";
+import Flatpickr from "react-flatpickr";
+import { useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import BGI from "../../asset/draft.png";
+import Button from "../../components/Button";
+import DiaryCard from "../../components/DiaryCard/DiaryCard";
+import Joyride from "../../components/Joyride";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
+import HandDrawnProgress from "../../components/ProgressBar/HandDrawnProgress";
+import Sidebar from "../../components/Sidebar";
+import DiaryFoodModal from "../../components/Ｍodals/DiaryFoodModal";
+import Modal from "../../components/Ｍodals/Modal";
+import { auth } from "../../firebase/firebaseConfig";
+import { deleteDiaryEntry } from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
+import useConfirmDialog from "../../hooks/useConfirmDialog";
+import { useDiaryEntries } from "../../hooks/user/useDiary";
+import { useUserName } from "../../hooks/user/useName";
+import { useUserTDEE } from "../../hooks/user/useTDEE";
+import { RemainCaloriesProps } from "../../types/Pages";
 import calculatorImg from "./calculator.png";
 import createImg from "./create.png";
-import searchImg from "./search.png";
 import report from "./report.png";
-import useConfirmDialog from "../../hooks/useConfirmDialog";
-import HandDrawnProgress from "../../components/ProgressBar/HandDrawnProgress";
-import useAlert from "../../hooks/useAlertMessage";
-import Joyride from "../../components/Joyride";
-import DiaryCard from "../../components/DiaryCard/DiaryCard";
-import { useUserTDEE } from "../../hooks/useUserTDEE";
-import { useDiaryEntries } from "../../hooks/useUserDiary";
-import { useUserName } from "../../hooks/useUserName";
+import searchImg from "./search.png";
+import userImg from "./userImg.png";
 
-interface RemainCaloriesProps {
-  isExceeded: boolean;
-}
 const buttonConfig = [
   {
-    key: "calculate-tdee",
+    key: "calculate-tdee-button",
     label: "Calculate TDEE",
     icon: calculatorImg,
     path: "../calculator",
     state: { fromUserInfo: true },
   },
   {
-    key: "search-food",
+    key: "search-food-button",
     label: "Search Food",
     icon: searchImg,
     path: "../food",
     state: { fromUserInfo: true },
   },
   {
-    key: "create-diary",
+    key: "create-diary-button",
     label: "Create Diary",
     icon: createImg,
     path: "../diary",
     state: { fromUserInfo: true },
   },
   {
-    key: "check-report",
+    key: "check-report-button",
     label: "Check Report",
     icon: report,
     path: "../report",
@@ -89,11 +87,7 @@ const UserInfo = () => {
     snack: diaryEntries?.filter((entry) => entry?.meal === "點心"),
   };
 
-  const {
-    data: userName,
-    isLoading: isLoadingUserName,
-    error: userNameError,
-  } = useUserName();
+  const { isLoading: isLoadingUserName, error: userNameError } = useUserName();
   const displayName = auth.currentUser
     ? auth.currentUser.displayName
     : "User not set";
@@ -191,8 +185,8 @@ const UserInfo = () => {
                       typeof latestBMI === "number"
                         ? latestBMI.toFixed(2)
                         : "2141"
-                    }`}</BMIText>
-                    <BodyFatText>{`BodyFat: ${
+                    } `}</BMIText>
+                    <BodyFatText>{` BodyFat: ${
                       typeof latestBodyFat === "number"
                         ? latestBodyFat.toFixed(2) + "%"
                         : "0"
@@ -295,6 +289,9 @@ const Container = styled.div`
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   z-index: 2;
+  @media (max-width: 480px) {
+    margin-top: 72px;
+  }
 `;
 const JoyrideButton = styled.button`
   position: absolute;
@@ -335,6 +332,9 @@ const Title = styled.h1`
   @media (max-width: 1000px) {
     text-align: left;
   }
+  @media (max-width: 480px) {
+    font-size: 40px;
+  }
 `;
 const InfoWrapper = styled.div`
   display: flex;
@@ -374,6 +374,7 @@ const BodyDataContainer = styled.div`
 `;
 const BMIText = styled.span`
   font-weight: bold;
+  margin-right: 12px;
 `;
 const BodyFatText = styled.span`
   font-weight: bold;
@@ -429,11 +430,6 @@ const TodayTargetWrapper = styled.div`
   @media (max-width: 480px) {
     position: absolute;
     top: 160px;
-    width: 100%;
-  }
-  @media (max-width: 360px) {
-    position: absolute;
-    top: 200px;
     width: 100%;
   }
 `;
@@ -544,7 +540,10 @@ const TargetProgressContainer = styled.div`
   width: 100%;
   margin-top: 80px;
   @media (max-width: 480px) {
-    margin-top: 0;
+    margin-top: 24px;
+  }
+  @media (max-width: 360px) {
+    margin-top: 64px;
   }
 `;
 const IndicatorWrapper = styled.div`

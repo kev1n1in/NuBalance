@@ -1,9 +1,6 @@
-import styled from "styled-components";
 import { PacmanLoader } from "react-spinners";
-
-interface LoadingProps {
-  isLoading: boolean;
-}
+import styled from "styled-components";
+import { LoadingProps } from "../types/GlobalComponents";
 
 const Loader = ({ isLoading }: LoadingProps) =>
   isLoading ? (

@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
 import styled from "@emotion/styled";
+import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 import carb from "./carb.png";
-import protein from "./protein.png";
 import fat from "./fat.png";
+import protein from "./protein.png";
 
 gsap.registerPlugin(ScrollTrigger);
 

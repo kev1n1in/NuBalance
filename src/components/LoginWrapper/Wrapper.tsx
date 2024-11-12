@@ -1,22 +1,11 @@
 import styled from "styled-components";
-import tomato from "./tomato.png";
-import meat from "./meat.png";
-import cheese from "./cheese.png";
-import veg from "./veg.png";
+import { ImageInfo, Position } from "../../types/GSAP";
 import avocado from "./avocado.png";
+import cheese from "./cheese.png";
+import meat from "./meat.png";
+import tomato from "./tomato.png";
+import veg from "./veg.png";
 
-type Position = {
-  top?: string;
-  left?: string;
-  bottom?: string;
-  right?: string;
-};
-
-type ImageInfo = {
-  src: string;
-  position: Position;
-  size: { width: string; height: string };
-};
 const images: { [key: string]: ImageInfo } = {
   tomato: {
     src: tomato,

@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
-import { getUserHistory } from "../firebase/firebaseServices";
-import { auth } from "../firebase/firebaseConfig";
-import useAlert from "./useAlertMessage";
+import { auth } from "../../firebase/firebaseConfig";
+import { getUserHistory } from "../../firebase/firebaseServices";
+import useAlert from "../useAlertMessage";
 
 export function useUserTDEE() {
   const { addAlert } = useAlert();

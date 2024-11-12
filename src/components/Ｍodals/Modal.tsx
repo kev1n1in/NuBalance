@@ -1,16 +1,9 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import CloseImg from "../../asset/close.png";
-import { c } from "vite/dist/node/types.d-aGj9QkWt";
+import { ModalProps } from "../../types/Modals";
 
-interface ModalProps {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}
-
-const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
+const Modal = ({ title, onClose, children }: ModalProps) => {
   return ReactDOM.createPortal(
     <Wrapper onClick={onClose}>
       <Content onClick={(e) => e.stopPropagation()}>
@@ -20,7 +13,7 @@ const Modal: React.FC<ModalProps> = ({ title, onClose, children }) => {
             <CloseButton src={CloseImg} onClick={onClose} />
           </HeaderContainer>
         </Header>
-        {children} {/* 顯示傳入的內容 */}
+        {children}
       </Content>
     </Wrapper>,
     document.getElementById("modal-root")!

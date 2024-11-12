@@ -1,8 +1,5 @@
 import styled from "styled-components";
-
-interface OverlayProps {
-  onClick: () => void;
-}
+import { OverlayProps } from "../types/Sidebar";
 
 const Overlay = ({ onClick }: OverlayProps) => {
   return <OverlayWrapper onClick={onClick} />;

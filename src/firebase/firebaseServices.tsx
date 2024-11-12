@@ -1,22 +1,28 @@
+import { Auth, User } from "firebase/auth";
 import {
-  doc,
-  setDoc,
-  serverTimestamp,
-  Timestamp,
-  collection,
   addDoc,
-  getDocs,
-  getDoc,
-  deleteDoc,
-  query,
-  where,
-  updateDoc,
-  arrayUnion,
   arrayRemove,
+  arrayUnion,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { db } from "../firebase/firebaseConfig";
-import { User, Auth } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  CreateFoodItem,
+  DiaryEntry,
+  FoodItem,
+  HistoryItem,
+} from "../types/Firebase";
 
 let isUserProfileUpdated = false;
 
@@ -60,15 +66,6 @@ export const fetchUserName = async (user: User): Promise<string> => {
     throw new Error("資料發生錯誤");
   }
 };
-interface FoodItem {
-  food_name: string;
-  food_info: string[];
-  calories: number;
-  carbohydrates: number;
-  protein: number;
-  fat: number;
-  imageUrl: string | null;
-}
 
 export const addFoodItem = async (
   food: FoodItem,
@@ -100,13 +97,6 @@ export const addFoodItem = async (
   }
 };
 
-interface CreateFoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-  uid?: string;
-}
-
 export const fetchFoodData = async (
   searchTerm: string,
   currentUserUid: string
@@ -136,22 +126,6 @@ export const fetchFoodData = async (
   });
 };
 
-interface DiaryEntry {
-  id?: string;
-  meal: string;
-  food: string;
-  time: Date;
-  mood?: string | null;
-  note?: string;
-  imageUrl?: string;
-  nutrition: {
-    calories?: string;
-    carbohydrates?: string;
-    protein?: string;
-    fat?: string;
-  };
-}
-
 export const addDiaryEntry = async (user: User, entry: DiaryEntry) => {
   if (!user) {
     throw new Error("請先登入");
@@ -176,20 +150,6 @@ export const uploadImageToStorage = async (file: File): Promise<string> => {
     throw new Error("圖片上傳失敗");
   }
 };
-interface HistoryItem {
-  tdee: number;
-  age: number;
-  weight: number;
-  height: number;
-  gender: string;
-  activityLevel: string;
-  bodyFat?: number;
-  bmi?: number;
-  clientUpdateTime: {
-    seconds: number;
-    nanoseconds: number;
-  };
-}
 
 export const updateTDEEHistory = async (
   user: User,

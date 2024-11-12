@@ -1,71 +1,46 @@
-import { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
-import Button from "../Button";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { useQuery, useQueryClient } from "react-query";
-import {
-  fetchDiaryEntryById,
-  updateDiaryEntry,
-} from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import Modal from "./Modal";
-import QueryFoodModal from "./QueryFoodModal";
-import { useFoodStore } from "../../stores/foodStore";
+import { annotate } from "rough-notation";
+import styled from "styled-components";
 import aweImg from "../../asset/moodsImg/Awe.png";
 import eatingHappyImg from "../../asset/moodsImg/Eating_Happy.png";
 import rageImg from "../../asset/moodsImg/Rage.png";
 import suspiciousImg from "../../asset/moodsImg/Suspicious.png";
-import fearImg from "../../asset/moodsImg/angry.png";
+import {
+  default as angryImg,
+  default as fearImg,
+} from "../../asset/moodsImg/angry.png";
 import lovingImg from "../../asset/moodsImg/loving.png";
-import angryImg from "../../asset/moodsImg/angry.png";
-import { motion } from "framer-motion";
+import { auth } from "../../firebase/firebaseConfig";
+import {
+  fetchDiaryEntryById,
+  updateDiaryEntry,
+} from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
+import { useFoodStore } from "../../stores/foodStore";
+import {
+  DiaryEntry,
+  DiaryFoodModalProps,
+  FoodItem,
+  MealItem,
+  MoodItem,
+} from "../../types/Modals";
+import Button from "../Button";
+import Modal from "./Modal";
+import QueryFoodModal from "./QueryFoodModal";
 import breakImg from "./mealsImg/breakfast.png";
 import breakSelectImg from "./mealsImg/breakfast_select.png";
-import lunchImg from "./mealsImg/lunch.png";
-import lunchSelectImg from "./mealsImg/lunch_select.png";
 import dinnerImg from "./mealsImg/dinner.png";
 import dinnerSelectImg from "./mealsImg/dinner_select.png";
+import lunchImg from "./mealsImg/lunch.png";
+import lunchSelectImg from "./mealsImg/lunch_select.png";
 import snackImg from "./mealsImg/snack.png";
 import snackSelectImg from "./mealsImg/snack_select.png";
-import useAlert from "../../hooks/useAlertMessage";
-import tape from "./tape.png";
 import polaroid from "./polaroid.png";
-import { useDropzone } from "react-dropzone";
-import { annotate } from "rough-notation";
-import AlertMessage from "../AlertMessage";
+import tape from "./tape.png";
 
-interface FoodItem {
-  id: string;
-  food_name: string;
-  food_info: string[];
-}
-
-interface DiaryEntry {
-  id: string;
-  meal?: string;
-  food?: string;
-  time?: string;
-  mood?: string;
-  note?: string;
-  imageUrl?: string;
-  nutrition?: {
-    calories?: string;
-    carbohydrates?: string;
-    protein?: string;
-    fat?: string;
-  };
-}
-type MealItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-  selectImgSrc: string;
-};
-
-type MoodItem = {
-  id: string;
-  name: string;
-  imgSrc: string;
-};
 const meals: MealItem[] = [
   {
     id: "早餐",
@@ -93,11 +68,11 @@ const moods: MoodItem[] = [
   { id: "angry", name: "生氣", imgSrc: angryImg },
 ];
 
-const DiaryFoodModal: React.FC<{
-  onClose: () => void;
-  entryId: string;
-  selectedDate: Date;
-}> = ({ onClose, entryId, selectedDate }) => {
+const DiaryFoodModal = ({
+  onClose,
+  entryId,
+  selectedDate,
+}: DiaryFoodModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { selectedFood, setSelectedFood } = useFoodStore();
   const [selectedMeal, setSelectedMeal] = useState<MealItem | null>(null);
@@ -108,7 +83,6 @@ const DiaryFoodModal: React.FC<{
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
   const { addAlert, AlertMessage } = useAlert();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
   const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
@@ -122,7 +96,6 @@ const DiaryFoodModal: React.FC<{
     },
     onDrop: (acceptedFiles) => {
       const file = acceptedFiles[0];
-      setImageFile(file);
       setIsImageUploaded(true);
 
       const reader = new FileReader();
@@ -152,11 +125,7 @@ const DiaryFoodModal: React.FC<{
     }
   }, [currentFood]);
 
-  const {
-    data: diaryEntry,
-    isLoading,
-    error,
-  } = useQuery<DiaryEntry>(
+  const { isLoading, error } = useQuery<DiaryEntry>(
     ["diaryEntry", entryId],
     () => {
       if (!currentUser) {
@@ -267,6 +236,7 @@ const DiaryFoodModal: React.FC<{
       await updateDiaryEntry(currentUser, entryId, updatedData);
       addAlert("編輯成功");
       queryClient.invalidateQueries(["diaryEntries", selectedDate]);
+      queryClient.invalidateQueries(["diaryEntries"]);
       setTimeout(() => {
         onClose();
       }, 1000);

@@ -1,36 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import { getUserHistory, getDiaryEntry } from "../../firebase/firebaseServices";
-import { auth } from "../../firebase/firebaseConfig";
-import styled from "styled-components";
-import Sidebar from "../../components/Sidebar";
-import RoughBarChart from "../../components/RoughCharts.tsx/Bar";
-import RoughPieChart from "../../components/RoughCharts.tsx/Pie";
-import Overlay from "../../components/Overlay";
-import HamburgerIcon from "../../components/MenuButton";
 import { onAuthStateChanged, User } from "firebase/auth";
-import Loader from "../../components/Loader";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import { useEffect, useState } from "react";
+import Flatpickr from "react-flatpickr";
+import { useQuery } from "react-query";
+import styled from "styled-components";
+import RoughBarChart from "../../components/Charts.tsx/Bar";
+import RoughPieChart from "../../components/Charts.tsx/Pie";
+import Loader from "../../components/Loader";
+import HamburgerIcon from "../../components/MenuButton";
+import Overlay from "../../components/Overlay";
+import Sidebar from "../../components/Sidebar";
+import { auth } from "../../firebase/firebaseConfig";
+import { getDiaryEntry, getUserHistory } from "../../firebase/firebaseServices";
+import { ReportDiaryEntry, ReportHistoryItem } from "../../types/Pages";
 
-interface HistoryItem {
-  clientUpdateTime: { seconds: number };
-  weight: number;
-  date: string;
-  bodyFat: number;
-}
-interface NutritionData {
-  fat: string;
-  carbohydrates: string;
-  protein: string;
-}
-
-interface DiaryEntry {
-  id: string;
-  nutrition?: NutritionData;
-}
-
-const Report: React.FC = () => {
+const Report = () => {
   const [weightChartData, setWeightChartData] = useState<
     { date: string; weight: number }[]
   >([]);
@@ -71,7 +55,7 @@ const Report: React.FC = () => {
 
       const allHistory = await getUserHistory(user, false, selectedDate);
 
-      return allHistory.map((item: HistoryItem) => ({
+      return allHistory.map((item: ReportHistoryItem) => ({
         date: new Date(item.clientUpdateTime.seconds * 1000)
           .toISOString()
           .split("T")[0],
@@ -84,11 +68,10 @@ const Report: React.FC = () => {
 
   useEffect(() => {
     if (allHistory.length > 0) {
-      const weightData = allHistory.map((item: HistoryItem) => ({
+      const weightData = allHistory.map((item: ReportHistoryItem) => ({
         date: item.date.slice(5),
         weight: item.weight,
       }));
-      const latestEntry = allHistory[allHistory.length - 1];
       setWeightChartData(weightData);
     } else {
       setWeightChartData([]);
@@ -99,7 +82,10 @@ const Report: React.FC = () => {
     const fetchNutritionData = async () => {
       if (user) {
         const today = new Date().toISOString().split("T")[0];
-        const diaryEntries: DiaryEntry[] = await getDiaryEntry(user, today);
+        const diaryEntries: ReportDiaryEntry[] = await getDiaryEntry(
+          user,
+          today
+        );
 
         if (diaryEntries.length === 0) {
           setNutritionData(null);
@@ -168,7 +154,7 @@ const Report: React.FC = () => {
             <BarFolderTab onClick={() => setActiveTab("Nutrients")}>
               Nutrients
             </BarFolderTab>
-            <ChartTitle>Weight change for the 7 days before</ChartTitle>
+            <ChartTitle>Weight change for the 7 entries before</ChartTitle>
             <DatePickerContainer>
               <Flatpickr
                 value={selectedDate}
@@ -186,7 +172,7 @@ const Report: React.FC = () => {
           {weightChartData.length > 0 ? (
             <RoughBarChart data={roughData} />
           ) : (
-            <p>沒有體重變化的歷史資料</p>
+            <p>No body weight records</p>
           )}
         </BarChartContainer>
         <PieChartContainer
@@ -259,6 +245,9 @@ const BarChartContainer = styled.div<{ isActive: boolean }>`
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     z-index: 1;
+    @media (max-width: 768px) {
+      width: 120px;
+    }
   }
   &:before {
     content: "Weight";
@@ -276,6 +265,9 @@ const BarChartContainer = styled.div<{ isActive: boolean }>`
     border-top-right-radius: 16px;
     z-index: -1;
     color: ${({ isActive }) => (isActive ? "#a23419" : "gray")};
+    @media (max-width: 768px) {
+      width: 120px;
+    }
   }
 `;
 const BarFolderTab = styled.div`
@@ -294,6 +286,10 @@ const BarFolderTab = styled.div`
   border-top-right-radius: 16px;
   z-index: -2;
   cursor: pointer;
+  @media (max-width: 768px) {
+    left: 140px;
+    width: 120px;
+  }
 `;
 
 const PieChartContainer = styled.div<{ isActive: boolean }>`
@@ -315,6 +311,10 @@ const PieChartContainer = styled.div<{ isActive: boolean }>`
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     z-index: 1;
+    @media (max-width: 768px) {
+      left: 140px;
+      width: 120px;
+    }
   }
   &:before {
     content: "Nutrients";
@@ -332,6 +332,10 @@ const PieChartContainer = styled.div<{ isActive: boolean }>`
     border-top-right-radius: 16px;
     z-index: -1;
     color: ${({ isActive }) => (isActive ? "gray" : "#a23419")};
+    @media (max-width: 768px) {
+      left: 140px;
+      width: 120px;
+    }
   }
 `;
 
@@ -351,6 +355,9 @@ const PieFolderTab = styled.div`
   border-top-right-radius: 16px;
   z-index: -2;
   cursor: pointer;
+  @media (max-width: 768px) {
+    width: 120px;
+  }
 `;
 
 const CenteredChartContainer = styled.div`

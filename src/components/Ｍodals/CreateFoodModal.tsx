@@ -1,43 +1,23 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
-import Button from "../Button";
-import { addFoodItem } from "../../firebase/firebaseServices";
+import styled from "styled-components";
 import { auth, storage } from "../../firebase/firebaseConfig";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { addFoodItem } from "../../firebase/firebaseServices";
+import useAlert from "../../hooks/useAlertMessage";
+import { CreateFoodModalProps, FormValues } from "../../types/Modals";
+import Button from "../Button";
 import Loader from "../Loader";
 import RequiredMark from "../RequiredMark";
-import useAlert from "../../hooks/useAlertMessage";
-import { useDropzone } from "react-dropzone";
 
-interface FormValues {
-  foodInfo: string[];
-  foodName: string;
-  calories: number;
-  carbohydrates: number;
-  protein: number;
-  fat: number;
-  image: FileList;
-}
-
-interface CreateFoodModalProps {
-  onClose: () => void;
-  onFoodCreated: (foodName: string) => void;
-}
-
-const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
-  onClose,
-  onFoodCreated,
-}) => {
+const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
   const queryClient = useQueryClient();
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [recognizedText, setRecognizedText] = useState<string>("");
   const { addAlert, AlertMessage } = useAlert();
-
   const {
     register,
     setValue,
@@ -72,31 +52,18 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
 
       setIsUploading(true);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error("圖片上傳失敗:", error);
-          setIsUploading(false);
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref)
-            .then((downloadURL) => {
-              setImageUrl(downloadURL);
-              setPreviewImage(URL.createObjectURL(file));
-              setIsUploading(false);
-              resolve(downloadURL);
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        }
-      );
+      uploadTask.on("state_changed", () => {
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => {
+            setImageUrl(downloadURL);
+            setPreviewImage(URL.createObjectURL(file));
+            setIsUploading(false);
+            resolve(downloadURL);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
     });
   };
 
@@ -120,7 +87,6 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
       }
 
       const data = await response.json();
-      setRecognizedText(data.text);
 
       const caloriesMatch = data.text.match(/熱量\s*(\d+(\.\d+)?)\s*大卡/);
       const proteinMatch = data.text.match(/蛋白質\s*(\d+(\.\d+)?)\s*公克/);
@@ -163,7 +129,7 @@ const CreateFoodModal: React.FC<CreateFoodModalProps> = ({
         auth
       );
     },
-    onSuccess: (id, data) => {
+    onSuccess: (_id, data) => {
       onFoodCreated(data.foodName);
       queryClient.invalidateQueries("foods");
       setTimeout(() => {

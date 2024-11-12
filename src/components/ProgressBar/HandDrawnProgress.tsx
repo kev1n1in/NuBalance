@@ -1,21 +1,15 @@
-import React, { useRef, useLayoutEffect, useState, useCallback } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
-import triangleIndicator from "./triangleIndicator.png";
+import { HandDrawnProgressProps } from "../../types/Diary";
 import redTriangle from "./redTriangle.png";
+import triangleIndicator from "./triangleIndicator.png";
 
-interface HandDrawnProgressProps {
-  percentage: number;
-  height?: number;
-  strokeColor?: string;
-  fillColor?: string;
-}
-
-const HandDrawnProgress: React.FC<HandDrawnProgressProps> = ({
+const HandDrawnProgress = ({
   percentage,
   height = 30,
   strokeColor = "green",
   fillColor = "lightgreen",
-}) => {
+}: HandDrawnProgressProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [canvasWidth, setCanvasWidth] = useState<number>(0);
@@ -95,7 +89,6 @@ const HandDrawnProgress: React.FC<HandDrawnProgressProps> = ({
 
     handleResize();
     window.addEventListener("resize", handleResize);
-    console.log("現在寬度", canvasWidth);
     return () => window.removeEventListener("resize", handleResize);
   }, [canvasWidth, updateCanvas]);
 

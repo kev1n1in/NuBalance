@@ -1,28 +1,7 @@
 import styled from "styled-components";
+import { DiaryCardProps } from "../../types/Diary";
 import Loader from "../Loader";
 import trashImg from "./trash.png";
-
-interface DiaryCardProps {
-  title: string;
-  entries: DiaryEntry[] | [];
-  isLoading: boolean;
-  handleEdit: (id: string) => void;
-  handleDeleteClick: (id: string, foodName: string) => void;
-}
-
-interface DiaryEntry {
-  id: string;
-  food?: string;
-  meal?: string;
-  bmi?: string;
-  bodyFat?: string;
-  nutrition?: {
-    calories?: string;
-    carbohydrates?: string;
-    protein?: string;
-    fat?: string;
-  };
-}
 
 const DiaryCard = ({
   title,

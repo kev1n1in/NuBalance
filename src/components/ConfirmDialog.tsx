@@ -1,24 +1,14 @@
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
 } from "@mui/material";
+import { ConfirmDialogProps } from "../types/GlobalComponents";
 
-interface ConfirmDialogProps {
-  open: boolean;
-  onClose: (reason: "backdropClick" | "escapeKeyDown") => void;
-  onConfirm: () => void;
-  title: string;
-  contentText: React.ReactNode;
-  confirmButtonText: string;
-  cancelButtonText: string;
-  confirmButtonColor: string;
-  cancelButtonColor?: string;
-}
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+const ConfirmDialog = ({
   open,
   onClose,
   onConfirm,
@@ -28,13 +18,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelButtonText = "取消",
   confirmButtonColor = "#6db96d",
   cancelButtonColor = "gray",
-}) => {
-  const handleDialogClose = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onClose("escapeKeyDown");
-  };
-
+}: ConfirmDialogProps) => {
   return (
-    <Dialog open={open} onClose={(event, reason) => onClose(reason)}>
+    <Dialog open={open} onClose={(_event, reason) => onClose(reason)}>
       <DialogTitle sx={{ fontFamily: "KG Second Chances" }}>
         {title}
       </DialogTitle>
@@ -46,7 +32,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <DialogActions>
         <Button
           sx={{ fontFamily: "KG Second Chances", color: cancelButtonColor }}
-          onClick={handleDialogClose}
+          onClick={() => onClose("escapeKeyDown")}
         >
           {cancelButtonText}
         </Button>
