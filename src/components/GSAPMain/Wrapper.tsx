@@ -1,6 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import carb from "./carb.png";
 import fat from "./fat.png";
@@ -12,6 +12,9 @@ const GSAPMain: React.FC = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const windowWidth = window.innerWidth;
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollX, setScrollX] = useState(0);
 
   useEffect(() => {
     const wrapper = document.querySelector("#wrapper");
@@ -36,6 +39,54 @@ const GSAPMain: React.FC = () => {
     }
   }, [windowWidth]);
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX - scrollX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const moveX = e.clientX - startX;
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${moveX}px)`;
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setScrollX(
+      parseInt(
+        containerRef.current?.style.transform
+          .replace("translateX(", "")
+          .replace("px)", "") || "0"
+      )
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX - scrollX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const moveX = e.touches[0].clientX - startX;
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${moveX}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setScrollX(
+      parseInt(
+        containerRef.current?.style.transform
+          .replace("translateX(", "")
+          .replace("px)", "") || "0"
+      )
+    );
+  };
+
   const Back: React.FC<{ title: string; content: string }> = ({
     title,
     content,
@@ -48,7 +99,15 @@ const GSAPMain: React.FC = () => {
 
   return (
     <Wrapper id="wrapper">
-      <CardsContainer ref={containerRef}>
+      <CardsContainer
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {[
           {
             title: "Carbohydrates",

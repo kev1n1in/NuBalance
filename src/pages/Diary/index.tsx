@@ -1,4 +1,3 @@
-import debounce from "lodash.debounce";
 import { useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation } from "react-query";
@@ -16,6 +15,7 @@ import lovingImg from "../../asset/moodsImg/loving.png";
 import Button from "../../components/Button";
 import DatePicker from "../../components/DatePicker";
 import NutrientSelector from "../../components/FoodSelector/FoodSelector";
+import Loader from "../../components/Loader";
 import MealSelector from "../../components/MealSelector";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
@@ -94,6 +94,7 @@ const Diary = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const foodSelectorRef = useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { addAlert, AlertMessage } = useAlert();
   const { state } = useLocation();
@@ -176,7 +177,6 @@ const Diary = () => {
     },
     {
       onSuccess: () => {
-        addAlert("Created successfully");
         setTimeout(() => {
           setSelectedMeal(null);
           setSelectedFood(null);
@@ -199,8 +199,11 @@ const Diary = () => {
   );
 
   const handleSubmit = async () => {
+    addAlert("Created successfully");
+    setIsLoading(true);
     if (!selectedMeal || !selectedFood || !selectedTime) {
       addAlert("請填寫所有必填欄位");
+      setIsLoading(false);
       return;
     }
 
@@ -230,14 +233,16 @@ const Diary = () => {
     };
 
     mutation.mutate(newDiaryEntry);
+
+    setIsLoading(false);
   };
-  const debouncedSubmit = debounce(handleSubmit, 1000);
   const handleMenuToggle = () => {
     setToggleMenu((prev) => !prev);
   };
   return (
     <Wrapper>
       <AlertMessage />
+      <Loader isLoading={isLoading} />
       {toggleMenu && <Overlay onClick={handleMenuToggle} />}
       <HamburgerIcon onClick={handleMenuToggle} />
       <Sidebar toggleMenu={toggleMenu} />
@@ -328,7 +333,7 @@ const Diary = () => {
           </NoteContainer>
         </NoteAndMoodContainer>
         <ButtonContainer>
-          <Button strokeColor="gray" label="Save" onClick={debouncedSubmit} />
+          <Button strokeColor="gray" label="Save" onClick={handleSubmit} />
         </ButtonContainer>
         {isModalOpen && (
           <Modal title={"What did you eat?"} onClose={closeModal}>
