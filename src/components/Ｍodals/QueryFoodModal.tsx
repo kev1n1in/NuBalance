@@ -74,7 +74,6 @@ const QueryFoodModal = ({ onAddFood }: QueryFoodModalProps) => {
           onKeyDown={handleKeyDown}
           placeholder="Please Enter Food Keyword"
         />
-        <SearchImg />
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </InputContainer>
 
@@ -162,8 +161,6 @@ const ErrorMessage = styled.p`
   color: red;
   font-size: 14px;
 `;
-
-const SearchImg = styled.img``;
 
 const FoodDataContainer = styled.div`
   margin: 24px 0;

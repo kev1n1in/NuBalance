@@ -86,6 +86,7 @@ const DiaryFoodModal = ({
   const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
   const moodRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [moodAnnotations, setMoodAnnotations] = useState<Array<any>>([]);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const annotationRef = useRef<any>(null);
   const queryClient = useQueryClient();
@@ -217,6 +218,7 @@ const DiaryFoodModal = ({
       console.error("請先登入");
       return;
     }
+    setIsButtonDisabled(true);
     const finalImage = isImageUploaded ? imagePreview : imageUrl;
     const updatedData = {
       food: currentFood?.food_name || "",
@@ -238,10 +240,12 @@ const DiaryFoodModal = ({
       queryClient.invalidateQueries(["diaryEntries", selectedDate]);
       queryClient.invalidateQueries(["diaryEntries"]);
       setTimeout(() => {
+        setIsButtonDisabled(false);
         onClose();
       }, 1000);
     } catch (error) {
       console.error("更新日記條目失敗:", error);
+      setIsButtonDisabled(false);
     }
   };
 
@@ -358,7 +362,12 @@ const DiaryFoodModal = ({
         )}
 
         <ButtonContainer>
-          <Button strokeColor="gray" label="Save" onClick={handleSave} />
+          <Button
+            strokeColor="gray"
+            label="Save"
+            onClick={handleSave}
+            disabled={isButtonDisabled}
+          />
         </ButtonContainer>
       </Container>
     </Wrapper>
