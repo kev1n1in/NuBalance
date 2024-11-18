@@ -122,7 +122,7 @@ const Food = () => {
                   </ButtonWrapper>
                 </ResultItemContainer>
               ))
-            : triggerSearch && <NoItemsMessage>查無結果</NoItemsMessage>}
+            : triggerSearch && <NoItemsMessage>Searching...</NoItemsMessage>}
 
           <CreateLinkContainer>
             Can't find it? Try
