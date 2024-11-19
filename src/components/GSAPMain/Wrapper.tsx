@@ -15,8 +15,10 @@ const GSAPMain: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollX, setScrollX] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
     const wrapper = document.querySelector("#wrapper");
 
     if (containerRef.current && cardRefs.current) {
@@ -129,9 +131,13 @@ const GSAPMain: React.FC = () => {
           },
         ].map((item, index) => (
           <CardContainer>
-            <Card ref={(el) => (cardRefs.current[index] = el)} key={index}>
+            <Card
+              ref={(el) => (cardRefs.current[index] = el)}
+              key={index}
+              isMobile={isMobile}
+            >
               <Back title={item.title} content={item.content} />
-              <Front>
+              <Front isMobile={isMobile}>
                 <img src={item.image} alt={item.title} />
                 <FrontTitle>{item.title}</FrontTitle>
               </Front>
@@ -189,7 +195,7 @@ const SubTitle = styled.div`
   margin-right: 24px;
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ isMobile: boolean }>`
   width: 300px;
   height: 400px;
   background-color: #f0f0f0;
@@ -199,7 +205,7 @@ const Card = styled.div`
   transform-style: preserve-3d;
   transition: transform 0.8s ease;
   z-index: 20;
-  transform: rotateY(180deg);
+  transform: ${(props) => (props.isMobile ? "none" : "rotateY(180deg)")};
 `;
 const CardContainer = styled.div`
   cursor: pointer;
@@ -240,7 +246,7 @@ const BackContent = styled.p`
   text-align: left;
 `;
 
-const Front = styled.div`
+const Front = styled.div<{ isMobile: boolean }>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -256,7 +262,7 @@ const Front = styled.div`
   border-radius: 8px;
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
 
-  transform: rotateY(180deg);
+  transform: ${(props) => (props.isMobile ? "rotateY(180deg)" : "none")};
   padding-top: 20px;
 
   img {
