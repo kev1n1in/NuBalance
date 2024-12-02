@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import GSAPHEAD from "../../components/GSAPHead/Wrapper";
-import GSAPMAIN from "../../components/GSAPMain/Wrapper";
 import HamburgerIcon from "../../components/MenuButton";
 import Overlay from "../../components/Overlay";
 import Sidebar from "../../components/Sidebar";
@@ -96,7 +95,7 @@ const LandingPage = () => {
         </Title>
       </HeaderWrapper>
       <GSAPHEAD />
-      <GSAPMAIN />
+      {/* <GSAPMAIN /> */}
     </div>
   );
 };

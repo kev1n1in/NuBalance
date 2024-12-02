@@ -57,7 +57,6 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
           .then((downloadURL) => {
             setImageUrl(downloadURL);
             setPreviewImage(URL.createObjectURL(file));
-            setIsUploading(false);
             resolve(downloadURL);
           })
           .catch((error) => {
@@ -144,10 +143,11 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       addAlert("提交中，請稍等...");
-      setIsUploading(true);
+
       setTimeout(() => {
         mutation.mutate(data);
       }, 1000);
+      setIsUploading(true);
     } catch (error) {
       console.error("數據提交失敗:", error);
       addAlert("數據提交失敗，請稍後重試");
