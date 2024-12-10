@@ -143,10 +143,10 @@ const Login = () => {
                   <EmailLoginContainer>
                     <Title>{isSignUp ? "SignUp" : "LogIn"}</Title>
                     <UsernameContainer isVisible={isSignUp}>
-                      <InputTitle>
+                      <div>
                         UserName
                         <RequiredMark />
-                      </InputTitle>
+                      </div>
                       <InputContainer>
                         <InputIcon src={userIcon}></InputIcon>
                         <Input
@@ -157,10 +157,10 @@ const Login = () => {
                         />
                       </InputContainer>
                     </UsernameContainer>
-                    <InputTitle>
+                    <div>
                       Email
                       <RequiredMark />
-                    </InputTitle>
+                    </div>
                     <InputContainer>
                       <InputIcon src={emailIcon}></InputIcon>
                       <Input
@@ -170,10 +170,10 @@ const Login = () => {
                         placeholder="admin@example.com"
                       />
                     </InputContainer>
-                    <InputTitle>
+                    <div>
                       Password
                       <RequiredMark />
-                    </InputTitle>
+                    </div>
                     <InputContainer>
                       <InputIcon src={passwordIcon}></InputIcon>
                       <InputIcon></InputIcon>
@@ -290,7 +290,6 @@ const Input = styled.input`
     outline: gray;
   }
 `;
-const InputTitle = styled.div``;
 
 const InputContainer = styled.div`
   position: relative;

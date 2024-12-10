@@ -389,7 +389,7 @@ const GSAPHEAD: React.FC = () => {
 };
 
 const Wrapper = styled.div`
-  height: 100vh;
+  height: 11q0vh;
   width: 100%;
   position: relative;
   overflow: hidden;

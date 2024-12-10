@@ -23,4 +23,4 @@ declare module "roughjs/bin/rough" {
 }
 
 declare module "rough-viz";
-declare module "lodash.debounce";
+

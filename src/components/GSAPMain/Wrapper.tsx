@@ -1,6 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import carb from "./carb.png";
 import fat from "./fat.png";
@@ -12,8 +12,13 @@ const GSAPMain: React.FC = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const windowWidth = window.innerWidth;
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollX, setScrollX] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
     const wrapper = document.querySelector("#wrapper");
 
     if (containerRef.current && cardRefs.current) {
@@ -36,6 +41,54 @@ const GSAPMain: React.FC = () => {
     }
   }, [windowWidth]);
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX - scrollX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const moveX = e.clientX - startX;
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${moveX}px)`;
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setScrollX(
+      parseInt(
+        containerRef.current?.style.transform
+          .replace("translateX(", "")
+          .replace("px)", "") || "0"
+      )
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX - scrollX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const moveX = e.touches[0].clientX - startX;
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${moveX}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setScrollX(
+      parseInt(
+        containerRef.current?.style.transform
+          .replace("translateX(", "")
+          .replace("px)", "") || "0"
+      )
+    );
+  };
+
   const Back: React.FC<{ title: string; content: string }> = ({
     title,
     content,
@@ -48,7 +101,15 @@ const GSAPMain: React.FC = () => {
 
   return (
     <Wrapper id="wrapper">
-      <CardsContainer ref={containerRef}>
+      <CardsContainer
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {[
           {
             title: "Carbohydrates",
@@ -70,9 +131,13 @@ const GSAPMain: React.FC = () => {
           },
         ].map((item, index) => (
           <CardContainer>
-            <Card ref={(el) => (cardRefs.current[index] = el)} key={index}>
+            <Card
+              ref={(el) => (cardRefs.current[index] = el)}
+              key={index}
+              isMobile={isMobile}
+            >
               <Back title={item.title} content={item.content} />
-              <Front>
+              <Front isMobile={isMobile}>
                 <img src={item.image} alt={item.title} />
                 <FrontTitle>{item.title}</FrontTitle>
               </Front>
@@ -130,7 +195,7 @@ const SubTitle = styled.div`
   margin-right: 24px;
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ isMobile: boolean }>`
   width: 300px;
   height: 400px;
   background-color: #f0f0f0;
@@ -140,7 +205,7 @@ const Card = styled.div`
   transform-style: preserve-3d;
   transition: transform 0.8s ease;
   z-index: 20;
-  transform: rotateY(180deg);
+  transform: ${(props) => (props.isMobile ? "none" : "rotateY(180deg)")};
 `;
 const CardContainer = styled.div`
   cursor: pointer;
@@ -181,7 +246,7 @@ const BackContent = styled.p`
   text-align: left;
 `;
 
-const Front = styled.div`
+const Front = styled.div<{ isMobile: boolean }>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -197,7 +262,7 @@ const Front = styled.div`
   border-radius: 8px;
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
 
-  transform: rotateY(180deg);
+  transform: ${(props) => (props.isMobile ? "rotateY(180deg)" : "none")};
   padding-top: 20px;
 
   img {

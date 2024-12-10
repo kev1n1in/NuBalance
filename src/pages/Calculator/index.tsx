@@ -37,6 +37,7 @@ const Calculator = () => {
   const location = useLocation();
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const { addAlert, AlertMessage } = useAlert();
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const activityLevels = [
     "Sedentary",
@@ -168,6 +169,7 @@ const Calculator = () => {
   );
 
   const handleSave = () => {
+    setIsButtonDisabled(true);
     mutation.mutate();
   };
 
@@ -298,6 +300,7 @@ const Calculator = () => {
                 strokeColor="black"
                 label="Save"
                 onClick={handleSave}
+                disabled={isButtonDisabled}
               ></Button>
             </ButtonContainer>
           </CaloriesContainer>

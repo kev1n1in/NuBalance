@@ -57,7 +57,6 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
           .then((downloadURL) => {
             setImageUrl(downloadURL);
             setPreviewImage(URL.createObjectURL(file));
-            setIsUploading(false);
             resolve(downloadURL);
           })
           .catch((error) => {
@@ -144,9 +143,11 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       addAlert("提交中，請稍等...");
+
       setTimeout(() => {
         mutation.mutate(data);
       }, 1000);
+      setIsUploading(true);
     } catch (error) {
       console.error("數據提交失敗:", error);
       addAlert("數據提交失敗，請稍後重試");
@@ -171,7 +172,7 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
         )}
 
         <NutrientsContainer>
-          <InputContainer>
+          <div>
             <InputTitle>
               Calories
               <RequiredMark />
@@ -191,8 +192,8 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
             {errors.calories && (
               <ErrorMessage>{errors.calories.message}</ErrorMessage>
             )}
-          </InputContainer>
-          <InputContainer>
+          </div>
+          <div>
             <InputTitle>
               Carbohydrates
               <RequiredMark />
@@ -212,8 +213,8 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
             {errors.carbohydrates && (
               <ErrorMessage>{errors.carbohydrates.message}</ErrorMessage>
             )}
-          </InputContainer>
-          <InputContainer>
+          </div>
+          <div>
             <InputTitle>
               Protein
               <RequiredMark />
@@ -233,8 +234,8 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
             {errors.protein && (
               <ErrorMessage>{errors.protein.message}</ErrorMessage>
             )}
-          </InputContainer>
-          <InputContainer>
+          </div>
+          <div>
             <InputTitle>
               Fat
               <RequiredMark />
@@ -252,7 +253,7 @@ const CreateFoodModal = ({ onClose, onFoodCreated }: CreateFoodModalProps) => {
               })}
             />
             {errors.fat && <ErrorMessage>{errors.fat.message}</ErrorMessage>}
-          </InputContainer>
+          </div>
         </NutrientsContainer>
 
         <Split />
@@ -301,7 +302,7 @@ const InputTitle = styled.div`
   margin: 6px 0;
   font-weight: 700;
 `;
-const InputContainer = styled.div``;
+
 const Input = styled.input`
   font-family: "KG Second Chances", sans-serif;
   margin: 6px 0;
